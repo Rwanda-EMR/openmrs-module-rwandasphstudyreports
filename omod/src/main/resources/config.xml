@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<module configVersion="1.2">
+
+	<!-- Module Properties -->
+	<id>${project.parent.artifactId}</id>
+	<name>${project.parent.name}</name>
+	<version>${project.parent.version}</version>
+	<package>${project.parent.groupId}.${project.parent.artifactId}</package>
+	<author>k-joseph</author>
+	<description>
+		${project.parent.description}
+	</description>
+	<updateURL>https://modules.openmrs.org/modules/download/${project.parent.artifactId}/update.rdf</updateURL>
+	<require_version>${openMRSVersion}</require_version>
+	<!-- / Module Properties -->
+
+	
+	<!-- Required Modules -->
+	<require_modules>
+																											
+		<require_module version="0.9.7">
+			org.openmrs.module.reporting
+		</require_module>
+			
+	</require_modules>
+	<!-- / Required Modules -->
+	
+	<!-- Module Activator -->
+	<activator>${project.parent.groupId}.${project.parent.artifactId}.RwandaReportsForCDCActivator</activator>
+	
+	
+	<!-- Adds link to admin page -->
+	<extension>
+		<point>org.openmrs.admin.list</point>
+		<class>${project.parent.groupId}.${project.parent.artifactId}.extension.html.AdminList</class>
+	</extension>
+	
+	<!-- Maps hibernate file's, if present -->
+	<mappingFiles>
+				
+		CDCReports.hbm.xml
+				
+	</mappingFiles>
+	
+	<globalProperty>
+		<property>reports.adulthivprogramname</property>
+		<defaultValue>HIV PROGRAM</defaultValue>
+		<description>Name for Adult HIV program</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.hivonartstate</property>
+		<defaultValue>ON ANTIRETROVIRALS</defaultValue>
+		<description>
+			The current state that signifies a patient is on ART's
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>ClinicalencounterTypeIds.labTestIncl</property>
+		<defaultValue>1,2,3,4,9</defaultValue>
+		<description>
+			Clinical Encounter Type to find patients who have have
+			had a clinical encounter (lab test included)		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>ClinicalencounterTypeIds.labTestExcl</property>
+		<defaultValue>1,2,3,4</defaultValue>
+		<description>
+			Clinical Encounter Type to find patients who have have
+			not had a clinical encounter (lab test excluded)		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.hivpreartstate</property>
+		<defaultValue>FOLLOWING</defaultValue>
+		<description>
+			The current state that signifies a patient is pre ART's
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.hivworkflowstatus</property>
+		<defaultValue>TREATMENT STATUS</defaultValue>
+		<description>
+			The workflow status that is used to determine if patients
+			are on ART
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.adulthivprogramname</property>
+		<defaultValue>HIV PROGRAM</defaultValue>
+		<description>Name for Adult HIV program</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.cd4Concept</property>
+		<defaultValue>5497</defaultValue>
+		<description>
+			The concept id of the cd4 count concept
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.hivtreatmentstatus</property>
+		<defaultValue>TREATMENT GROUP</defaultValue>
+		<description>
+			The workflow status that is used to determine the group
+			of the HIV patients
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.weightConcept</property>
+		<defaultValue>5089</defaultValue>
+		<description>
+			The concept id of the weight concept
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.heightConcept</property>
+		<defaultValue>5090</defaultValue>
+		<description>
+			The concept id of the height concept
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.viralLoadConcept</property>
+		<defaultValue>856</defaultValue>
+		<description>
+			The Viral Load Concept Id
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.labEncounterType</property>
+		<defaultValue>9</defaultValue>
+		<description>The id for the lab encounter type</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.accompagnatuerRelationship</property>
+		<defaultValue>1</defaultValue>
+		<description>The id of the Relationship that represents the
+			accompagnatuer</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.adultflowsheetencounter</property>
+		<defaultValue>24</defaultValue>
+		<description>
+			The Adult HIV Flowsheet encounter id that is used to
+			return the io and side effects for a patient
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>ClinicalencounterTypeIds.labTestIncl</property>
+		<defaultValue>1,2,3,4,9</defaultValue>
+		<description>
+			Clinical Encounter Type to find patients who have have
+			had a clinical encounter (lab test included)</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.pmtctprogramname</property>
+		<defaultValue>PMTCT PROGRAM</defaultValue>
+		<description>
+			The program name for the pmtct program
+		</description>
+	</globalProperty>
+
+	<!-- Internationalization -->
+	<!-- All message codes should start with ${project.parent.artifactId}. -->
+	<messages>
+		<lang>en</lang>
+		<file>messages.properties</file>
+	</messages>
+	<messages>
+		<lang>fr</lang>
+		<file>messages_fr.properties</file>
+	</messages>
+	<messages>
+		<lang>es</lang>
+		<file>messages_es.properties</file>
+	</messages>
+	<!-- /Internationalization -->
+
+</module>
+
