@@ -45,7 +45,7 @@
 	
 	<globalProperty>
 		<property>reports.adulthivprogramname</property>
-		<defaultValue>HIV PROGRAM</defaultValue>
+		<defaultValue>Adult HIV PROGRAM</defaultValue>
 		<description>Name for Adult HIV program</description>
 	</globalProperty>
 	<globalProperty>
@@ -158,6 +158,69 @@
 			The program name for the pmtct program
 		</description>
 	</globalProperty>
+	<globalProperty>
+		<property>reports.pediFlowsheetEncounter</property>
+		<defaultValue>26</defaultValue>
+		<description>
+			The id for the Pediatric Initial Encounter Type
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.adultflowsheetencounter</property>
+		<defaultValue>26</defaultValue>
+		<description>
+			The Adult HIV Flowsheet encounter id that is used to
+			return the io and side effects for a patient
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>report.exposed_infantencounter</property>
+		<defaultValue>26</defaultValue>
+		<description>Exposed Infant Encounter</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.ctxTreatmentConcept</property>
+		<defaultValue>916</defaultValue>
+		<description>
+			The concept id of the CTX Treatment drug concept
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>report.nevirapine</property>
+		<defaultValue>631</defaultValue>
+		<description>nevirapine drug concept</description>
+	</globalProperty>
+	<globalProperty>
+		<property>report.fplaning</property>
+		<defaultValue>374</defaultValue>
+		<description>family planning concept id. </description>
+	</globalProperty>
+	<globalProperty>
+		<property>report.usingCondom</property>
+		<defaultValue>190</defaultValue>
+		<description>using condoms concept id. </description>
+	</globalProperty>
+	<globalProperty>
+		<property>report.naturalfamilyplanning</property>
+		<defaultValue>5277</defaultValue>
+		<description>Natural Family Planning concept id. </description>
+	</globalProperty>
+	<globalProperty>
+		<property>report.injectable</property>
+		<defaultValue>5279</defaultValue>
+		<description>using injectables concept id. </description>
+	</globalProperty>
+	<globalProperty>
+		<property>report.orals</property>
+		<defaultValue>780</defaultValue>
+		<description>orals concept id. </description>
+	</globalProperty>
+	<globalProperty>
+		<property>report.referedforfp</property>
+		<defaultValue>6734</defaultValue>
+		<description>rerefer for fp concept id. </description>
+	</globalProperty>
+	
 
 	<!-- Internationalization -->
 	<!-- All message codes should start with ${project.parent.artifactId}. -->
@@ -174,6 +237,14 @@
 		<file>messages_es.properties</file>
 	</messages>
 	<!-- /Internationalization -->
+	<globalProperty>
+		<property>reports.allArtDrugsConceptSet</property>
+		<defaultValue>1085</defaultValue>
+		<description>
+			The concept id of the concept set that contains all ART
+			drugs
+		</description>
+	</globalProperty>
 
 </module>
 

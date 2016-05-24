@@ -14,11 +14,14 @@
 package org.openmrs.module.rwandareportsforcdc.web.controller;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.rwandareportsforcdc.SetupAdultHIVConsultationSheet;
 import org.openmrs.module.rwandareportsforcdc.SetupAdultLateVisitAndCD4Report;
+import org.openmrs.module.rwandareportsforcdc.SetupIDProgramQuarterlyIndicatorReport;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,9 +43,15 @@ public class RwandaReportsForCDCManageController {
 	@RequestMapping(value = "/module/rwandareportsforcdc/executeReports", method = RequestMethod.GET)
 	public void executeReports(ModelMap model) throws Exception {
 	}
-
-	@RequestMapping(value = "/module/rwandareportsforcdc/register_adultLatevisitAndCD4", method = RequestMethod.GET)
-	public void registerAdultLatevisitAndCD4(ModelMap model, HttpServletRequest request) throws Exception {
-		new SetupAdultLateVisitAndCD4Report().setup();
+	
+	@RequestMapping(value = "/module/rwandareportsforcdc/executeReports", method = RequestMethod.POST)
+	public void executeReports(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		if(request.getParameter("formAction").equals("aRTMonthly")) {
+			new SetupAdultLateVisitAndCD4Report().setup();
+		} else if(request.getParameter("formAction").equals("consultSheetSetup")) {
+			new SetupAdultHIVConsultationSheet().setup();
+		} else if(request.getParameter("formAction").equals("indicatorReport")) {
+			new SetupIDProgramQuarterlyIndicatorReport().setup();
+		}
 	}
 }

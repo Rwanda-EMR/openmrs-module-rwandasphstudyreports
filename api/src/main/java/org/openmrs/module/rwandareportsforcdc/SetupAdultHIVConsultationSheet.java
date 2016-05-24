@@ -20,7 +20,6 @@ import org.openmrs.module.rowperpatientreports.dataset.definition.RowPerPatientD
 import org.openmrs.module.rowperpatientreports.patientdata.definition.AllObservationValues;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.CustomCalculationBasedOnMultiplePatientDataDefinitions;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.MostRecentObservation;
-import org.openmrs.module.rowperpatientreports.patientdata.definition.ObservationInMostRecentEncounterOfType;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.RecentEncounterType;
 import org.openmrs.module.rwandareports.customcalculator.BMI;
 import org.openmrs.module.rwandareports.customcalculator.HIVAdultAlerts;
@@ -37,7 +36,7 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 	// properties retrieved from global variables
 	private Program hivProgram;
 
-	private EncounterType flowsheetAdult;
+	//private EncounterType flowsheetAdult;
 
 	private List<EncounterType> clinicalEnountersIncLab;
 
@@ -150,12 +149,12 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		AllObservationValues cd4Test = RowPerPatientColumns.getAllCD4Values("CD4Test", "ddMMMyy",
 				new LastThreeObsFilter(), new ObservationFilter());
 
-		ObservationInMostRecentEncounterOfType io = RowPerPatientColumns.getIOInMostRecentEncounterOfType("IO",
+		/*ObservationInMostRecentEncounterOfType io = RowPerPatientColumns.getIOInMostRecentEncounterOfType("IO",
 				flowsheetAdult);
 
 		ObservationInMostRecentEncounterOfType sideEffect = RowPerPatientColumns
 				.getSideEffectInMostRecentEncounterOfType("SideEffects", flowsheetAdult);
-
+*/
 		AllObservationValues viralLoadTest = RowPerPatientColumns.getAllViralLoadsValues("viralLoadTest", "ddMMMyy",
 				new LastThreeObsFilter(), new ObservationFilter());
 		RecentEncounterType lastEncInMonth = RowPerPatientColumns.getRecentEncounterType("lastEncInMonth",
@@ -166,8 +165,8 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		alert.addPatientDataToBeEvaluated(cd4Test, new HashMap<String, Object>());
 		alert.addPatientDataToBeEvaluated(weight, new HashMap<String, Object>());
 		alert.addPatientDataToBeEvaluated(mostRecentHeight, new HashMap<String, Object>());
-		alert.addPatientDataToBeEvaluated(io, new HashMap<String, Object>());
-		alert.addPatientDataToBeEvaluated(sideEffect, new HashMap<String, Object>());
+		//alert.addPatientDataToBeEvaluated(io, new HashMap<String, Object>());
+		//alert.addPatientDataToBeEvaluated(sideEffect, new HashMap<String, Object>());
 		alert.addPatientDataToBeEvaluated(viralLoadTest, new HashMap<String, Object>());
 		alert.addPatientDataToBeEvaluated(lastEncInMonth, new HashMap<String, Object>());
 		alert.setCalculator(new HIVAdultAlerts());
@@ -190,7 +189,7 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 	private void setupProperties() {
 		hivProgram = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 
-		flowsheetAdult = gp.getEncounterType(GlobalPropertiesManagement.ADULT_FLOWSHEET_ENCOUNTER);
+		//flowsheetAdult = gp.getEncounterType(GlobalPropertiesManagement.ADULT_FLOWSHEET_ENCOUNTER);
 
 		clinicalEnountersIncLab = gp.getEncounterTypeList(GlobalPropertiesManagement.CLINICAL_ENCOUNTER_TYPES);
 	}

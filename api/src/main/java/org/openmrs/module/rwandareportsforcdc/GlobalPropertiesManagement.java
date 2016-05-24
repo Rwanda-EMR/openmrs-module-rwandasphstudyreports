@@ -160,6 +160,8 @@ public class GlobalPropertiesManagement {
 	public final static String EPILEPSY_PROGRAM = "reports.epilepsyprogram";
 	
 	public final static String ONCOLOGY_PROGRAM = "reports.oncologyprogram";
+
+	public final static String FOLLOW_UP_DATE="reports.followup";
 	
 	public final static String EXTERNAL_HIV_PROGRAM = "reports.externalHivProgram";
 	
