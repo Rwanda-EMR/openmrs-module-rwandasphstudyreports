@@ -14,7 +14,7 @@
 package org.openmrs.module.rwandasphstudyreports;
 
 
-import org.apache.commons.logging.Log; 
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.ModuleActivator;
 
@@ -43,6 +43,12 @@ public class RwandaReportsForCDCActivator implements ModuleActivator {
 	 * @see ModuleActivator#willStart()
 	 */
 	public void willStart() {
+		try {
+			new SetupAdultHIVConsultationSheet().setup();
+			new SetupAdultLateVisitAndCD4Report().setup();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		log.info("Starting Rwanda Reports For CDC Module");
 	}
 	

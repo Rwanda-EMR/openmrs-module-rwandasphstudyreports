@@ -1,76 +1,23 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<%@ page import="org.openmrs.web.WebConstants"%>
-<%
-	pageContext.setAttribute("msg", session.getAttribute(WebConstants.OPENMRS_MSG_ATTR));
-	pageContext.setAttribute("msgArgs", session.getAttribute(WebConstants.OPENMRS_MSG_ARGS));
-	pageContext.setAttribute("err", session.getAttribute(WebConstants.OPENMRS_ERROR_ATTR));
-	pageContext.setAttribute("errArgs", session.getAttribute(WebConstants.OPENMRS_ERROR_ARGS));
-	session.removeAttribute(WebConstants.OPENMRS_MSG_ATTR);
-	session.removeAttribute(WebConstants.OPENMRS_MSG_ARGS);
-	session.removeAttribute(WebConstants.OPENMRS_ERROR_ATTR);
-	session.removeAttribute(WebConstants.OPENMRS_ERROR_ARGS);
-	pageContext.setAttribute("return_url", request.getParameter("return_url") != null ? request.getParameter("return_url") : "");
-%>
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<openmrs:htmlInclude file="/openmrs.css" />
-<openmrs:htmlInclude file="/style.css" />
 <openmrs:htmlInclude
 	file="/moduleResources/rwandasphstudyreports/patientsummary.css" />
-<openmrs:htmlInclude file="/openmrs.js" />
+
 
 <script type="text/javascript">
-			/* variable used in js to know the context path */
-			var openmrsContextPath = '${pageContext.request.contextPath}';
-			
-			function goBack() {
-				if ( '${return_url}' != '' ) {
-					location.href = '${return_url}';
-				} else {
-					if ( window.opener ) {
-						window.opener.focus();
-						window.close();
-					} else {
-						history.back();
-					}
-				}
-			}
-		</script>
+	function printContent(el){
+		var restorepage = document.body.innerHTML;
+		var printcontent = document.getElementById(el).innerHTML;
+		document.body.innerHTML = printcontent;
+		jQuery("#backAndPrintButtons").hide();
+		window.print();
+		document.body.innerHTML = restorepage;
+		jQuery("#backAndPrintButtons").show();
+	}
+</script>
 
-<!--  Page Title : '${pageTitle}' 
-			OpenMRS Title: <spring:message code="openmrs.title"/>
-		-->
-<c:choose>
-	<c:when test="${!empty pageTitle}">
-		<title>${pageTitle}</title>
-	</c:when>
-	<c:otherwise>
-		<title><spring:message code="openmrs.title" /></title>
-	</c:otherwise>
-</c:choose>
+<br />
 
-</head>
-
-<c:forEach items="${relationships}" var="r" varStatus="s">
-	<c:if
-		test="${r.relationshipType.relationshipTypeId == 1 && r.personA.personId != patient.patientId}">
-		<c:set var="accompFound" value="true" />
-	</c:if>
-</c:forEach>
-
-<body>
-<div id="pageBody">
-<div id="contentMinimal"><c:if test="${msg != null}">
-	<div id="openmrs_msg"><spring:message code="${msg}" text="${msg}"
-		arguments="${msgArgs}" /></div>
-</c:if> <c:if test="${err != null}">
-	<div id="openmrs_error"><spring:message code="${err}"
-		text="${err}" arguments="${errArgs}" /></div>
-</c:if>
 <div id="patientsummarymodule">
 <div class="header">
 <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -79,20 +26,15 @@
 			src="${pageContext.request.contextPath}/images/patient_${patient.gender}.gif"
 			width="110px" alt="${patient.personName}" /><br />
 		</td>
-		<td valign="top" colspan="2">
+		<td valign="top" colspan="2" id="backAndPrintButtons">
 		<table width="100%" cellpadding="0" cellspacing="0" border="0">
 			<tr>
-				<td class="nowrap">
-				<h1>${patient.personName} <span id="died"><c:if
-					test="${patient.dead == 'true'}">(Dead)</c:if></span></h1>
+				<td class="nowrap"><h3>${patient.personName}</h3> <span id="died"><c:if
+					test="${patient.dead == 'true'}">(Dead)</c:if></span>
 				</td>
-				<td class="noprint" align="right" valign="top"><input disabled
-					style="position: relative; top: -5px;" type="button"
-					value="<spring:message code="Back" />"
-					onclick="javascript:goBack();" /> <input
-					style="position: relative; top: -5px;" type="button"
-					value="<spring:message code="Print" />"
-					onclick="javascript:window.print();" /> <!-- <input style="position: relative; top: -5px;" type="button" value="<spring:message code="Mistakes?" />" onclick="javascript:window.print();" /> -->
+				<td class="noprint" align="right" valign="top">
+					<input disabled style="position: relative; top: -5px;" type="button" value="<spring:message code='general.back' />" onclick="" />
+					<input style="position: relative; top: -5px;" type="button" value="<spring:message code='rwandasphstudyreports.print' />" onclick="printContent('patientsummarymodule');" />
 				</td>
 			</tr>
 			<tr>
@@ -480,7 +422,7 @@
 				<openmrs:obsTable
 					observations="${labdata['all']}"
 					concepts="name:CD4 COUNT|name:WEIGHT (KG)|set:name:LABORATORY EXAMINATIONS CONSTRUCT"
-					conceptLink="../../admin/observations/personObs.form?personId=${patientId}&"
+					conceptLink="${pageContext.request.contextPath}/admin/observations/personObs.form?personId=${patient.patientId}&"
 					id="labTestTable"
 					showEmptyConcepts="false"
 					showConceptHeader="true"

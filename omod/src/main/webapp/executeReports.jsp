@@ -1,8 +1,8 @@
 <%@ include file="/WEB-INF/template/include.jsp" %>
-
 <%@ include file="/WEB-INF/template/header.jsp" %>
+<%@ include file="template/localHeader.jsp"%>
 
-<h2>Execute/Setup The Three CDC Study Reports</h2>
+<h4><spring:message code="rwandasphstudyreports.executeReports"/></h4>
 
 <form method="post">
 	<input id="form-action" name="formAction" type="hidden" value="">

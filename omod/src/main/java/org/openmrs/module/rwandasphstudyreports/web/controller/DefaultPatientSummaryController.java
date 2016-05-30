@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -45,10 +46,10 @@ public class DefaultPatientSummaryController {
     /** Logger for this class and subclasses */
     protected final Log log = LogFactory.getLog(getClass());
 
-	@RequestMapping(value = "/module/rwandasphstudyreports/defaultPatientSummary")
+	@RequestMapping(value = "/module/rwandasphstudyreports/portlets/defaultPatientSummary")
 	public void defaultSummary(ModelMap model, @RequestParam(required=true, value="patientId") Integer patientId) {
 
-		if (!Context.isAuthenticated()) {
+		if (!Context.isAuthenticated() || patientId == null) {
 			return;
 		}
 
@@ -166,8 +167,6 @@ public class DefaultPatientSummaryController {
         	Context.getProgramWorkflowService().getPatientPrograms(
         			p, null, null, null, null, null, false);
 
-        model.addAttribute("patientId", patientId);
-        
         model.addAttribute("programs", patientPrograms);
         
         model.addAttribute("notes", preparedNotes);
@@ -501,7 +500,7 @@ public class DefaultPatientSummaryController {
             List<Obs> graphobs = null;
 
             if (c.isNumeric()) {
-                cn = (ConceptNumeric) c;
+                cn = Context.getConceptService().getConceptNumericByUuid(c.getUuid());
                 graphobs = Context.getObsService()
                         .getObservationsByPersonAndConcept(p, c);
 
