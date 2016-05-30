@@ -3,12 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.openmrs.module</groupId>
-	<artifactId>rwandareportsforcdc</artifactId>
+	<artifactId>rwandasphstudyreports</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Rwanda Reports For CDC Module</name>
-	<description>Brings together three (Consult Sheet setup, ART Monthly, Indicator report) PIH Rwanda reports for the CDC Study</description>
-	<url>https://wiki.openmrs.org/display/docs/Rwanda+Reports+For+CDC+Module+Module</url>
+	<name>Rwanda SPH Study Reports Module</name>
+	<description>Brings together three (HIV Adult Consult Sheet, Lost to Follow-up, Patient Summary) PIH Rwanda reports for the Rwanda SPH Study</description>
 	
 	<developers>
 		<developer>
@@ -22,9 +21,9 @@
 	</organization>
 
 	<scm>
-		<connection>scm:svn:https://svn.openmrs.org/openmrs-modules/rwandareportsforcdc/trunk/</connection>
-		<developerConnection>scm:svn:https://svn.openmrs.org/openmrs-modules/rwandareportsforcdc/trunk/</developerConnection>
-		<url>https://svn.openmrs.org/openmrs-modules/rwandareportsforcdc/trunk/</url>
+		<connection>scm:svn:https://svn.openmrs.org/openmrs-modules/rwandasphstudyreports/trunk/</connection>
+		<developerConnection>scm:svn:https://svn.openmrs.org/openmrs-modules/rwandasphstudyreports/trunk/</developerConnection>
+		<url>https://svn.openmrs.org/openmrs-modules/rwandasphstudyreports/trunk/</url>
 	</scm>
 
 	<modules>
@@ -34,6 +33,7 @@
 	
 	<properties>
 		<openMRSVersion>1.11.5</openMRSVersion>
+		<mohOrderEntryBridgeVersion>1.0.1</mohOrderEntryBridgeVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 

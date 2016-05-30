@@ -17,12 +17,9 @@
 
 	
 	<!-- Required Modules -->
-	<require_modules>
-																											
-		<require_module version="0.9.7">
-			org.openmrs.module.reporting
-		</require_module>
-			
+	<require_modules>																					
+		<require_module version="0.9.7">org.openmrs.module.reporting</require_module>
+		<require_module version="1.0.1">org.openmrs.module.mohorderentrybridge</require_module>	
 	</require_modules>
 	<!-- / Required Modules -->
 	
@@ -221,6 +218,124 @@
 		<description>rerefer for fp concept id. </description>
 	</globalProperty>
 	
+	<globalProperty>
+		<property>patientsummary.maxChildAge</property>
+		<defaultValue>6</defaultValue>
+		<description>
+			Maximum age of a child (exclusive).
+			Default: 6
+		</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>patientsummary.adultconceptIdsToWatch</property>
+		<defaultValue>12,5497</defaultValue>
+		<description>
+			Comma delimited list of concept ids to trigger alerts for adults.
+			Alerts trigger when concepts are empty or have not been updated in six months.
+			Defaults: x-ray chest (12), cd4 (5497).
+		</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>patientsummary.adultconceptIdsToGraph</property>
+		<defaultValue>5090,5089,5497</defaultValue>
+		<description>
+			Ordered, comma separated list of adult concept ids to graph in patient summary.
+			Defaults: height (5090), weight (5089), cd4 (5497).
+		</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>patientsummary.childconceptIdsToWatch</property>
+		<defaultValue>12,730,5497,5089,5090</defaultValue>
+		<description>
+			Comma delimited list of concept ids to trigger alerts for children.
+			Alerts trigger when concepts are empty or have not been updated in one month.
+			Defaults: x-ray chest (12), cd4 (5497), cd4% (730), weight (5089), height (5090)
+		</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>patientsummary.childconceptIdsToGraph</property>
+		<defaultValue>5090,5089,5497</defaultValue>
+		<description>
+			Ordered, comma separated list of child concept ids to graph in patient summary.
+			Defaults: height (5090), weight (5089), cd4 (5497).
+		</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>patientsummary.vitalSigns</property>
+		<defaultValue>5089,5090</defaultValue>
+		<description>
+			Comma delimited list of concept ids for vital signs
+			Defaults: weight (5089), height (5090)
+		</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>patientsummary.adverseEffectConceptId</property>
+		<defaultValue>1297</defaultValue>
+		<description>
+			Adverse effect concept id.
+			Default: 1297.
+		</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>patientsummary.opportunisticInfectionConceptId</property>
+		<defaultValue>1607</defaultValue>
+		<description>
+			Presumed or confirmed opportunistic infections
+			Default: 1607.
+		</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>patientsummary.symptomPresentConceptId</property>
+		<defaultValue>1293</defaultValue>
+		<description>
+			Review of symptoms on presentation concept id.
+			Default: 1293.
+		</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>patientsummary.previousDiagnosisConceptId</property>
+		<defaultValue>992</defaultValue>
+		<description>
+			Problem list construct concept id.
+			Default: 992.
+		</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>patientsummary.labTestsConceptId</property>
+		<defaultValue>1337</defaultValue>
+		<description>
+			Laboratory examinations construct concept id.
+			Default: 1337.
+		</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>patientsummary.notesConceptIds</property>
+		<defaultValue>974,1336,1364</defaultValue>
+		<description>
+			Comma delimited list of concept ids for notes
+			Defaults: presenting history (974), physical examination (1336), clinical impression comments (1364)
+		</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>patientsummary.conceptsToIgnore</property>
+		<defaultValue>1107</defaultValue>
+		<description>
+			Comma delimited list of concepts to ignore.
+			Default: 1107.
+		</description>
+	</globalProperty>
 
 	<!-- Internationalization -->
 	<!-- All message codes should start with ${project.parent.artifactId}. -->

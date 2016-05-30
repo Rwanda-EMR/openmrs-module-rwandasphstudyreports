@@ -5,18 +5,18 @@
 				code="admin.title.short" /></a></li>
 
 	<li
-		<c:if test='<%= request.getRequestURI().contains("/manage") %>'>class="active"</c:if>>
+		<c:if test='<%= request.getRequestURI().contains("/defaultPatientSummary") %>'>class="active"</c:if>>
 		<a
-		href="${pageContext.request.contextPath}/module/rwandareportsforcdc/manage.form"><spring:message
-				code="rwandareportsforcdc.manage" /></a>
+		href="${pageContext.request.contextPath}/module/rwandasphstudyreports/defaultPatientSummary.form"><spring:message
+				code="rwandasphstudyreports.manage" /></a>
 	</li>
 	
 	<li
 		<c:if test='<%= request.getRequestURI().contains("/executeReports") %>'>class="active"</c:if>>
-		<a href="${pageContext.request.contextPath}/module/rwandareportsforcdc/executeReports.list">Execute Reports</a>
+		<a href="${pageContext.request.contextPath}/module/rwandasphstudyreports/executeReports.list">Execute Reports</a>
 	</li>
 	<!-- Add further links here -->
 </ul>
 <h2>
-	<spring:message code="rwandareportsforcdc.title" />
+	<spring:message code="rwandasphstudyreports.title" />
 </h2>

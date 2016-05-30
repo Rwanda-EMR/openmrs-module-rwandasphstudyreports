@@ -4,14 +4,14 @@
 
 	<parent>
 		<groupId>org.openmrs.module</groupId>
-		<artifactId>rwandareportsforcdc</artifactId>
+		<artifactId>rwandasphstudyreports</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>rwandareportsforcdc-api</artifactId>
+	<artifactId>rwandasphstudyreports-api</artifactId>
 	<packaging>jar</packaging>
-	<name>Rwanda Reports For CDC Module API</name>
-	<description>API project for RwandaReportsForCDC</description>
+	<name>Rwanda SPH Study Reports Module - API</name>
+	<description>API project for Rwanda SPH Study Reports Module</description>
 
 	<dependencies>
 

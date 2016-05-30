@@ -8,7 +8,7 @@
 	<input id="form-action" name="formAction" type="hidden" value="">
 	<input type="Submit" value="ART Monthly" onclick="jQuery('#form-action').val('aRTMonthly')">
 	<input type="Submit" value="Consult Sheet Setup" onclick="jQuery('#form-action').val('consultSheetSetup')">
-	<input type="Submit" value="Indicator Report" onclick="jQuery('#form-action').val('indicatorReport')">
+	<input disabled type="Submit" value="Indicator Report" onclick="jQuery('#form-action').val('indicatorReport')">
 </form>
 
 <%@ include file="/WEB-INF/template/footer.jsp" %>
