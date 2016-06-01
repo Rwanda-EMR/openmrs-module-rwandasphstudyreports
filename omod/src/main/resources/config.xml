@@ -24,7 +24,7 @@
 	<!-- / Required Modules -->
 	
 	<!-- Module Activator -->
-	<activator>${project.parent.groupId}.${project.parent.artifactId}.RwandaReportsForCDCActivator</activator>
+	<activator>${project.parent.groupId}.${project.parent.artifactId}.RwandaSPHStudyReportsActivator</activator>
 	
 	
 	<!-- Adds link to admin page -->

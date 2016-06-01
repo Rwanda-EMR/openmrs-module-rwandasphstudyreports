@@ -47,7 +47,7 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		ReportDefinition rd = createReportDefinition();
 
 		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "AdultHIVConsultationSheetV2.xls",
-				"AdultHIVConsultationSheet.xls_", null);
+				"AdultHIVConsultationSheet", null);
 
 		Properties props = new Properties();
 		props.put("repeatingSections", "sheet:1,row:6,dataset:dataSet");
@@ -60,7 +60,7 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 	public void delete() {
 		ReportService rs = Context.getService(ReportService.class);
 		for (ReportDesign rd : rs.getAllReportDesigns(false)) {
-			if ("AdultHIVConsultationSheet.xls_".equals(rd.getName())) {
+			if ("AdultHIVConsultationSheet".equals(rd.getName())) {
 				rs.purgeReportDesign(rd);
 			}
 		}
