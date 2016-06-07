@@ -2,11 +2,10 @@ package org.openmrs.module.rwandasphstudyreports;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.openmrs.EncounterType;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflowState;
@@ -20,14 +19,12 @@ import org.openmrs.module.rowperpatientreports.dataset.definition.RowPerPatientD
 import org.openmrs.module.rowperpatientreports.patientdata.definition.AllObservationValues;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.CustomCalculationBasedOnMultiplePatientDataDefinitions;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.MostRecentObservation;
-import org.openmrs.module.rowperpatientreports.patientdata.definition.RecentEncounterType;
 import org.openmrs.module.rwandareports.customcalculator.BMI;
 import org.openmrs.module.rwandareports.customcalculator.HIVAdultAlerts;
 import org.openmrs.module.rwandareports.filter.DrugNameFilter;
 import org.openmrs.module.rwandareports.filter.LastThreeObsFilter;
 import org.openmrs.module.rwandareports.filter.ObservationFilter;
 import org.openmrs.module.rwandareports.reporting.SetupReport;
-import org.openmrs.module.rwandareports.util.Cohorts;
 
 public class SetupAdultHIVConsultationSheet implements SetupReport {
 
@@ -38,7 +35,7 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 
 	//private EncounterType flowsheetAdult;
 
-	private List<EncounterType> clinicalEnountersIncLab;
+	//private List<EncounterType> clinicalEnountersIncLab;
 
 	public void setup() throws Exception {
 
@@ -157,9 +154,9 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 */
 		AllObservationValues viralLoadTest = RowPerPatientColumns.getAllViralLoadsValues("viralLoadTest", "ddMMMyy",
 				new LastThreeObsFilter(), new ObservationFilter());
-		RecentEncounterType lastEncInMonth = RowPerPatientColumns.getRecentEncounterType("lastEncInMonth",
+		/*RecentEncounterType lastEncInMonth = RowPerPatientColumns.getRecentEncounterType("lastEncInMonth",
 				clinicalEnountersIncLab, null, null);
-
+*/
 		CustomCalculationBasedOnMultiplePatientDataDefinitions alert = new CustomCalculationBasedOnMultiplePatientDataDefinitions();
 		alert.setName("alert");
 		alert.addPatientDataToBeEvaluated(cd4Test, new HashMap<String, Object>());
@@ -168,7 +165,7 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		//alert.addPatientDataToBeEvaluated(io, new HashMap<String, Object>());
 		//alert.addPatientDataToBeEvaluated(sideEffect, new HashMap<String, Object>());
 		alert.addPatientDataToBeEvaluated(viralLoadTest, new HashMap<String, Object>());
-		alert.addPatientDataToBeEvaluated(lastEncInMonth, new HashMap<String, Object>());
+		//alert.addPatientDataToBeEvaluated(lastEncInMonth, new HashMap<String, Object>());
 		alert.setCalculator(new HIVAdultAlerts());
 		alert.addParameter(new Parameter("state", "State", Date.class));
 		dataSetDefinition.addColumn(alert, ParameterizableUtil.createParameterMappings("state=${state}"));
@@ -183,6 +180,9 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		Map<String, Object> mappings = new HashMap<String, Object>();
 		mappings.put("state", "${state}");
 
+		System.out.println("\nDATASETDEFINITION:\n" + ReflectionToStringBuilder.toString(dataSetDefinition) + "\n\n");
+		System.out.println("\nMAPPINGS:\n" + ReflectionToStringBuilder.toString(mappings) + "\n\n");
+		
 		reportDefinition.addDataSetDefinition("dataSet", dataSetDefinition, mappings);
 	}
 
@@ -191,6 +191,6 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 
 		//flowsheetAdult = gp.getEncounterType(GlobalPropertiesManagement.ADULT_FLOWSHEET_ENCOUNTER);
 
-		clinicalEnountersIncLab = gp.getEncounterTypeList(GlobalPropertiesManagement.CLINICAL_ENCOUNTER_TYPES);
+		//clinicalEnountersIncLab = gp.getEncounterTypeList(GlobalPropertiesManagement.CLINICAL_ENCOUNTER_TYPES);
 	}
 }

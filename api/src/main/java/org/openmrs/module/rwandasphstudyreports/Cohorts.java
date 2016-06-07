@@ -77,22 +77,21 @@ public class Cohorts {
 	public static SqlCohortDefinition createPatientsWithDeclineFromBaseline(String name, Concept concept,
 	                                                                        ProgramWorkflowState state) {
 		SqlCohortDefinition patientsWithBaseLineObservation = new SqlCohortDefinition(
-		        "select p.patient_id from patient p, person_attribute pa, person_attribute_type pat, obs o1, obs o2, patient_program pp, patient_state ps where p.voided = 0 and "
+		        "select p.patient_id from patient p, person_attribute pa, person_attribute_type pat, obs o1, obs o2, patient_program pp where p.voided = 0 and "
 		                + "p.patient_id = pa.person_id and pat.name = 'Health Center' and pat.person_attribute_type_id = pa.person_attribute_type_id and pa.voided = 0 and pa.value = :location and "
-		                + "pp.voided = 0 and ps.voided = 0 and ps.patient_program_id = pp.patient_program_id and pp.patient_id =  "
-		                + "p.patient_id and ps.state = "
-		                + state.getId()
+		                + "pp.voided = 0 and pp.patient_id =  "
+		                + "p.patient_id"
 		                + " and o1.concept_id = "
 		                + concept.getId()
 		                + " and o1.obs_id = (select obs_id from obs where "
 		                + "voided = 0 and p.patient_id = person_id and concept_id = "
 		                + concept.getId()
-		                + " and value_numeric is not null and obs_datetime "
-		                + ">= ps.start_date order by value_numeric desc LIMIT 1) and o2.obs_id = (select obs_id from obs where voided = "
+		                + " and value_numeric is not null "
+		                + "order by value_numeric desc LIMIT 1) and o2.obs_id = (select obs_id from obs where voided = "
 		                + "0 and p.patient_id = person_id and concept_id = "
 		                + concept.getId()
-		                + " and value_numeric is not null and obs_datetime >= "
-		                + "ps.start_date and obs_datetime <= :beforeDate order by obs_datetime desc LIMIT 1) and ((o2.value_numeric/o1.value_numeric)*100) < 50");
+		                + " and value_numeric is not null and "
+		                + "obs_datetime <= :beforeDate order by obs_datetime desc LIMIT 1) and ((o2.value_numeric/o1.value_numeric)*100) < 50");
 		patientsWithBaseLineObservation.setName(name);
 		patientsWithBaseLineObservation.addParameter(new Parameter("beforeDate", "beforeDate", Date.class));
 		patientsWithBaseLineObservation.addParameter(new Parameter("location", "location", Location.class));
@@ -207,8 +206,8 @@ public class Cohorts {
 		                + "= p.patient_id and concept_id in (select concept_id from concept_set where concept_set = "
 		                + drugOrderSet.getConceptId() + ") order by start_date asc limit 1) and o.concept_id = "
 		                + concept.getConceptId()
-		                + " and o.value_numeric is not null and o.obs_datetime >= DATE_SUB(ord.start_date,INTERVAL "
-		                + daysBefore + " DAY) and o.obs_datetime <= DATE_ADD(ord.start_date,INTERVAL " + daysAfter + " DAY)");
+		                + " and o.value_numeric is not null and o.obs_datetime >= DATE_SUB(ord.date_activated,INTERVAL "
+		                + daysBefore + " DAY) and o.obs_datetime <= DATE_ADD(ord.date_activated,INTERVAL " + daysAfter + " DAY)");
 		return patientsWithBaseLineObservation;
 	}
 	
