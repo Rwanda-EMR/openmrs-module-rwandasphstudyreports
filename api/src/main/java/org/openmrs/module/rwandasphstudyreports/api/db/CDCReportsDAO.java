@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api.db;
 
+import org.openmrs.Cohort;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 
 /**
@@ -23,4 +24,6 @@ public interface CDCReportsDAO {
 	/*
 	 * Add DAO methods here
 	 */
+	
+	public Cohort getAllRwandaAdultsPatients();
 }

@@ -61,6 +61,16 @@ public class Cohorts {
 		return patientsNotVoided;
 	}
 	
+	/**
+	 * Looks like Rwanda Adults are 16 years and above
+	 * @return
+	 */
+	public static SqlCohortDefinition getAdultPatients() {
+		SqlCohortDefinition adultPatients = new SqlCohortDefinition(
+		        "select distinct p.patient_id from patient p inner join person pp on pp.person_id = p.patient_id where p.voided=0 and pp.voided=0 and (pp.birthdate is null or (select DATEDIFF(NOW(), pp.birthdate) / 365.25) >= 16)");
+		return adultPatients;
+	}
+	
 	public static SqlCohortDefinition createPatientsWithBaseLineObservation(Concept concept, ProgramWorkflowState state,
 	                                                                        Integer daysBefore, Integer daysAfter) {
 		SqlCohortDefinition patientsWithBaseLineObservation = new SqlCohortDefinition(

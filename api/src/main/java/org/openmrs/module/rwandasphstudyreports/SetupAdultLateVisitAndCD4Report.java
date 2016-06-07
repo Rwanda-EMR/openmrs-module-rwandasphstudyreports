@@ -93,7 +93,7 @@ public class SetupAdultLateVisitAndCD4Report {
 		createDataSetDefinition(rd, rdp);
 
 		Helper.saveReportDefinition(rd);
-		Helper.saveReportDefinition(rdp);
+		//Helper.saveReportDefinition(rdp);
 		// h.saveReportDefinition(artDecline);
 
 		Properties props = new Properties();
@@ -275,18 +275,18 @@ public class SetupAdultLateVisitAndCD4Report {
 		// Patients without Any clinical Encounter(Test lab excluded) in last
 		// three months.
 
-		CompositionCohortDefinition patientsWithoutClinicalEncounters = new CompositionCohortDefinition();
+		/*CompositionCohortDefinition patientsWithoutClinicalEncounters = new CompositionCohortDefinition();
 		patientsWithoutClinicalEncounters.setName("patientsWithoutClinicalEncounters");
 		patientsWithoutClinicalEncounters.addParameter(new Parameter("onOrAfter", "onOrAfter", Date.class));
-		/*patientsWithoutClinicalEncounters.getSearches().put("patientsWithClinicalEncountersWithoutLabTest",
+		patientsWithoutClinicalEncounters.getSearches().put("patientsWithClinicalEncountersWithoutLabTest",
 				new Mapped<CohortDefinition>(patientsWithClinicalEncountersWithoutLabTest,
-						ParameterizableUtil.createParameterMappings("onOrAfter=${onOrAfter}")));*/
+						ParameterizableUtil.createParameterMappings("onOrAfter=${onOrAfter}")));
 		patientsWithoutClinicalEncounters.setCompositionString("NOT patientsWithClinicalEncountersWithoutLabTest");
 
 		// before was in 3m, now is in 6m
 		adultARTLateVisit.addFilter(patientsWithoutClinicalEncounters,
 				ParameterizableUtil.createParameterMappings("onOrAfter=${endDate-6m}"));
-
+*/
 		// ==================================================================
 		// 2. Adult Pre-ART late visit
 		// ==================================================================
@@ -309,8 +309,8 @@ public class SetupAdultLateVisitAndCD4Report {
 
 		// Patients without Any clinical Encounter(Test lab excluded) in last
 		// six months.
-		adultPreARTLateVisit.addFilter(patientsWithoutClinicalEncounters,
-				ParameterizableUtil.createParameterMappings("onOrAfter=${endDate-6m}"));
+		//adultPreARTLateVisit.addFilter(patientsWithoutClinicalEncounters,
+		//	ParameterizableUtil.createParameterMappings("onOrAfter=${endDate-6m}"));
 
 		// ==================================================================
 		// 3. Adult HIV late CD4 count
@@ -678,17 +678,17 @@ public class SetupAdultLateVisitAndCD4Report {
 		mappings.put("location", "${location}");
 		mappings.put("endDate", "${endDate}");
 
-		art.addDataSetDefinition("AdultARTLateVisit", adultARTLateVisit, mappings);
-		art.addDataSetDefinition("AdultHIVLateCD4Count", adultHIVLateCD4Count, mappings);
-		art.addDataSetDefinition("HIVLostToFollowup", hIVLostToFollowup, mappings);
+		//art.addDataSetDefinition("AdultARTLateVisit", adultARTLateVisit, mappings);
+		//art.addDataSetDefinition("AdultHIVLateCD4Count", adultHIVLateCD4Count, mappings);
+		//art.addDataSetDefinition("HIVLostToFollowup", hIVLostToFollowup, mappings);
 		art.addDataSetDefinition("HIVLowBMI", hIVLowBMI, mappings);
 		art.addDataSetDefinition("ViralLoadGreaterThan20InTheLast3Months", viralLoadGreaterThan20InTheLast3Months, mappings);
 
-		preArt.addDataSetDefinition("AdultPreARTLateVisit", adultPreARTLateVisit, mappings);
-		preArt.addDataSetDefinition("AdultHIVLateCD4Count", adultHIVLateCD4Count_1, mappings);
-		preArt.addDataSetDefinition("HIVLostToFollowup", hIVLostToFollowup_1, mappings);
-		preArt.addDataSetDefinition("PreARTBelow350CD4", preARTBelow350CD4, mappings);
-		preArt.addDataSetDefinition("HIVLowBMI", hIVLowBMI_1, mappings);
+		//preArt.addDataSetDefinition("AdultPreARTLateVisit", adultPreARTLateVisit, mappings);
+		//preArt.addDataSetDefinition("AdultHIVLateCD4Count", adultHIVLateCD4Count_1, mappings);
+		//preArt.addDataSetDefinition("HIVLostToFollowup", hIVLostToFollowup_1, mappings);
+		//preArt.addDataSetDefinition("PreARTBelow350CD4", preARTBelow350CD4, mappings);
+		//preArt.addDataSetDefinition("HIVLowBMI", hIVLowBMI_1, mappings);
 	}
 
 	private void setupProperties() {

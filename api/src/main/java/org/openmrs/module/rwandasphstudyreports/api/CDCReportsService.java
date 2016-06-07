@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api;
 
+import org.openmrs.Cohort;
 import org.openmrs.api.OpenmrsService;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,4 +34,5 @@ public interface CDCReportsService extends OpenmrsService {
 	 * Add service methods here
 	 * 
 	 */
+	public Cohort getAllRwandaAdultsPatients();
 }

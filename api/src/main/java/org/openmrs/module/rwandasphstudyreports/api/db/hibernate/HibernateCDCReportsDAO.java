@@ -13,9 +13,14 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api.db.hibernate;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.openmrs.Cohort;
 import org.openmrs.module.rwandasphstudyreports.api.db.CDCReportsDAO;
 
 /**
@@ -39,4 +44,15 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
     public SessionFactory getSessionFactory() {
 	    return sessionFactory;
     }
+    
+    @SuppressWarnings("unchecked")
+	public Cohort getAllRwandaAdultsPatients() {
+		
+		Query query = sessionFactory.getCurrentSession().createQuery("select distinct p.patient_id from patient p inner join person pp on pp.person_id = p.patient_id where p.voided=0 and pp.voided=0 and (pp.birthdate is null or (select DATEDIFF(NOW(), pp.birthdate) / 365.25) >= 16)");
+		
+		Set<Integer> ids = new HashSet<Integer>();
+		ids.addAll(query.list());
+		
+		return new Cohort("All Rwanda Adults patients", "", ids);
+	}
 }

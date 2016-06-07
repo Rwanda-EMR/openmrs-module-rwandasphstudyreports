@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api.impl;
 
+import org.openmrs.Cohort;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,5 +41,9 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
      */
     public CDCReportsDAO getDao() {
 	    return dao;
+    }
+    
+    public Cohort getAllRwandaAdultsPatients() {
+    	return dao.getAllRwandaAdultsPatients();
     }
 }
