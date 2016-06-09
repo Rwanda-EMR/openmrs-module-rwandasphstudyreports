@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Cohort;
@@ -27,12 +26,15 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.LocationService;
+import org.openmrs.api.PatientSetService.TimeModifier;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.EncounterCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InProgramCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InStateCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.NumericObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.service.CohortDefinitionService;
 import org.openmrs.module.reporting.common.DateUtil;
@@ -45,6 +47,7 @@ import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
 import org.openmrs.module.rowperpatientreports.dataset.definition.RowPerPatientDataSetDefinition;
+import org.openmrs.module.rowperpatientreports.patientdata.definition.CustomCalculationBasedOnMultiplePatientDataDefinitions;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff.DateDiffType;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateOfBirthShowingEstimation;
@@ -54,6 +57,7 @@ import org.openmrs.module.rowperpatientreports.patientdata.definition.PatientAdd
 import org.openmrs.module.rowperpatientreports.patientdata.definition.PatientProperty;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.PatientRelationship;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.StateOfPatient;
+import org.openmrs.module.rwandareports.customcalculator.BMICalculation;
 import org.openmrs.module.rwandareports.filter.GroupStateFilter;
 import org.openmrs.module.rwandareports.util.GlobalPropertiesManagement;
 import org.openmrs.module.rwandasphstudyreports.Cohorts;
@@ -106,9 +110,16 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 	DateDiff lateCD4InMonths;
 	PatientRelationship accompagnateur;
 	PatientAddress address;
+	MostRecentObservation viralLoadObs;
 	MultiplePatientDataDefinitions tracNetId;
 	Map<String, Object> mappings;
 	Cohort adultsHIVProgramsCohort;
+	CompositionCohortDefinition patientsWithouthCD4RecordComposition;
+	NumericObsCohortDefinition cd4CohortDefinition;
+	InverseCohortDefinition patientsWithoutEncountersInPastYear;
+	SqlCohortDefinition patientWithLowBMI;
+	MostRecentObservation weightObs, heightObs;
+	CustomCalculationBasedOnMultiplePatientDataDefinitions bmi;
 
 	@Before
 	public void runBeforeTesting() {
@@ -116,14 +127,16 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 
 		context.addParameterValue("beforeDate", new Date());
 		context.addParameterValue("onDate", new Date());
+		context.addParameterValue("endDate", new Date());
 		context.addParameterValue("location", locationService
 				.getLocation(54));/*
 									 * 'Gahini HD' contains more data
 									 */
 		context.addParameterValue("onOrAfter", DateUtil.adjustDate(new Date(), -12, DurationUnit.MONTHS));
-		
-		//adultsHIVProgramsCohort = Context.getService(CDCReportsService.class).getAllRwandaAdultsPatients();
-		
+
+		// adultsHIVProgramsCohort =
+		// Context.getService(CDCReportsService.class).getAllRwandaAdultsPatients();
+
 		gp = new GlobalPropertiesManagement();
 		cd4 = gp.getConcept(GlobalPropertiesManagement.CD4_TEST);
 		hivProgram = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
@@ -136,6 +149,8 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		treatmentStatus = gp.getProgramWorkflow(GlobalPropertiesManagement.TREATMENT_STATUS_WORKFLOW,
 				GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 		adultHivProgramCohort = Cohorts.createInProgramParameterizableByDate("adultHivProgramCohort", hivProgram);
+
+		viralLoadObs = RowPerPatientColumns.getMostRecentViralLoad("Most recent viralLoad", null);
 
 		viralLoad = gp.getConcept(GlobalPropertiesManagement.VIRAL_LOAD_TEST);
 		labEncounterTypeId = gp.getEncounterType(GlobalPropertiesManagement.LAB_ENCOUNTER_TYPE).getEncounterTypeId();
@@ -150,8 +165,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 						+ labEncounterTypeId + " and o.concept_id in (" + viralLoadConceptId + "," + cd4ConceptId
 						+ ") and e.encounter_datetime>= :onOrAfter and e.voided=0 and o.voided=0 and value_numeric is not null;");
 		patientsWithViralLoadAndCD4Tested.addParameter(new Parameter("onOrAfter", "onOrAfter", Date.class));
-		
-		
+
 		patientsWithClinicalEncounters = new CompositionCohortDefinition();
 		patientsWithClinicalEncounters.addParameter(new Parameter("onOrAfter", "onOrAfter", Date.class));
 		patientsWithClinicalEncounters.getSearches().put("1",
@@ -197,6 +211,54 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 
 		height = gp.getConcept(GlobalPropertiesManagement.HEIGHT_CONCEPT);
 		weight = gp.getConcept(GlobalPropertiesManagement.WEIGHT_CONCEPT);
+
+		cd4CohortDefinition = Cohorts.createNumericObsCohortDefinition("cd4CohortDefinition", "onOrAfter", cd4,
+				new Double(0), null, TimeModifier.LAST);
+
+		patientsWithouthCD4RecordComposition = new CompositionCohortDefinition();
+		patientsWithouthCD4RecordComposition.setName("patientsWithouthCD4RecordComposition");
+		patientsWithouthCD4RecordComposition.addParameter(new Parameter("onOrAfter", "onOrAfter", Date.class));
+		patientsWithouthCD4RecordComposition.getSearches().put("cd4CohortDefinition", new Mapped<CohortDefinition>(
+				cd4CohortDefinition, ParameterizableUtil.createParameterMappings("onOrAfter=${onOrAfter}")));
+		patientsWithouthCD4RecordComposition.setCompositionString("NOT cd4CohortDefinition");
+
+		patientsWithoutEncountersInPastYear = new InverseCohortDefinition(patientsWithClinicalEncounters);
+		patientsWithoutEncountersInPastYear.setName("patientsWithoutEncountersInPastYear");
+
+		patientWithLowBMI = new SqlCohortDefinition();
+		patientWithLowBMI.setName("patientWithLowBMI");
+		System.out.println();
+		patientWithLowBMI.setQuery(
+				"select w.person_id from (select * from (select o.person_id,o.value_numeric from obs o,concept c where o.voided=0 and o.value_numeric is not null and o.concept_id= c.concept_id and c.concept_id='"
+						+ height.getId()
+						+ "' order by o.obs_datetime desc) as lastheight group by lastheight.person_id) h,(select * from (select o.person_id,o.value_numeric from obs o,concept c where o.voided=0 and o.value_numeric is not null and o.concept_id= c.concept_id and c.uuid='"
+						+ weight.getUuid()
+						+ "' order by o.obs_datetime desc) as lastweight group by lastweight.person_id) w,(select p.patient_id from patient p, person_attribute pa, person_attribute_type pat where p.patient_id = pa.person_id and pat.name ='Health Center' and pat.person_attribute_type_id = pa.person_attribute_type_id and pa.voided = 0 and pa.value = :location) loc where loc.patient_id=w.person_id and w.person_id=h.person_id and ROUND(((w.value_numeric*10000)/(h.value_numeric*h.value_numeric)),2)<16.0");
+		patientWithLowBMI.addParameter(new Parameter("location", "location", Location.class));
+
+		weightObs = RowPerPatientColumns.getMostRecentWeight("Weight", "dd-mmm-yyyy");
+		heightObs = RowPerPatientColumns.getMostRecentHeight("Height", "dd-mmm-yyyy");
+
+		patientsWithoutClinicalEncounters.addParameter(new Parameter("onDate", "On Date", Date.class));
+		adultHivProgramCohort.addParameter(new Parameter("onDate", "On Date", Date.class));
+		adultHivProgramCohort.addParameter(new Parameter("endDate", "End Date", Date.class));
+		onARTStatusCohort.addParameter(new Parameter("onDate", "On Date", Date.class));
+		patientWithLowBMI.addParameter(new Parameter("onDate", "On Date", Date.class));
+		onARTStatusCohort.addParameter(new Parameter("endDate", "End Date", Date.class));
+		patientsWithClinicalEncounters.addParameter(new Parameter("onDate", "On Date", Date.class));
+		lateCD4InMonths.addParameter(new Parameter("onDate", "On Date", Date.class));
+		patientsWithouthCD4RecordComposition.addParameter(new Parameter("onDate", "On Date", Date.class));
+		patientsWithoutEncountersInPastYear.addParameter(new Parameter("endDate", "End Date", Date.class));
+
+		bmi = new CustomCalculationBasedOnMultiplePatientDataDefinitions();
+		bmi.setName("BMI");
+		bmi.addPatientDataToBeEvaluated(weightObs, new HashMap<String, Object>());
+		bmi.addPatientDataToBeEvaluated(heightObs, new HashMap<String, Object>());
+		BMICalculation bmiCalc = new BMICalculation();
+		bmiCalc.setHeightName(heightObs.getName());
+		bmiCalc.setWeightName(weightObs.getName());
+		bmi.setCalculator(bmiCalc);
+
 	}
 
 	@Test
@@ -204,13 +266,13 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		System.out.println();
 
 		Cohort r1 = cohortDefinitionService.evaluate(patientsWithViralLoadAndCD4Tested, context);
-		System.out.println("patientsWithViralLoadAndCD4Tested: " + r1.size());
+		System.out.println("::::::::> patientsWithViralLoadAndCD4Tested: " + r1.size());
 
 		Cohort r2 = cohortDefinitionService.evaluate(patientsWithClinicalEncountersWithoutLabTest, context);
-		System.out.println("patientsWithClinicalEncountersWithoutLabTest: " + r2.size());
+		System.out.println("::::::::> patientsWithClinicalEncountersWithoutLabTest: " + r2.size());
 
 		Cohort r3 = cohortDefinitionService.evaluate(patientsWithClinicalEncounters, context);
-		System.out.println("union of these: " + r3.size());
+		System.out.println("::::::::> union of these: " + r3.size());
 		System.out.println();
 	}
 
@@ -228,7 +290,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		viralLoadGreaterThan1000InLast12Months.addParameter(new Parameter("location", "location", Location.class));
 
 		Cohort r = cohortDefinitionService.evaluate(viralLoadGreaterThan1000InLast12Months, context);
-		System.out.println("viralLoadGreaterThan1000InLast12Months: " + r.size());
+		System.out.println("::::::::> viralLoadGreaterThan1000InLast12Months: " + r.size());
 		System.out.println();
 	}
 
@@ -240,36 +302,24 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		System.out.println("\nMETADATA COUNTS:");
 		InStateCohortDefinition followingStatusCohort = Cohorts
 				.createInProgramStateParameterizableByDate("followingStatusCohort", following);
+		System.out.println("::::::::> adultHivProgramCohort: "
+				+ cohortDefinitionService.evaluate(adultHivProgramCohort, context).size());
 		System.out.println(
-				"adultHivProgramCohort: " + cohortDefinitionService.evaluate(adultHivProgramCohort, context).size());
-		System.out.println("onARTStatusCohort: " + cohortDefinitionService.evaluate(onARTStatusCohort, context).size());
-		System.out.println(
-				"followingStatusCohort: " + cohortDefinitionService.evaluate(followingStatusCohort, context).size());
-		System.out.println("decliningInCD4MoreThan50: "
+				"::::::::> onARTStatusCohort: " + cohortDefinitionService.evaluate(onARTStatusCohort, context).size());
+		System.out.println("::::::::> followingStatusCohort: "
+				+ cohortDefinitionService.evaluate(followingStatusCohort, context).size());
+		System.out.println("::::::::> decliningInCD4MoreThan50: "
 				+ cohortDefinitionService.evaluate(decliningInCD4MoreThan50, context).size());
-		System.out.println("patientsWithClinicalEncounters: "
+		System.out.println("::::::::> patientsWithClinicalEncounters: "
 				+ cohortDefinitionService.evaluate(patientsWithClinicalEncounters, context).size());
-		/*System.out.println("patientsWithoutClinicalEncounters: "
-				+ cohortDefinitionService.evaluate(patientsWithoutClinicalEncounters, context).size());
-*/
+
 		System.out.println();
 	}
 
 	@Test
 	public void test_patientWithLowBMI() throws EvaluationException {
-		SqlCohortDefinition patientWithLowBMI = new SqlCohortDefinition();
-		patientWithLowBMI.setName("patientWithLowBMI");
-		System.out.println();
-		patientWithLowBMI.setQuery(
-				"select w.person_id from (select * from (select o.person_id,o.value_numeric from obs o,concept c where o.voided=0 and o.value_numeric is not null and o.concept_id= c.concept_id and c.concept_id='"
-						+ height.getId()
-						+ "' order by o.obs_datetime desc) as lastheight group by lastheight.person_id) h,(select * from (select o.person_id,o.value_numeric from obs o,concept c where o.voided=0 and o.value_numeric is not null and o.concept_id= c.concept_id and c.uuid='"
-						+ weight.getUuid()
-						+ "' order by o.obs_datetime desc) as lastweight group by lastweight.person_id) w,(select p.patient_id from patient p, person_attribute pa, person_attribute_type pat where p.patient_id = pa.person_id and pat.name ='Health Center' and pat.person_attribute_type_id = pa.person_attribute_type_id and pa.voided = 0 and pa.value = :location) loc where loc.patient_id=w.person_id and w.person_id=h.person_id and ROUND(((w.value_numeric*10000)/(h.value_numeric*h.value_numeric)),2)<16.0");
-		patientWithLowBMI.addParameter(new Parameter("location", "location", Location.class));
-
 		Cohort r = cohortDefinitionService.evaluate(patientWithLowBMI, context);
-		System.out.println("patientWithLowBMI: " + r.size());
+		System.out.println("::::::::> patientWithLowBMI: " + r.size());
 		System.out.println();
 	}
 
@@ -281,16 +331,15 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		adultARTLateVisit.addParameter(new Parameter("location", "Location", Location.class));
 		adultARTLateVisit.addParameter(new Parameter("endDate", "End Date", Date.class));
 
-		/*
-		 * adultARTLateVisit.addFilter(adultHivProgramCohort,
-		 * ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		 * adultARTLateVisit.addFilter(onARTStatusCohort,
-		 * ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		 * adultARTLateVisit.addFilter(patientsWithClinicalEncounters,
-		 * ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		 * adultARTLateVisit.addFilter(patientsWithoutClinicalEncounters,
-		 * ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		 */adultARTLateVisit.addColumn(imbType, new HashMap<String, Object>());
+		adultARTLateVisit.addFilter(adultHivProgramCohort,
+				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		adultARTLateVisit.addFilter(onARTStatusCohort,
+				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		adultARTLateVisit.addFilter(patientsWithClinicalEncounters,
+				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		adultARTLateVisit.addFilter(patientsWithoutClinicalEncounters,
+				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		adultARTLateVisit.addColumn(imbType, new HashMap<String, Object>());
 		adultARTLateVisit.addColumn(givenName, new HashMap<String, Object>());
 		adultARTLateVisit.addColumn(familyName, new HashMap<String, Object>());
 		adultARTLateVisit.addColumn(gender, new HashMap<String, Object>());
@@ -298,14 +347,12 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		adultARTLateVisit.addColumn(txGroup, new HashMap<String, Object>());
 		adultARTLateVisit.addColumn(returnVisitDate, new HashMap<String, Object>());
 		adultARTLateVisit.addColumn(cd4Count, new HashMap<String, Object>());
-		// adultARTLateVisit.addColumn(lateCD4InMonths,
-		// ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		adultARTLateVisit.addColumn(lateCD4InMonths, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		adultARTLateVisit.addColumn(accompagnateur, new HashMap<String, Object>());
 		adultARTLateVisit.addColumn(address, new HashMap<String, Object>());
 		adultARTLateVisit.addColumn(tracNetId, new HashMap<String, Object>());
 		adultARTLateVisit.addColumn(mostRecentViralLoads, new HashMap<String, Object>());
-		
-		
+
 		EvaluationContext ec = EvaluationContext.cloneForChild(context,
 				new Mapped<RowPerPatientDataSetDefinition>(adultARTLateVisit, mappings));
 
@@ -313,18 +360,126 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 
 		SimpleDataSet adultARTLAteVisitDataSet = (SimpleDataSet) Context.getService(DataSetDefinitionService.class)
 				.evaluate(adultARTLateVisit, ec);
-		System.out.println("adultARTLAteVisitDataSet_DATA:" + ReflectionToStringBuilder.toString(adultARTLAteVisitDataSet.getRowMap()));
+		System.out.println("adultARTLAteVisitDataSet_DATA:"
+				+ ReflectionToStringBuilder.toString(adultARTLAteVisitDataSet.getRowMap()));
 		System.out.println();
-		System.out.println("adultARTLateVisit: " + adultARTLAteVisitDataSet.getRowMap().size());
+		System.out.println("::::::::> adultARTLateVisit: " + adultARTLAteVisitDataSet.getRowMap().size());
 		System.out.println();
 	}
-	
+
 	@Test
 	public void test_getAdultPatientsCount() throws EvaluationException {
 		Cohort r = cohortDefinitionService.evaluate(Cohorts.getAdultPatients(), context);
-		//System.out.println("adultPatientsTotal: " + adultsHIVProgramsCohort.size());
-		//Assert.assertEquals(adultsHIVProgramsCohort.size(), r.size());
-		System.out.println("adultPatientsTotal: " + r.size());
+
+		System.out.println("::::::::> adultPatientsTotal: " + r.size());
 		System.out.println();
+	}
+
+	@Test
+	public void test_adultHIVLateCD4Count_dataSetDefinition() throws EvaluationException {
+		RowPerPatientDataSetDefinition adultHIVLateCD4Count = new RowPerPatientDataSetDefinition();
+
+		adultHIVLateCD4Count.setName("Adult HIV late CD4 dataSetDefinition");
+		adultHIVLateCD4Count.addFilter(adultHivProgramCohort,
+				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		adultHIVLateCD4Count.addFilter(onARTStatusCohort,
+				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		adultHIVLateCD4Count.addFilter(patientsWithClinicalEncounters,
+				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		adultHIVLateCD4Count.addFilter(patientsWithouthCD4RecordComposition,
+				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		adultHIVLateCD4Count.addColumn(imbType, new HashMap<String, Object>());
+		adultHIVLateCD4Count.addColumn(givenName, new HashMap<String, Object>());
+		adultHIVLateCD4Count.addColumn(familyName, new HashMap<String, Object>());
+		adultHIVLateCD4Count.addColumn(gender, new HashMap<String, Object>());
+		adultHIVLateCD4Count.addColumn(birthdate, new HashMap<String, Object>());
+		adultHIVLateCD4Count.addColumn(txGroup, new HashMap<String, Object>());
+		adultHIVLateCD4Count.addColumn(cd4Count, new HashMap<String, Object>());
+		adultHIVLateCD4Count.addColumn(lateCD4InMonths,
+				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		adultHIVLateCD4Count.addColumn(accompagnateur, new HashMap<String, Object>());
+		adultHIVLateCD4Count.addColumn(address, new HashMap<String, Object>());
+		adultHIVLateCD4Count.addColumn(tracNetId, new HashMap<String, Object>());
+		adultHIVLateCD4Count.addColumn(viralLoadObs, new HashMap<String, Object>());
+		adultHIVLateCD4Count.addParameter(new Parameter("location", "Location", Location.class));
+		adultHIVLateCD4Count.addParameter(new Parameter("endDate", "End Date", Date.class));
+		adultHIVLateCD4Count.addParameter(new Parameter("onDate", "On Date", Date.class));
+		evaluateReportDataSetDefinition(adultHIVLateCD4Count, "adultHIVLateCD4Count");
+	}
+
+	private void evaluateReportDataSetDefinition(RowPerPatientDataSetDefinition datasetDef, String message)
+			throws EvaluationException {
+		EvaluationContext ec = EvaluationContext.cloneForChild(context,
+				new Mapped<RowPerPatientDataSetDefinition>(datasetDef, mappings));
+		System.out.println("\n" + message + " : " + ReflectionToStringBuilder.toString(datasetDef));
+
+		SimpleDataSet datasetSimpleDataset = (SimpleDataSet) Context.getService(DataSetDefinitionService.class)
+				.evaluate(datasetDef, ec);
+		System.out.println(
+				message + "DataSet_DATA:" + ReflectionToStringBuilder.toString(datasetSimpleDataset.getRowMap()));
+		System.out.println();
+		System.out.println("::::::::> " + message + ": " + datasetSimpleDataset.getRowMap().size());
+		System.out.println();
+	}
+
+	@Test
+	public void test_hivLostToFollowup() throws EvaluationException {
+		RowPerPatientDataSetDefinition hIVLostToFollowup = new RowPerPatientDataSetDefinition();
+		hIVLostToFollowup.setName("Adult HIV lost to follow-up dataSetDefinition");
+
+		hIVLostToFollowup.addFilter(adultHivProgramCohort,
+				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		hIVLostToFollowup.addFilter(onARTStatusCohort,
+				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		hIVLostToFollowup.addFilter(patientsWithoutEncountersInPastYear,
+				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		hIVLostToFollowup.addColumn(imbType, new HashMap<String, Object>());
+		hIVLostToFollowup.addColumn(givenName, new HashMap<String, Object>());
+		hIVLostToFollowup.addColumn(familyName, new HashMap<String, Object>());
+		hIVLostToFollowup.addColumn(gender, new HashMap<String, Object>());
+		hIVLostToFollowup.addColumn(birthdate, new HashMap<String, Object>());
+		hIVLostToFollowup.addColumn(txGroup, new HashMap<String, Object>());
+		hIVLostToFollowup.addColumn(returnVisitDate, new HashMap<String, Object>());
+		hIVLostToFollowup.addColumn(cd4Count, new HashMap<String, Object>());
+		hIVLostToFollowup.addColumn(lateCD4InMonths, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		hIVLostToFollowup.addColumn(accompagnateur, new HashMap<String, Object>());
+		hIVLostToFollowup.addColumn(address, new HashMap<String, Object>());
+		hIVLostToFollowup.addColumn(tracNetId, new HashMap<String, Object>());
+		hIVLostToFollowup.addColumn(viralLoadObs, new HashMap<String, Object>());
+		hIVLostToFollowup.addParameter(new Parameter("location", "Location", Location.class));
+		hIVLostToFollowup.addParameter(new Parameter("endDate", "End Date", Date.class));
+
+		evaluateReportDataSetDefinition(hIVLostToFollowup, "hIVLostToFollowup");
+	}
+
+	@Test
+	public void test_hIVLowBMI() throws EvaluationException {
+		RowPerPatientDataSetDefinition hIVLowBMI = new RowPerPatientDataSetDefinition();
+		hIVLowBMI.setName("Patients with BMI below 16 dataSetDefinition");
+		hIVLowBMI.addFilter(adultHivProgramCohort, ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		hIVLowBMI.addFilter(onARTStatusCohort, ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		hIVLowBMI.addFilter(patientsWithClinicalEncounters,
+				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		hIVLowBMI.addFilter(patientWithLowBMI, ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		hIVLowBMI.addColumn(imbType, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(givenName, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(familyName, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(gender, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(birthdate, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(txGroup, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(returnVisitDate, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(cd4Count, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(lateCD4InMonths, ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		hIVLowBMI.addColumn(accompagnateur, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(address, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(tracNetId, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(viralLoadObs, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(weightObs, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(heightObs, new HashMap<String, Object>());
+		hIVLowBMI.addColumn(bmi, new HashMap<String, Object>());
+		hIVLowBMI.addParameter(new Parameter("location", "Location", Location.class));
+		hIVLowBMI.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		evaluateReportDataSetDefinition(hIVLowBMI, "hIVLowBMI");
 	}
 }
