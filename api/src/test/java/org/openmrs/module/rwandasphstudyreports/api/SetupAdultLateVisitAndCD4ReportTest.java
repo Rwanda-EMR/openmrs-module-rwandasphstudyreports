@@ -70,7 +70,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  * 
  * Concentrating on specifically these indicators; [HIV-Adult ART
  * Report-Monthly: AdultARTLateVisit, AdultHIVLateCD4Count, HIVLostToFollowup,
- * HIVLowBMI, ViralLoadGreaterThan20InLast3Months] [HIV-Adult Pre ART
+ * HIVLowBMI, ViralLoadGreaterThan20InTheLast3Months] [HIV-Adult Pre ART
  * Report-Monthly: AdultPreARTLateVisit, AdultHIVLateCD4Count,
  * HIVLostToFollowup, PreARTBelow350CD4, HIVLowBMI]
  */
@@ -120,6 +120,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 	SqlCohortDefinition patientWithLowBMI;
 	MostRecentObservation weightObs, heightObs;
 	CustomCalculationBasedOnMultiplePatientDataDefinitions bmi;
+	SqlCohortDefinition viralLoadGreaterThan1000InLast12Months;
 
 	@Before
 	public void runBeforeTesting() {
@@ -238,6 +239,15 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 
 		weightObs = RowPerPatientColumns.getMostRecentWeight("Weight", "dd-mmm-yyyy");
 		heightObs = RowPerPatientColumns.getMostRecentHeight("Height", "dd-mmm-yyyy");
+		
+		viralLoadGreaterThan1000InLast12Months = new SqlCohortDefinition(
+				"select vload.person_id from (select * from obs where concept_id=" + viralLoadConceptId
+						+ " and value_numeric>1000 and obs_datetime> :beforeDate and obs_datetime<= :onDate order by obs_datetime desc) as vload group by vload.person_id");
+		viralLoadGreaterThan1000InLast12Months.setName("viralLoadGreaterThan1000InLast12Months");
+		viralLoadGreaterThan1000InLast12Months.addParameter(new Parameter("beforeDate", "beforeDate", Date.class));
+		viralLoadGreaterThan1000InLast12Months.addParameter(new Parameter("onDate", "onDate", Date.class));
+		viralLoadGreaterThan1000InLast12Months.addParameter(new Parameter("location", "location", Location.class));
+
 
 		patientsWithoutClinicalEncounters.addParameter(new Parameter("onDate", "On Date", Date.class));
 		adultHivProgramCohort.addParameter(new Parameter("onDate", "On Date", Date.class));
@@ -249,7 +259,8 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		lateCD4InMonths.addParameter(new Parameter("onDate", "On Date", Date.class));
 		patientsWithouthCD4RecordComposition.addParameter(new Parameter("onDate", "On Date", Date.class));
 		patientsWithoutEncountersInPastYear.addParameter(new Parameter("endDate", "End Date", Date.class));
-
+		viralLoadGreaterThan1000InLast12Months.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
 		bmi = new CustomCalculationBasedOnMultiplePatientDataDefinitions();
 		bmi.setName("BMI");
 		bmi.addPatientDataToBeEvaluated(weightObs, new HashMap<String, Object>());
@@ -281,13 +292,6 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		Integer viralLoadConceptId = gp.getConcept(GlobalPropertiesManagement.VIRAL_LOAD_TEST).getConceptId();
 
 		System.out.println();
-		SqlCohortDefinition viralLoadGreaterThan1000InLast12Months = new SqlCohortDefinition(
-				"select vload.person_id from (select * from obs where concept_id=" + viralLoadConceptId
-						+ " and value_numeric>1000 and obs_datetime> :beforeDate and obs_datetime<= :onDate order by obs_datetime desc) as vload group by vload.person_id");
-		viralLoadGreaterThan1000InLast12Months.setName("viralLoadGreaterThan1000InLast12Months");
-		viralLoadGreaterThan1000InLast12Months.addParameter(new Parameter("beforeDate", "beforeDate", Date.class));
-		viralLoadGreaterThan1000InLast12Months.addParameter(new Parameter("onDate", "onDate", Date.class));
-		viralLoadGreaterThan1000InLast12Months.addParameter(new Parameter("location", "location", Location.class));
 
 		Cohort r = cohortDefinitionService.evaluate(viralLoadGreaterThan1000InLast12Months, context);
 		System.out.println("::::::::> viralLoadGreaterThan1000InLast12Months: " + r.size());
@@ -479,7 +483,40 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		hIVLowBMI.addColumn(bmi, new HashMap<String, Object>());
 		hIVLowBMI.addParameter(new Parameter("location", "Location", Location.class));
 		hIVLowBMI.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
+
 		evaluateReportDataSetDefinition(hIVLowBMI, "hIVLowBMI");
+	}
+
+	@Test
+	public void test_viralLoadGreaterThan20InTheLast3Months() throws EvaluationException {
+		RowPerPatientDataSetDefinition viralLoadGreaterThan20InTheLast3Months = new RowPerPatientDataSetDefinition();
+		viralLoadGreaterThan20InTheLast3Months
+				.setName("Patients with Viral Load greater than 20 in the last three months");
+		viralLoadGreaterThan20InTheLast3Months.addFilter(adultHivProgramCohort,
+				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		viralLoadGreaterThan20InTheLast3Months.addFilter(onARTStatusCohort,
+				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		viralLoadGreaterThan20InTheLast3Months.addFilter(patientsWithClinicalEncounters,
+				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		viralLoadGreaterThan20InTheLast3Months.addFilter(viralLoadGreaterThan1000InLast12Months,
+				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		viralLoadGreaterThan20InTheLast3Months.addColumn(imbType, new HashMap<String, Object>());
+		viralLoadGreaterThan20InTheLast3Months.addColumn(givenName, new HashMap<String, Object>());
+		viralLoadGreaterThan20InTheLast3Months.addColumn(familyName, new HashMap<String, Object>());
+		viralLoadGreaterThan20InTheLast3Months.addColumn(gender, new HashMap<String, Object>());
+		viralLoadGreaterThan20InTheLast3Months.addColumn(birthdate, new HashMap<String, Object>());
+		viralLoadGreaterThan20InTheLast3Months.addColumn(txGroup, new HashMap<String, Object>());
+		viralLoadGreaterThan20InTheLast3Months.addColumn(returnVisitDate, new HashMap<String, Object>());
+		viralLoadGreaterThan20InTheLast3Months.addColumn(cd4Count, new HashMap<String, Object>());
+		viralLoadGreaterThan20InTheLast3Months.addColumn(lateCD4InMonths,
+				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		viralLoadGreaterThan20InTheLast3Months.addColumn(accompagnateur, new HashMap<String, Object>());
+		viralLoadGreaterThan20InTheLast3Months.addColumn(address, new HashMap<String, Object>());
+		viralLoadGreaterThan20InTheLast3Months.addColumn(tracNetId, new HashMap<String, Object>());
+		viralLoadGreaterThan20InTheLast3Months.addColumn(viralLoadObs, new HashMap<String, Object>());
+		viralLoadGreaterThan20InTheLast3Months.addParameter(new Parameter("location", "Location", Location.class));
+		viralLoadGreaterThan20InTheLast3Months.addParameter(new Parameter("endDate", "End Date", Date.class));
+		
+		evaluateReportDataSetDefinition(viralLoadGreaterThan20InTheLast3Months, "viralLoadGreaterThan20InTheLast3Months");
 	}
 }
