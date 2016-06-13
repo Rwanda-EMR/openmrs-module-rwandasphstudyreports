@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Cohort;
 import org.openmrs.Concept;
@@ -74,6 +75,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  * Report-Monthly: AdultPreARTLateVisit, AdultHIVLateCD4Count,
  * HIVLostToFollowup, PreARTBelow350CD4, HIVLowBMI]
  */
+@Ignore
 public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensitiveTest {
 
 	@Autowired

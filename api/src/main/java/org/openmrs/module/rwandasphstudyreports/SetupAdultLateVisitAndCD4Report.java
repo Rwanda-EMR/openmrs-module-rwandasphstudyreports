@@ -10,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Location;
 import org.openmrs.Program;
-import org.openmrs.ProgramWorkflow;
 //import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.PatientSetService.TimeModifier;
 import org.openmrs.api.context.Context;
@@ -40,12 +39,9 @@ import org.openmrs.module.rowperpatientreports.patientdata.definition.MultiplePa
 import org.openmrs.module.rowperpatientreports.patientdata.definition.PatientAddress;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.PatientProperty;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.PatientRelationship;
-import org.openmrs.module.rowperpatientreports.patientdata.definition.StateOfPatient;
 import org.openmrs.module.rwandareports.customcalculator.BMICalculation;
 import org.openmrs.module.rwandareports.customcalculator.DeclineHighestCD4;
 import org.openmrs.module.rwandareports.customcalculator.DifferenceBetweenLastTwoObs;
-import org.openmrs.module.rwandareports.filter.GroupStateFilter;
-import org.openmrs.module.rwandareports.filter.TreatmentStateFilter;
 
 public class SetupAdultLateVisitAndCD4Report {
 
@@ -56,9 +52,9 @@ public class SetupAdultLateVisitAndCD4Report {
 	// Properties retrieved from global variables
 	private Program hivProgram;
 
-	private ProgramWorkflow treatmentGroup;
+	//private ProgramWorkflow treatmentGroup;
 
-	private ProgramWorkflow treatmentStatus;
+	//private ProgramWorkflow treatmentStatus;
 
 	//private ProgramWorkflowState onART;
 
@@ -483,8 +479,8 @@ public class SetupAdultLateVisitAndCD4Report {
 		viralLoadGreaterThan20InTheLast3Months.addColumn(birthdate, new HashMap<String, Object>());
 		dataSetDefinition9.addColumn(birthdate, new HashMap<String, Object>());
 
-		StateOfPatient txGroup = RowPerPatientColumns.getStateOfPatient("Group", hivProgram, treatmentGroup,
-				new GroupStateFilter());
+		/*StateOfPatient txGroup = RowPerPatientColumns.getStateOfPatient("Group", hivProgram, treatmentGroup,
+			new GroupStateFilter());
 		adultARTLateVisit.addColumn(txGroup, new HashMap<String, Object>());
 		adultPreARTLateVisit.addColumn(txGroup, new HashMap<String, Object>());
 		adultHIVLateCD4Count.addColumn(txGroup, new HashMap<String, Object>());
@@ -504,7 +500,7 @@ public class SetupAdultLateVisitAndCD4Report {
 		dataSetDefinition7.addColumn(stOfPatient, new HashMap<String, Object>());
 		
 		dataSetDefinition9.addColumn(stOfPatient, new HashMap<String, Object>());
-
+*/
 		MostRecentObservation returnVisitDate = RowPerPatientColumns
 				.getMostRecentReturnVisitDate("Date of missed appointment", null);
 		adultARTLateVisit.addColumn(returnVisitDate, new HashMap<String, Object>());
@@ -710,12 +706,12 @@ public class SetupAdultLateVisitAndCD4Report {
 
 		cd4 = gp.getConcept(GlobalPropertiesManagement.CD4_TEST);
 
-		treatmentGroup = gp.getProgramWorkflow(GlobalPropertiesManagement.TREATMENT_GROUP_WORKFLOW,
+		/*treatmentGroup = gp.getProgramWorkflow(GlobalPropertiesManagement.TREATMENT_GROUP_WORKFLOW,
 				GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 
 		treatmentStatus = gp.getProgramWorkflow(GlobalPropertiesManagement.TREATMENT_STATUS_WORKFLOW,
 				GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
-
+		*/
 		height = gp.getConcept(GlobalPropertiesManagement.HEIGHT_CONCEPT);
 
 		weight = gp.getConcept(GlobalPropertiesManagement.WEIGHT_CONCEPT);

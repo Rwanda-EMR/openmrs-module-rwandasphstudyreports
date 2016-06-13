@@ -1,6 +1,5 @@
 package org.openmrs.module.rwandasphstudyreports;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -8,7 +7,6 @@ import java.util.Properties;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.openmrs.Location;
 import org.openmrs.Program;
-import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
@@ -73,10 +71,10 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 
 		Properties stateProperties = new Properties();
 		stateProperties.setProperty("Program", hivProgram.getName());
-		stateProperties.setProperty("Workflow", Context.getAdministrationService()
-				.getGlobalProperty(GlobalPropertiesManagement.TREATMENT_GROUP_WORKFLOW));
+		//stateProperties.setProperty("Workflow", Context.getAdministrationService()
+				//.getGlobalProperty(GlobalPropertiesManagement.TREATMENT_GROUP_WORKFLOW));
 
-		reportDefinition.addParameter(new Parameter("state", "Group", ProgramWorkflowState.class, stateProperties));
+		//reportDefinition.addParameter(new Parameter("state", "Group", ProgramWorkflowState.class, stateProperties));
 
 		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
 				ParameterizableUtil.createParameterMappings("location=${location}"));
@@ -92,11 +90,11 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		// Create new dataset definition
 		RowPerPatientDataSetDefinition dataSetDefinition = new RowPerPatientDataSetDefinition();
 		dataSetDefinition.setName(reportDefinition.getName() + " Data Set");
-		dataSetDefinition.addParameter(new Parameter("state", "State", ProgramWorkflowState.class));
+		//dataSetDefinition.addParameter(new Parameter("state", "State", ProgramWorkflowState.class));
 
 		// Add Filters
-		dataSetDefinition.addFilter(Cohorts.createInCurrentStateParameterized("in state", "states"),
-				ParameterizableUtil.createParameterMappings("states=${state},onDate=${now}"));
+		//dataSetDefinition.addFilter(Cohorts.createInCurrentStateParameterized("in state", "states"),
+				//ParameterizableUtil.createParameterMappings("states=${state},onDate=${now}"));
 
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
 				ParameterizableUtil.createParameterMappings("onDate=${now}"));
@@ -167,8 +165,8 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		alert.addPatientDataToBeEvaluated(viralLoadTest, new HashMap<String, Object>());
 		//alert.addPatientDataToBeEvaluated(lastEncInMonth, new HashMap<String, Object>());
 		alert.setCalculator(new HIVAdultAlerts());
-		alert.addParameter(new Parameter("state", "State", Date.class));
-		dataSetDefinition.addColumn(alert, ParameterizableUtil.createParameterMappings("state=${state}"));
+		//alert.addParameter(new Parameter("state", "State", Date.class));
+		//dataSetDefinition.addColumn(alert, ParameterizableUtil.createParameterMappings("state=${state}"));
 
 		CustomCalculationBasedOnMultiplePatientDataDefinitions bmi = new CustomCalculationBasedOnMultiplePatientDataDefinitions();
 		bmi.setName("bmi");
@@ -178,7 +176,7 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		dataSetDefinition.addColumn(bmi, new HashMap<String, Object>());
 
 		Map<String, Object> mappings = new HashMap<String, Object>();
-		mappings.put("state", "${state}");
+	//	mappings.put("state", "${state}");
 
 		System.out.println("\nDATASETDEFINITION:\n" + ReflectionToStringBuilder.toString(dataSetDefinition) + "\n\n");
 		System.out.println("\nMAPPINGS:\n" + ReflectionToStringBuilder.toString(mappings) + "\n\n");

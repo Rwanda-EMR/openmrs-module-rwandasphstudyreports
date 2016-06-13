@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Program;
 //import org.openmrs.ProgramWorkflowState;
@@ -34,6 +35,10 @@ import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+/**
+ * Tests for SetupAdultHIVConsultationSheet
+ */
+@Ignore
 public class SetupAdultHIVConsultationSheetTest extends StandaloneContextSensitiveTest {
 
 	@Autowired
