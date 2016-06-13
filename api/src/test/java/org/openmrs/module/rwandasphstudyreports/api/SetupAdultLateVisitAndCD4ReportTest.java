@@ -121,9 +121,12 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 	MostRecentObservation weightObs, heightObs;
 	CustomCalculationBasedOnMultiplePatientDataDefinitions bmi;
 	SqlCohortDefinition viralLoadGreaterThan1000InLast12Months;
+	SqlCohortDefinition adultPatientsCohort;
 
 	@Before
 	public void runBeforeTesting() {
+		System.out.println("::::::::>Lost to Follow-up Report<::::::::");
+		
 		context = new EvaluationContext();
 
 		context.addParameterValue("beforeDate", new Date());
@@ -134,6 +137,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 									 * 'Gahini HD' contains more data
 									 */
 		context.addParameterValue("onOrAfter", DateUtil.adjustDate(new Date(), -12, DurationUnit.MONTHS));
+		adultPatientsCohort = Cohorts.getAdultPatients();
 
 		// adultsHIVProgramsCohort =
 		// Context.getService(CDCReportsService.class).getAllRwandaAdultsPatients();
@@ -383,6 +387,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 	public void test_adultHIVLateCD4Count_dataSetDefinition() throws EvaluationException {
 		RowPerPatientDataSetDefinition adultHIVLateCD4Count = new RowPerPatientDataSetDefinition();
 
+		adultHIVLateCD4Count.addFilter(adultPatientsCohort, null);
 		adultHIVLateCD4Count.setName("Adult HIV late CD4 dataSetDefinition");
 		adultHIVLateCD4Count.addFilter(adultHivProgramCohort,
 				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
@@ -408,6 +413,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		adultHIVLateCD4Count.addParameter(new Parameter("location", "Location", Location.class));
 		adultHIVLateCD4Count.addParameter(new Parameter("endDate", "End Date", Date.class));
 		adultHIVLateCD4Count.addParameter(new Parameter("onDate", "On Date", Date.class));
+		
 		evaluateReportDataSetDefinition(adultHIVLateCD4Count, "adultHIVLateCD4Count");
 	}
 
@@ -429,8 +435,10 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 	@Test
 	public void test_hivLostToFollowup() throws EvaluationException {
 		RowPerPatientDataSetDefinition hIVLostToFollowup = new RowPerPatientDataSetDefinition();
+		
 		hIVLostToFollowup.setName("Adult HIV lost to follow-up dataSetDefinition");
 
+		hIVLostToFollowup.addFilter(adultPatientsCohort, null);
 		hIVLostToFollowup.addFilter(adultHivProgramCohort,
 				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		hIVLostToFollowup.addFilter(onARTStatusCohort,
@@ -460,6 +468,8 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 	public void test_hIVLowBMI() throws EvaluationException {
 		RowPerPatientDataSetDefinition hIVLowBMI = new RowPerPatientDataSetDefinition();
 		hIVLowBMI.setName("Patients with BMI below 16 dataSetDefinition");
+		
+		hIVLowBMI.addFilter(adultPatientsCohort, null);
 		hIVLowBMI.addFilter(adultHivProgramCohort, ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
 		hIVLowBMI.addFilter(onARTStatusCohort, ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
 		hIVLowBMI.addFilter(patientsWithClinicalEncounters,
@@ -492,6 +502,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		RowPerPatientDataSetDefinition viralLoadGreaterThan20InTheLast3Months = new RowPerPatientDataSetDefinition();
 		viralLoadGreaterThan20InTheLast3Months
 				.setName("Patients with Viral Load greater than 20 in the last three months");
+		viralLoadGreaterThan20InTheLast3Months.addFilter(adultPatientsCohort, null);
 		viralLoadGreaterThan20InTheLast3Months.addFilter(adultHivProgramCohort,
 				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		viralLoadGreaterThan20InTheLast3Months.addFilter(onARTStatusCohort,

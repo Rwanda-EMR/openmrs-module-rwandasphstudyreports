@@ -74,7 +74,7 @@
 			<dependency>
 				<groupId>org.openmrs.module</groupId>
 				<artifactId>rowperpatientreports-api</artifactId>														
-				<version>1.5.3</version>								
+				<version>1.5.4-rbc</version>								
 				<scope>compile</scope>
 			</dependency>
 						

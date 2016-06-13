@@ -84,6 +84,9 @@ public class Cohorts {
 		return patientsWithBaseLineObservation;
 	}
 	
+	/*
+	 * SQL was modified to support or un-activate the states restriction
+	 */
 	public static SqlCohortDefinition createPatientsWithDeclineFromBaseline(String name, Concept concept,
 	                                                                        ProgramWorkflowState state) {
 		SqlCohortDefinition patientsWithBaseLineObservation = new SqlCohortDefinition(
@@ -733,6 +736,9 @@ public class Cohorts {
 		InStateCohortDefinition stateCohort = new InStateCohortDefinition();
 		
 		List<ProgramWorkflowState> states = new ArrayList<ProgramWorkflowState>();
+		
+		if(state == null)
+			return null;
 		states.add(state);
 		
 		stateCohort.setStates(states);

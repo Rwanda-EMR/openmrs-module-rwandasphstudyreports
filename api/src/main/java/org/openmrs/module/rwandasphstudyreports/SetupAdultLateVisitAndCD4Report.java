@@ -11,7 +11,7 @@ import org.openmrs.Concept;
 import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
-import org.openmrs.ProgramWorkflowState;
+//import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.PatientSetService.TimeModifier;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -60,9 +60,9 @@ public class SetupAdultLateVisitAndCD4Report {
 
 	private ProgramWorkflow treatmentStatus;
 
-	private ProgramWorkflowState onART;
+	//private ProgramWorkflowState onART;
 
-	private ProgramWorkflowState following;
+	//private ProgramWorkflowState following;
 
 	//private List<EncounterType> clinicalEnountersIncLab;
 
@@ -231,23 +231,23 @@ public class SetupAdultLateVisitAndCD4Report {
 
 		// ON ANTIRETROVIRALS state cohort definition.
 		InStateCohortDefinition onARTStatusCohort = Cohorts
-				.createInProgramStateParameterizableByDate("onARTStatusCohort", onART);
+				.createInProgramStateParameterizableByDate("onARTStatusCohort", null);
 
-		adultARTLateVisit.addFilter(onARTStatusCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		adultHIVLateCD4Count.addFilter(onARTStatusCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		hIVLostToFollowup.addFilter(onARTStatusCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		hIVLowBMI.addFilter(onARTStatusCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		dataSetDefinition7.addFilter(onARTStatusCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		viralLoadGreaterThan20InTheLast3Months.addFilter(onARTStatusCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		dataSetDefinition9.addFilter(onARTStatusCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-
+		if (onARTStatusCohort != null) {
+			adultARTLateVisit.addFilter(onARTStatusCohort,
+					ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+			adultHIVLateCD4Count.addFilter(onARTStatusCohort,
+					ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+			hIVLostToFollowup.addFilter(onARTStatusCohort,
+					ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+			hIVLowBMI.addFilter(onARTStatusCohort, ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+			dataSetDefinition7.addFilter(onARTStatusCohort,
+					ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+			viralLoadGreaterThan20InTheLast3Months.addFilter(onARTStatusCohort,
+					ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+			dataSetDefinition9.addFilter(onARTStatusCohort,
+					ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		}
 		CompositionCohortDefinition patientsWithClinicalEncounters = new CompositionCohortDefinition();
 		patientsWithClinicalEncounters.addParameter(new Parameter("onOrAfter", "onOrAfter", Date.class));
 		patientsWithClinicalEncounters.setCompositionString("1 OR 2");
@@ -294,18 +294,21 @@ public class SetupAdultLateVisitAndCD4Report {
 		// Following state cohort definition.
 
 		InStateCohortDefinition followingStatusCohort = Cohorts
-				.createInProgramStateParameterizableByDate("followingStatusCohort", following);
+				.createInProgramStateParameterizableByDate("followingStatusCohort", null);
 
-		adultPreARTLateVisit.addFilter(followingStatusCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		adultHIVLateCD4Count_1.addFilter(followingStatusCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		hIVLostToFollowup_1.addFilter(followingStatusCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		preARTBelow350CD4.addFilter(followingStatusCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		hIVLowBMI_1.addFilter(followingStatusCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		if (followingStatusCohort != null) {
+			adultPreARTLateVisit.addFilter(followingStatusCohort,
+					ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+			adultHIVLateCD4Count_1.addFilter(followingStatusCohort,
+					ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+			hIVLostToFollowup_1.addFilter(followingStatusCohort,
+					ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+			preARTBelow350CD4.addFilter(followingStatusCohort,
+					ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+			hIVLowBMI_1.addFilter(followingStatusCohort,
+					ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		}
+		
 
 		// Patients without Any clinical Encounter(Test lab excluded) in last
 		// six months.
@@ -403,7 +406,7 @@ public class SetupAdultLateVisitAndCD4Report {
 		// CD4 after ART initiation
 		// ==================================================================
 		SqlCohortDefinition cd4declineOfMoreThan50Percent = Cohorts.createPatientsWithDeclineFromBaseline("cd4decline",
-				cd4, onART);
+				cd4, null);
 		dataSetDefinition9.addFilter(cd4declineOfMoreThan50Percent,
 				ParameterizableUtil.createParameterMappings("beforeDate=${endDate}"));
 
@@ -694,16 +697,16 @@ public class SetupAdultLateVisitAndCD4Report {
 	private void setupProperties() {
 		hivProgram = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 
-		onART = gp.getProgramWorkflowState(GlobalPropertiesManagement.ON_ANTIRETROVIRALS_STATE,
-				GlobalPropertiesManagement.TREATMENT_STATUS_WORKFLOW, GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
+		//onART = gp.getProgramWorkflowState(GlobalPropertiesManagement.ON_ANTIRETROVIRALS_STATE,
+		//		GlobalPropertiesManagement.TREATMENT_STATUS_WORKFLOW, GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 
 		//clinicalEnountersIncLab = gp.getEncounterTypeList(GlobalPropertiesManagement.CLINICAL_ENCOUNTER_TYPES);
 
 		//clinicalEncoutersExcLab = gp
 				//.getEncounterTypeList(GlobalPropertiesManagement.CLINICAL_ENCOUNTER_TYPES_EXC_LAB_TEST);
 
-		following = gp.getProgramWorkflowState(GlobalPropertiesManagement.FOLLOWING_STATE,
-				GlobalPropertiesManagement.TREATMENT_STATUS_WORKFLOW, GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
+		//following = gp.getProgramWorkflowState(GlobalPropertiesManagement.FOLLOWING_STATE,
+				//GlobalPropertiesManagement.TREATMENT_STATUS_WORKFLOW, GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 
 		cd4 = gp.getConcept(GlobalPropertiesManagement.CD4_TEST);
 

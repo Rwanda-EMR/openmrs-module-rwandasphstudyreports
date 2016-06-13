@@ -24,6 +24,7 @@
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>rowperpatientreports-api</artifactId>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
@@ -42,6 +43,12 @@
 			<artifactId>htmlwidgets-omod</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>mohorderentrybridge-api</artifactId>
+			<version>${mohOrderEntryBridgeVersion}</version>
+			<scope>provided</scope>
+		</dependency>
 		<!-- End OpenMRS modules -->
 
 		<!-- Begin OpenMRS core -->
