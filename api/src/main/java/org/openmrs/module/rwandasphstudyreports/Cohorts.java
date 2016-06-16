@@ -1,5 +1,6 @@
 package org.openmrs.module.rwandasphstudyreports;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -69,6 +70,17 @@ public class Cohorts {
 		SqlCohortDefinition adultPatients = new SqlCohortDefinition(
 		        "select distinct p.patient_id from patient p inner join person pp on pp.person_id = p.patient_id where p.voided=0 and pp.voided=0 and (pp.birthdate is null or (select DATEDIFF(NOW(), pp.birthdate) / 365.25) >= 16)");
 		return adultPatients;
+	}
+	
+	public static SqlCohortDefinition getAllPatientsOnARVTreatment() {
+		SqlCohortDefinition adultPatientsOnARVS = new SqlCohortDefinition("select distinct p.patient_id from patient p inner join orders o on o.patient_id=p.patient_id "
+                + "inner join drug_order dor on dor.order_id=o.order_id "
+                + "inner join patient_program prog on prog.patient_id=p.patient_id and (prog.program_id = 2 or prog.program_id = 1) and prog.voided = 0 and o.concept_id in("+Context.getAdministrationService().getGlobalPropertyObject("rwandasphstudyreports.arvConceptIdList").getPropertyValue()
+        		+")"
+               + " where o.date_activated < '"
+                + new SimpleDateFormat("yyyy-MM-dd").format(new Date())
+                + "' and p.voided = 0 and o.voided = 0 and o.auto_expire_date is null and p.voided = 0 and o.voided = 0");
+		return adultPatientsOnARVS;
 	}
 	
 	public static SqlCohortDefinition createPatientsWithBaseLineObservation(Concept concept, ProgramWorkflowState state,

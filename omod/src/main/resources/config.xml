@@ -48,7 +48,7 @@
 	
 	<globalProperty>
 		<property>reports.adulthivprogramname</property>
-		<defaultValue>Adult HIV PROGRAM</defaultValue>
+		<defaultValue>HIV Program</defaultValue>
 		<description>Name for Adult HIV program</description>
 	</globalProperty>
 	<globalProperty>
@@ -364,6 +364,13 @@
 		<description>
 			The concept id of the concept set that contains all ART
 			drugs
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.arvConceptIdList</property>
+		<defaultValue>796,797,633,628,794,635,631,625,802,2203,1613,749,795,814,5424,792,5811,630,2833</defaultValue>
+		<description>
+			The concept id for ON ANTIRETROVIRALS concept
 		</description>
 	</globalProperty>
 

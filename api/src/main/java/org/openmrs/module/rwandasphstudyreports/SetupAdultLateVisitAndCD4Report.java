@@ -82,11 +82,11 @@ public class SetupAdultLateVisitAndCD4Report {
 		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "AdultLateVisitAndCD4Template.xls",
 				"XlsAdultLateVisitAndCD4Template", null);
 
-		ReportDefinition rdp = createReportDefinitionPreArt();
-		ReportDesign designp = Helper.createRowPerPatientXlsOverviewReportDesign(rdp,
-				"AdultLateVisitAndCD4PreARTTemplate.xls", "XlsAdultLateVisitAndCD4PreARTTemplate", null);
+		//ReportDefinition rdp = createReportDefinitionPreArt();
+		//ReportDesign designp = Helper.createRowPerPatientXlsOverviewReportDesign(rdp,
+				//"AdultLateVisitAndCD4PreARTTemplate.xls", "XlsAdultLateVisitAndCD4PreARTTemplate", null);
 
-		createDataSetDefinition(rd, rdp);
+		createDataSetDefinition(rd, null);
 
 		Helper.saveReportDefinition(rd);
 		//Helper.saveReportDefinition(rdp);
@@ -103,8 +103,8 @@ public class SetupAdultLateVisitAndCD4Report {
 		propsp.put("repeatingSections",
 				"sheet:1,row:8,dataset:AdultPreARTLateVisit|sheet:2,row:8,dataset:AdultHIVLateCD4Count|sheet:3,row:8,dataset:HIVLostToFollowup|sheet:4,row:8,dataset:PreARTBelow350CD4|sheet:5,row:8,dataset:HIVLowBMI");
 		propsp.put("sortWeight", "5000");
-		designp.setProperties(propsp);
-		Helper.saveReportDesign(designp);
+		//designp.setProperties(propsp);
+		//Helper.saveReportDesign(designp);
 	}
 
 	public void delete() {
@@ -677,17 +677,33 @@ public class SetupAdultLateVisitAndCD4Report {
 		mappings.put("location", "${location}");
 		mappings.put("endDate", "${endDate}");
 
+		//filter all dataset definitions by adult age
+		/*SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
+		adultARTLateVisit.addFilter(adultPatientsCohort, null);
+		adultHIVLateCD4Count.addFilter(adultPatientsCohort, null);
+		hIVLostToFollowup.addFilter(adultPatientsCohort, null);
+		hIVLowBMI.addFilter(adultPatientsCohort, null);
+		viralLoadGreaterThan20InTheLast3Months.addFilter(adultPatientsCohort, null);
+		*/
+		SqlCohortDefinition allPatientsOnARVTreatment = Cohorts.getAllPatientsOnARVTreatment();//this cohort models IMB/PIH way of using on antiretroviral treatment status program workflow state 
+		adultARTLateVisit.addFilter(allPatientsOnARVTreatment, null);
+		adultHIVLateCD4Count.addFilter(allPatientsOnARVTreatment, null);
+		hIVLostToFollowup.addFilter(allPatientsOnARVTreatment, null);
+		hIVLowBMI.addFilter(allPatientsOnARVTreatment, null);
+		viralLoadGreaterThan20InTheLast3Months.addFilter(allPatientsOnARVTreatment, null);
+		
+		
 		art.addDataSetDefinition("AdultARTLateVisit", adultARTLateVisit, mappings);
 		art.addDataSetDefinition("AdultHIVLateCD4Count", adultHIVLateCD4Count, mappings);
 		art.addDataSetDefinition("HIVLostToFollowup", hIVLostToFollowup, mappings);
 		art.addDataSetDefinition("HIVLowBMI", hIVLowBMI, mappings);
 		art.addDataSetDefinition("ViralLoadGreaterThan20InTheLast3Months", viralLoadGreaterThan20InTheLast3Months, mappings);
 
-		preArt.addDataSetDefinition("AdultPreARTLateVisit", adultPreARTLateVisit, mappings);
+		/*preArt.addDataSetDefinition("AdultPreARTLateVisit", adultPreARTLateVisit, mappings);
 		preArt.addDataSetDefinition("AdultHIVLateCD4Count", adultHIVLateCD4Count_1, mappings);
 		preArt.addDataSetDefinition("HIVLostToFollowup", hIVLostToFollowup_1, mappings);
 		preArt.addDataSetDefinition("PreARTBelow350CD4", preARTBelow350CD4, mappings);
-		preArt.addDataSetDefinition("HIVLowBMI", hIVLowBMI_1, mappings);
+		preArt.addDataSetDefinition("HIVLowBMI", hIVLowBMI_1, mappings);*/
 	}
 
 	private void setupProperties() {

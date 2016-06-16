@@ -8,6 +8,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -181,6 +182,10 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		System.out.println("\nDATASETDEFINITION:\n" + ReflectionToStringBuilder.toString(dataSetDefinition) + "\n\n");
 		System.out.println("\nMAPPINGS:\n" + ReflectionToStringBuilder.toString(mappings) + "\n\n");
 		
+		//filter all dataset definitions by adult age
+		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
+		dataSetDefinition.addFilter(adultPatientsCohort, null);
+				
 		reportDefinition.addDataSetDefinition("dataSet", dataSetDefinition, mappings);
 	}
 
