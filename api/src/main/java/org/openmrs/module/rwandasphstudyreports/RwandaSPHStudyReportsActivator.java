@@ -13,33 +13,33 @@
  */
 package org.openmrs.module.rwandasphstudyreports;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.ModuleActivator;
 
 /**
- * This class contains the logic that is run every time this module is either started or stopped.
+ * This class contains the logic that is run every time this module is either
+ * started or stopped.
  */
 public class RwandaSPHStudyReportsActivator implements ModuleActivator {
-	
+
 	protected Log log = LogFactory.getLog(getClass());
-		
+
 	/**
 	 * @see ModuleActivator#willRefreshContext()
 	 */
 	public void willRefreshContext() {
 		log.info("Refreshing Rwanda Reports For CDC Module");
 	}
-	
+
 	/**
 	 * @see ModuleActivator#contextRefreshed()
 	 */
 	public void contextRefreshed() {
 		log.info("Rwanda Reports For CDC Module refreshed");
 	}
-	
+
 	/**
 	 * @see ModuleActivator#willStart()
 	 */
@@ -47,31 +47,32 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 		try {
 			new SetupAdultHIVConsultationSheet().setup();
 			new SetupAdultLateVisitAndCD4Report().setup();
+			new SetupDataQualityIndicatorReport().setup();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		log.info("Starting Rwanda Reports For CDC Module");
 	}
-	
+
 	/**
 	 * @see ModuleActivator#started()
 	 */
 	public void started() {
 		log.info("Rwanda Reports For CDC Module started");
 	}
-	
+
 	/**
 	 * @see ModuleActivator#willStop()
 	 */
 	public void willStop() {
 		log.info("Stopping Rwanda Reports For CDC Module");
 	}
-	
+
 	/**
 	 * @see ModuleActivator#stopped()
 	 */
 	public void stopped() {
 		log.info("Rwanda Reports For CDC Module stopped");
 	}
-		
+
 }

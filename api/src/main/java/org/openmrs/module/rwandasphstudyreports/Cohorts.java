@@ -1562,7 +1562,7 @@ public class Cohorts {
 			query.append(concept.getId());
 			i++;
 		}
-		query.append(") and (o.discontinued=0 or discontinued_date >= lastenc.encounter_datetime) and o.voided=0 group by o.patient_id");
+		query.append(") and (discontinued_date >= lastenc.encounter_datetime) and o.voided=0 group by o.patient_id");
 		regimenAtLastVist.setQuery(query.toString());
 		
 		return regimenAtLastVist;
@@ -1648,7 +1648,7 @@ public class Cohorts {
 		SqlCohortDefinition onARTDrugs = new SqlCohortDefinition();
 		onARTDrugs
 		        .setQuery("select distinct o.patient_id from orders o,concept c where o.concept_id=c.concept_id and c.concept_id in ("
-		                + stringOfIdsOfConcepts + ") and o.discontinued=0 and auto_expire_date is null and o.voided=0");
+		                + stringOfIdsOfConcepts + ") and auto_expire_date is null and o.voided=0");
 		onARTDrugs.setName(name);
 		
 		return onARTDrugs;
@@ -1678,7 +1678,7 @@ public class Cohorts {
 		onTBDrugs
 		        .setQuery("select distinct o.patient_id from orders o,concept c where o.concept_id=c.concept_id and c.concept_id in ("
 		                + stringOfIdsOfTbDrugsConcepts
-		                + ") and o.discontinued=0 and (auto_expire_date is null or auto_expire_date > :now) and o.voided=0");
+		                + ") and (auto_expire_date is null or auto_expire_date > :now) and o.voided=0");
 		onTBDrugs.addParameter(new Parameter("now", "now", Date.class));
 		onTBDrugs.setName(name);
 		
@@ -2378,7 +2378,7 @@ public class Cohorts {
 		
 		query.append(concept.getId());
 		
-		query.append(" and o.discontinued=0 and o.voided=0 group by o.patient_id");
+		query.append(" and o.voided=0 group by o.patient_id");
 		regimenAtLastVist.setQuery(query.toString());
 		
 		return regimenAtLastVist;

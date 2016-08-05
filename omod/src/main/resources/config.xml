@@ -342,6 +342,13 @@
 			Default: 1107.
 		</description>
 	</globalProperty>
+	<globalProperty>
+		<property>reports.drugOrderType</property>
+		<defaultValue>1</defaultValue>
+		<description>
+			The drug test order type
+		</description>
+	</globalProperty>
 
 	<!-- Internationalization -->
 	<!-- All message codes should start with ${project.parent.artifactId}. -->
@@ -372,6 +379,12 @@
 		<description>
 			The concept id for ON ANTIRETROVIRALS concept
 		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.imbIdIdentifierType</property>
+		<defaultValue>TRACnet ID</defaultValue>
+		<description>Identifier type that should be returned for the Primary
+			Care</description>
 	</globalProperty>
 
 </module>
