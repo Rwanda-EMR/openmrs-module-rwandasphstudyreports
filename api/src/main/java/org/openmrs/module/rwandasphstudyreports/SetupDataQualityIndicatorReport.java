@@ -19,7 +19,6 @@ import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinitio
 import org.openmrs.module.reporting.cohort.definition.EncounterCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.GenderCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InProgramCohortDefinition;
-import org.openmrs.module.reporting.cohort.definition.InStateCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.PersonAttributeCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
@@ -37,10 +36,10 @@ import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.reporting.report.service.ReportService;
 import org.openmrs.module.rwandareports.dataset.EncounterIndicatorDataSetDefinition;
 import org.openmrs.module.rwandareports.indicator.EncounterIndicator;
-import org.openmrs.module.rwandareports.renderer.DataQualityReportWebRenderer;
 import org.openmrs.module.rwandareports.renderer.DataQualityWebRenderedForNCDandOncology;
 import org.openmrs.module.rwandareports.renderer.DataQualityWebRendererForSites;
 import org.openmrs.module.rwandareports.util.Indicators;
+import org.openmrs.module.rwandasphstudyreports.renderer.SPHDataQualityReportWebRenderer;
 
 public class SetupDataQualityIndicatorReport {
 
@@ -158,7 +157,6 @@ public class SetupDataQualityIndicatorReport {
 
 	// DQ Report by Site for NCD
 	public ReportDefinition createReportDefinitionBySiteForNCD() throws IOException {
-
 		PeriodIndicatorReportDefinition rd = new PeriodIndicatorReportDefinition();
 		rd.removeParameter(ReportingConstants.START_DATE_PARAMETER);
 		rd.removeParameter(ReportingConstants.END_DATE_PARAMETER);
@@ -294,7 +292,7 @@ public class SetupDataQualityIndicatorReport {
 				//OnARTstatesAllPrograms);
 
 		//TODO resupport this indicator after debugging and getting this report running well
-		/*SqlCohortDefinition onARTDrugs = Cohorts.getArtDrugs("On Art Drugs ever");
+		/*\SqlCohortDefinition onARTDrugs = Cohorts.getArtDrugs("On Art Drugs ever");
 
 		CompositionCohortDefinition onARTDrugsNotOnARTStatus = new CompositionCohortDefinition();
 		onARTDrugsNotOnARTStatus.setName("DQ: patients On ART Drugs Not On ART Status");
@@ -1119,8 +1117,9 @@ public class SetupDataQualityIndicatorReport {
 				new Mapped(patientWithnohealthCenterIndicator, null), "");
 		dataSetDefinition.addColumn("7", "Patients with no encounter",
 				new Mapped(patientsWithNoEncounterInProgramIndicator, null), "");
+		*/
 		dataSetDefinition.addColumn("8", "Patients With BMI <12 or >35", new Mapped(patientsWithBMIMoreThan35, null),
-				"");*/
+				"");
 		//dataSetDefinition.addColumn("9", "Patients With Missing program enrollment start date",
 				//new Mapped(patientsMissingprogramsEnrolStartDateindicator, null), "");
 
@@ -1218,7 +1217,7 @@ public class SetupDataQualityIndicatorReport {
 		final ReportDesign design = new ReportDesign();
 		design.setName(name);
 		design.setReportDefinition(rd);
-		design.setRendererType(DataQualityReportWebRenderer.class);
+		design.setRendererType(SPHDataQualityReportWebRenderer.class);
 		ReportService rs = Context.getService(ReportService.class);
 		return rs.saveReportDesign(design);
 	}
