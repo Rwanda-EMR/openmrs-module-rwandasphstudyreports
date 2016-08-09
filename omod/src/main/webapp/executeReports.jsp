@@ -9,6 +9,8 @@
 	<input type="Submit" value="ART Monthly" onclick="jQuery('#form-action').val('aRTMonthly')">
 	<input type="Submit" value="Consult Sheet Setup" onclick="jQuery('#form-action').val('consultSheetSetup')">
 	<input disabled type="Submit" value="Indicator Report" onclick="jQuery('#form-action').val('indicatorReport')">
+	<input type="Submit" value="Data Quality Report" onclick="jQuery('#form-action').val('dataQualityReport')">
+	<input type="Submit" value="Lost to Followup Patients report" onclick="jQuery('#form-action').val('lostToFollowPatiensReport')">
 </form>
 
 <%@ include file="/WEB-INF/template/footer.jsp" %>

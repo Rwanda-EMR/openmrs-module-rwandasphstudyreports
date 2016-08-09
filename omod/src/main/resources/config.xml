@@ -386,6 +386,11 @@
 		<description>Identifier type that should be returned for the Primary
 			Care</description>
 	</globalProperty>
+	<globalProperty>
+		<property>reports.tracIdentifier</property>
+		<defaultValue>TRACnet ID</defaultValue>
+		<description>Identifier type that should be returned for the TRACnet ID</description>
+	</globalProperty>
 
 </module>
 

@@ -18,23 +18,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openmrs.Cohort;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.reporting.dataset.DataSetColumn;
-import org.openmrs.module.reporting.dataset.SimpleDataSet;
-import org.openmrs.module.reporting.evaluation.EvaluationContext;
-import org.openmrs.module.reporting.report.ReportData;
-import org.openmrs.module.reporting.report.definition.ReportDefinition;
-import org.openmrs.module.reporting.report.definition.service.ReportDefinitionService;
-import org.openmrs.module.rwandasphstudyreports.PatientSummaryManager;
 import org.openmrs.module.rwandasphstudyreports.SetupAdultHIVConsultationSheet;
 import org.openmrs.module.rwandasphstudyreports.SetupAdultLateVisitAndCD4Report;
+import org.openmrs.module.rwandasphstudyreports.SetupDataQualityIndicatorReport;
+import org.openmrs.module.rwandasphstudyreports.SetupLostToFollowupPatients;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * The main controller.
@@ -56,6 +47,10 @@ public class RwandaReportsForCDCManageController {
 			new SetupAdultHIVConsultationSheet().setup();
 		} else if (request.getParameter("formAction").equals("indicatorReport")) {
 			// new SetupIDProgramQuarterlyIndicatorReport().setup();
+		} else if(request.getParameter("formAction").equals("dataQualityReport")) {
+			new SetupDataQualityIndicatorReport().setup();
+		} else if(request.getParameter("formAction").equals("lostToFollowPatiensReport")) {
+			new SetupLostToFollowupPatients().setup();
 		}
 	}
 }
