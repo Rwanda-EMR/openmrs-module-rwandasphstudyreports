@@ -245,10 +245,10 @@
 	
 	<globalProperty>
 		<property>patientsummary.adultconceptIdsToGraph</property>
-		<defaultValue>5090,5089,5497</defaultValue>
+		<defaultValue>5090,5089,5497,856</defaultValue>
 		<description>
 			Ordered, comma separated list of adult concept ids to graph in patient summary.
-			Defaults: height (5090), weight (5089), cd4 (5497).
+			Defaults: height (5090), weight (5089), cd4 (5497), viral load(856).
 		</description>
 	</globalProperty>
 	

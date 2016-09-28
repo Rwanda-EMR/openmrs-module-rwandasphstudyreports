@@ -9,14 +9,13 @@
 		jQuery("#patientDashboardHeader, #openmrs_dwr_error, #navList, #userBar, #patientTabs, #footer").addClass("noprint");
 		
 		var restorepage = document.body.innerHTML;
-	    var htmlToPrint = '<style type="text/css">@media print {.noprint {display:none;}}'
-	    	+ '#patientsummarymodule .th {background-color: #CCDDEE;border-style: solid;border-width: 1px 1px 0px 1px;border-color: #BBB;font-size: 8px;text-align: left;font-weight: normal;padding: 1px 0px 1px 3px;}'
-	    	+ '#patientsummarymodule table, #patientsummarymodule td {border-color: #BBB;border-style: solid;}</style>'
-	    	+ restorepage;
+		var htmlToPrint = '<style type="text/css">@media print {.noprint {display:none;}}</style>'
+			+ restorepage;
 	    
 	    document.body.innerHTML = htmlToPrint;
 	    window.print();
 	    document.body.innerHTML = restorepage;
+	    
 	    jQuery("#patientDashboardHeader, #openmrs_dwr_error, #navList, #userBar, #patientTabs, #footer").removeClass("noprint");
 	}
 </script>
@@ -434,7 +433,7 @@
 					showEmptyConcepts="false"
 					showConceptHeader="true"
 					showDateHeader="true"
-					orientation="horizontal"
+					orientation="verticle"
 					sort="asc"
 					combineEqualResults="true"
 					limit="25"
@@ -452,7 +451,7 @@
 		<td class="th"><spring:message code="rwandasphstudyreports.graphs" /></td>
 	</tr>
 	<tr>
-		<td align="center">
+		<td>
 			<c:forEach var="graphconcept" items="${graphconcepts}">
 				<img
 					src="${pageContext.request.contextPath}/showGraphServlet?patientId=${patient.patientId}&conceptId=${graphconcept}&width=200&height=200&minRange=<c:out value="${graphdata['floor'][graphconcept]}" default="0.0"/>&maxRange=<c:out value="${graphdata['ceiling'][graphconcept]}" default="200.0"/>" width="200" height="200" />
