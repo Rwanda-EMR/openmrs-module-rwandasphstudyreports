@@ -5,14 +5,19 @@
 
 
 <script type="text/javascript">
-	function printContent(el){
+	function printPatientSummary() {
+		jQuery("#patientDashboardHeader, #openmrs_dwr_error, #navList, #userBar, #patientTabs, #footer").addClass("noprint");
+		
 		var restorepage = document.body.innerHTML;
-		var printcontent = document.getElementById(el).innerHTML;
-		document.body.innerHTML = printcontent;
-		jQuery("#backAndPrintButtons").hide();
-		window.print();
-		document.body.innerHTML = restorepage;
-		jQuery("#backAndPrintButtons").show();
+	    var htmlToPrint = '<style type="text/css">@media print {.noprint {display:none;}}'
+	    	+ '#patientsummarymodule .th {background-color: #CCDDEE;border-style: solid;border-width: 1px 1px 0px 1px;border-color: #BBB;font-size: 8px;text-align: left;font-weight: normal;padding: 1px 0px 1px 3px;}'
+	    	+ '#patientsummarymodule table, #patientsummarymodule td {border-color: #BBB;border-style: solid;}</style>'
+	    	+ restorepage;
+	    
+	    document.body.innerHTML = htmlToPrint;
+	    window.print();
+	    document.body.innerHTML = restorepage;
+	    jQuery("#patientDashboardHeader, #openmrs_dwr_error, #navList, #userBar, #patientTabs, #footer").removeClass("noprint");
 	}
 </script>
 
@@ -30,7 +35,7 @@
 				</td>
 				<td class="noprint" align="right" valign="top">
 					<input disabled style="position: relative; top: -5px;" type="button" value="<spring:message code='general.back' />" onclick="" />
-					<input style="position: relative; top: -5px;" type="button" value="<spring:message code='rwandasphstudyreports.print' />" onclick="printContent('patientsummarymodule');" />
+					<input style="position: relative; top: -5px;" type="button" value="<spring:message code='rwandasphstudyreports.print' />" onclick="printPatientSummary();" />
 				</td>
 			</tr>
 			<tr>
@@ -138,8 +143,6 @@
 <table width="100%" cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		<td class="th"><spring:message code="rwandasphstudyreports.alerts" /></td>
-		<td class="noborder"></td>
-		<td class="th"><spring:message code="rwandasphstudyreports.comments" /></td>
 	</tr>
 	<tr>
 		<td class="alert"><c:forEach var="alertconcept"
@@ -161,7 +164,15 @@
 			<spring:message code="rwandasphstudyreports.noaccomp" />
 			<br />
 		</c:if></td>
-		<td class="noborder"></td>
+	</tr>
+
+</table>
+<br/>
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+	<tr>
+		<td class="th"><spring:message code="rwandasphstudyreports.comments" /></td>
+	</tr>
+	<tr>
 		<td>
 		<c:if test="${empty imbIdflag}">
 			<spring:message code="rwandasphstudyreports.noimbid" />
