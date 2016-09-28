@@ -22,10 +22,6 @@
 <div class="header">
 <table width="100%" cellpadding="0" cellspacing="0" border="0">
 	<tr height="27px">
-		<td rowspan="2" align="center" class="picture"><img
-			src="${pageContext.request.contextPath}/images/patient_${patient.gender}.gif"
-			width="110px" alt="${patient.personName}" /><br />
-		</td>
 		<td valign="top" colspan="2" id="backAndPrintButtons">
 		<table width="100%" cellpadding="0" cellspacing="0" border="0">
 			<tr>
