@@ -16,6 +16,12 @@ import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.reporting.report.service.ReportService;
 import org.openmrs.module.rowperpatientreports.dataset.definition.RowPerPatientDataSetDefinition;
+import org.openmrs.module.rowperpatientreports.patientdata.definition.AllObservationValues;
+import org.openmrs.module.rowperpatientreports.patientdata.definition.CustomCalculationBasedOnMultiplePatientDataDefinitions;
+import org.openmrs.module.rowperpatientreports.patientdata.definition.MostRecentObservation;
+import org.openmrs.module.rwandareports.customcalculator.BMI;
+import org.openmrs.module.rwandareports.filter.LastThreeObsFilter;
+import org.openmrs.module.rwandareports.filter.ObservationFilter;
 import org.openmrs.module.rwandareports.util.GlobalPropertiesManagement;
 import org.openmrs.module.rwandareports.util.RowPerPatientColumns;
 
@@ -25,6 +31,8 @@ public class SetupLostToFollowupPatients {
 	private Program hivProgram;
 	private SqlCohortDefinition adultPatientsCohort;
 	private SimpleDateFormat defaultDateFormat;
+	private MostRecentObservation mostRecentHeight;
+	private AllObservationValues weight;
 
 	public void setup() throws Exception {
 		setupProperties();
@@ -35,7 +43,7 @@ public class SetupLostToFollowupPatients {
 				"LostToFollowupPatients", null);
 
 		Properties props = new Properties();
-		props.put("repeatingSections", "sheet:1,row:6,dataset:LostToFollowupPatients");
+		props.put("repeatingSections", "sheet:1,row:12,dataset:LostToFollowupPatients");
 		props.put("sortWeight", "5000");
 		design.setProperties(props);
 
@@ -49,13 +57,13 @@ public class SetupLostToFollowupPatients {
 				rs.purgeReportDesign(rd);
 			}
 		}
-		Helper.purgeReportDefinition("Lost To FollowUp Patients Report");
+		Helper.purgeReportDefinition("Lost To FollowUp Patients");
 	}
 
 	private ReportDefinition createReportDefinition() {
 
 		ReportDefinition reportDefinition = new ReportDefinition();
-		reportDefinition.setName("Lost To FollowUp Patients Report");
+		reportDefinition.setName("LostToFollowupPatients");
 
 		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
 
@@ -90,21 +98,30 @@ public class SetupLostToFollowupPatients {
 				new HashMap<String, Object>());
 		hIVLostToFollowup.addColumn(RowPerPatientColumns.getAge("age"), new HashMap<String, Object>());
 		hIVLostToFollowup.addColumn(
-				RowPerPatientColumns.getMostRecentWeight("RecentWeight", defaultDateFormat.toLocalizedPattern()),
+				RowPerPatientColumns.getMostRecentWeight("recentWeight", defaultDateFormat.toLocalizedPattern()),
 				new HashMap<String, Object>());
 		hIVLostToFollowup.addColumn(
-				RowPerPatientColumns.getMostRecentCD4("RecentCD4Test", defaultDateFormat.toLocalizedPattern()),
+				RowPerPatientColumns.getMostRecentCD4("recentCD4Test", defaultDateFormat.toLocalizedPattern()),
 				new HashMap<String, Object>());
-		hIVLostToFollowup.addColumn(
-				RowPerPatientColumns.getMostRecentViralLoad("RecentViralLoadTest", defaultDateFormat.toLocalizedPattern()),
-				new HashMap<String, Object>());
+		hIVLostToFollowup.addColumn(RowPerPatientColumns.getMostRecentViralLoad("recentViralLoadTest",
+				defaultDateFormat.toLocalizedPattern()), new HashMap<String, Object>());
+		CustomCalculationBasedOnMultiplePatientDataDefinitions bmi = new CustomCalculationBasedOnMultiplePatientDataDefinitions();
+		bmi.setName("bmi");
+		bmi.addPatientDataToBeEvaluated(weight, new HashMap<String, Object>());
+		bmi.addPatientDataToBeEvaluated(mostRecentHeight, new HashMap<String, Object>());
+		bmi.setCalculator(new BMI());
+		hIVLostToFollowup.addColumn(bmi, new HashMap<String, Object>());
 
-		reportDefinition.addDataSetDefinition("dataSet", hIVLostToFollowup, mappings);
+		reportDefinition.addDataSetDefinition("LostToFollowupPatients", hIVLostToFollowup, mappings);
 	}
 
 	private void setupProperties() {
 		hivProgram = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 		adultPatientsCohort = Cohorts.getAdultPatients();
 		defaultDateFormat = Context.getDateFormat();
+		mostRecentHeight = RowPerPatientColumns.getMostRecentHeight("RecentHeight", null);
+		weight = RowPerPatientColumns.getAllWeightValues("weightObs", "ddMMMyy", new LastThreeObsFilter(),
+				new ObservationFilter());
+
 	}
 }
