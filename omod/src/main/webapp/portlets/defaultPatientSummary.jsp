@@ -18,6 +18,14 @@
 	    
 	    jQuery("#patientDashboardHeader, #openmrs_dwr_error, #navList, #userBar, #patientTabs, #footer").removeClass("noprint");
 	}
+	
+	jQuery(function() {
+		jQuery("#patientTabs ul li a").removeClass("current");
+		jQuery("#defaultPatientSummaryTabIDTab").insertBefore(jQuery("#patientOverviewTab"));
+		jQuery("#DataEntryTabIdTab").insertAfter(jQuery("#patientOverviewTab"));
+		jQuery("#formEntryTab").insertAfter(jQuery("#DataEntryTabIdTab"));
+		jQuery("#defaultPatientSummaryTabIDTab").addClass("current");
+	});
 </script>
 
 <br />
@@ -167,6 +175,49 @@
 
 </table>
 <br/>
+
+<c:if test="${not empty drugorders}">
+<table width="100%" cellpadding="0" cellspacing="1" border="0">
+		<tr>
+			<td class="th"><spring:message code="rwandasphstudyreports.drugorders" /></td>
+			<td class="th"><spring:message code="rwandasphstudyreports.dose" /></td>
+			<td class="th"><spring:message code="rwandasphstudyreports.frequency" /></td>
+			<td class="th"><spring:message code="rwandasphstudyreports.startdate" /></td>
+			<td class="th"><spring:message code="rwandasphstudyreports.stopdate" /></td>
+			<td class="th"><spring:message code="rwandasphstudyreports.comments" /></td>
+		</tr>
+		<c:forEach items="${drugorders}" var="drug">
+			<c:if test="${drug.drugOrder.voided == false && drug.isActive == true}">
+				<tr>
+					<td class="nowrap"><b>${not empty drug.drugOrder.drug ? drug.drugOrder.drug.name : drug.drugOrder.concept.name.name}</b></td>
+					<td class="nowrap">${drug.drugOrder.dose} ${drug.doseUnitsName}</td>
+					<td class="nowrap">${drug.frequency}</td>
+					<td class="nowrap"><openmrs:formatDate
+						date="${drug.startDate}" type="medium" /></td>
+					<td class="nowrap"><openmrs:formatDate
+						date="${drug.stopDate}" type="medium" /></td>
+					<td>${drug.drugOrder.instructions}</td>
+				</tr>
+			</c:if>
+		</c:forEach>
+		<c:forEach items="${drugorders}" var="drug">
+			<c:if test="${drug.drugOrder.voided == false && drug.isActive == false}">
+				<tr>
+					<td class="nowrap">${not empty drug.drugOrder.drug ? drug.drugOrder.drug.name : drug.drugOrder.concept.name.name} (stopped)</td>
+					<td class="nowrap">${drug.drugOrder.dose} ${drug.doseUnitsName}</td>
+					<td class="nowrap">${drug.frequency}</td>
+					<td class="nowrap"><openmrs:formatDate
+						date="${drug.startDate}" type="medium" /></td>
+					<td class="nowrap"><openmrs:formatDate
+						date="${drug.stopDate}" type="medium" /></td>
+					<td>${drug.drugOrder.orderReason}</td>
+				</tr>
+			</c:if>
+		</c:forEach>
+	</table>
+</c:if>
+<br/>
+
 <table width="100%" cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		<td class="th"><spring:message code="rwandasphstudyreports.comments" /></td>
@@ -245,9 +296,9 @@
 		</openmrs:forEachObs>
 	</table>
 	</div>
-</c:if> 
-<c:if
-	test="${not empty infections['recent'] || not empty infections['old']}">
+</c:if>
+
+<c:if test="${not empty infections['recent'] || not empty infections['old']}">
 	<div class="section">
 	<table width="100%" cellpadding="1" cellspacing="1" border="0">
 		<tr>
@@ -270,9 +321,9 @@
 		</openmrs:forEachObs>
 	</table>
 	</div>
-</c:if> 
-<c:if
-	test="${not empty symptoms['recent'] || not empty symptoms['old']}">
+</c:if>
+
+<c:if test="${not empty symptoms['recent'] || not empty symptoms['old']}">
 	<div class="section">
 	<table width="100%" cellpadding="1" cellspacing="1" border="0">
 		<tr>
@@ -295,9 +346,9 @@
 		</openmrs:forEachObs>
 	</table>
 	</div>
-</c:if> 
-<c:if
-	test="${not empty prevdiags['recent'] || not empty prevdiags['old']}">
+</c:if>
+
+<c:if test="${not empty prevdiags['recent'] || not empty prevdiags['old']}">
 	<div class="section">
 	<table width="100%" cellpadding="1" cellspacing="1" border="0">
 		<tr>
@@ -322,48 +373,9 @@
 		</openmrs:forEachObs>
 	</table>
 	</div>
-</c:if> <c:if test="${not empty drugorders}">
-	<div class="section">
-	<table width="100%" cellpadding="1" cellspacing="1" border="0">
-		<tr>
-			<td class="th"><spring:message code="rwandasphstudyreports.drugorders" /></td>
-			<td class="th"><spring:message code="rwandasphstudyreports.dose" /></td>
-			<td class="th"><spring:message code="rwandasphstudyreports.frequency" /></td>
-			<td class="th"><spring:message code="rwandasphstudyreports.startdate" /></td>
-			<td class="th"><spring:message code="rwandasphstudyreports.stopdate" /></td>
-			<td class="th"><spring:message code="rwandasphstudyreports.comments" /></td>
-		</tr>
-		<c:forEach items="${drugorders}" var="drug">
-			<c:if test="${drug.drugOrder.voided == false && drug.isActive == true}">
-				<tr>
-					<td class="nowrap"><b>${not empty drug.drugOrder.drug ? drug.drugOrder.drug.name : drug.drugOrder.concept.name.name}</b></td>
-					<td class="nowrap">${drug.drugOrder.dose} ${drug.doseUnitsName}</td>
-					<td class="nowrap">${drug.frequency}</td>
-					<td class="nowrap"><openmrs:formatDate
-						date="${drug.startDate}" type="medium" /></td>
-					<td class="nowrap"><openmrs:formatDate
-						date="${drug.stopDate}" type="medium" /></td>
-					<td>${drug.drugOrder.instructions}</td>
-				</tr>
-			</c:if>
-		</c:forEach>
-		<c:forEach items="${drugorders}" var="drug">
-			<c:if test="${drug.drugOrder.voided == false && drug.isActive == false}">
-				<tr>
-					<td class="nowrap">${not empty drug.drugOrder.drug ? drug.drugOrder.drug.name : drug.drugOrder.concept.name.name} (stopped)</td>
-					<td class="nowrap">${drug.drugOrder.dose} ${drug.doseUnitsName}</td>
-					<td class="nowrap">${drug.frequency}</td>
-					<td class="nowrap"><openmrs:formatDate
-						date="${drug.startDate}" type="medium" /></td>
-					<td class="nowrap"><openmrs:formatDate
-						date="${drug.stopDate}" type="medium" /></td>
-					<td>${drug.drugOrder.orderReason}</td>
-				</tr>
-			</c:if>
-		</c:forEach>
-	</table>
-	</div>
-</c:if> <c:if test="${not empty vitals['recent'] || not empty vitals['old']}">
+</c:if>
+
+<c:if test="${not empty vitals['recent'] || not empty vitals['old']}">
 	<div class="section">
 	<table width="100%" cellpadding="1" cellspacing="1" border="0">
 		<tr>
@@ -454,7 +466,7 @@
 		<td>
 			<c:forEach var="graphconcept" items="${graphconcepts}">
 				<img
-					src="${pageContext.request.contextPath}/showGraphServlet?patientId=${patient.patientId}&conceptId=${graphconcept}&width=200&height=200&minRange=<c:out value="${graphdata['floor'][graphconcept]}" default="0.0"/>&maxRange=<c:out value="${graphdata['ceiling'][graphconcept]}" default="200.0"/>" width="200" height="200" />
+					src="${pageContext.request.contextPath}/showGraphServlet?patientId=${patient.patientId}&conceptId=${graphconcept}&width=400&height=400&minRange=<c:out value="${graphdata['floor'][graphconcept]}" default="0.0"/>&maxRange=<c:out value="${graphdata['ceiling'][graphconcept]}" default="200.0"/>" width="650" height="650" />
 			</c:forEach>
 		</td>
 	</tr>
