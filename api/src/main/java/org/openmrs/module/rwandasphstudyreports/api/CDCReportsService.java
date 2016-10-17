@@ -38,4 +38,6 @@ public interface CDCReportsService extends OpenmrsService {
 	public Cohort getAllRwandaAdultsPatients();
 
 	ReportRequest executeAndGetAdultFollowUpReportRequest();
+
+	String executeAndGetAdultFollowUpReportRequestUuid();
 }

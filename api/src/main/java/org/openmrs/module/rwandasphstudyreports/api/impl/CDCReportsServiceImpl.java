@@ -127,4 +127,11 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		today.clear(Calendar.MILLISECOND);
 		return today;
 	}
+
+	@Override
+	public String executeAndGetAdultFollowUpReportRequestUuid() {
+		ReportRequest req = executeAndGetAdultFollowUpReportRequest();
+		
+		return req != null ? executeAndGetAdultFollowUpReportRequest().getUuid() : "";
+	}
 }
