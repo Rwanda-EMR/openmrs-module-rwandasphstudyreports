@@ -18,10 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.rwandasphstudyreports.SetupAdultHIVConsultationSheet;
 import org.openmrs.module.rwandasphstudyreports.SetupAdultLateVisitAndCD4Report;
-import org.openmrs.module.rwandasphstudyreports.SetupDataQualityIndicatorReport;
-import org.openmrs.module.rwandasphstudyreports.SetupLostToFollowupPatients;
+import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,5 +52,11 @@ public class RwandaReportsForCDCManageController {
 		} else if (request.getParameter("formAction").equals("lostToFollowPatiensReport")) {
 			// new SetupLostToFollowupPatients().setup();
 		}
+	}
+
+	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToAdultFollowupReport", method = RequestMethod.GET)
+	public String reDirectToAdultFollowupReport() {
+		return "redirect:/module/reporting/reports/viewReport.form?uuid="
+				+ Context.getService(CDCReportsService.class).executeAndGetAdultFollowUpReportRequestUuid() + "#tabs-2";
 	}
 }
