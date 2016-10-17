@@ -20,11 +20,10 @@
 	}
 	
 	jQuery(function() {
-		jQuery("#patientTabs ul li a").removeClass("current");
 		jQuery("#defaultPatientSummaryTabIDTab").insertBefore(jQuery("#patientOverviewTab"));
 		jQuery("#DataEntryTabIdTab").insertAfter(jQuery("#patientOverviewTab"));
 		jQuery("#formEntryTab").insertAfter(jQuery("#DataEntryTabIdTab"));
-		jQuery("#defaultPatientSummaryTabIDTab").addClass("current");
+		jQuery("#defaultPatientSummaryTabIDTab").trigger("click");
 	});
 </script>
 

@@ -47,7 +47,7 @@ public class SetupDataQualityIndicatorReport {
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 
 	// properties
-	private Program pmtct;
+	//private Program pmtct;
 	/*private Program pmtctCombinedClinicInfant;
 	private Program pmtctCombinedClinicMother;
 	private Program pediHIV;*/
@@ -81,7 +81,7 @@ public class SetupDataQualityIndicatorReport {
 	private List<Program> allPrograms = new ArrayList<Program>();
 	private List<Concept> allArtConceptDrug = new ArrayList<Concept>();
 	private Concept onAntiretroviral;
-	private OrderType drugOrderType;
+	//private OrderType drugOrderType;
 	//private EncounterType transfeInEncounterType;
 
 	public void setup() throws Exception {
@@ -218,13 +218,13 @@ public class SetupDataQualityIndicatorReport {
 		// 2. Patients enrolled in PMTCT Pregnancy for more than 8 months
 		// ======================================================================================
 
-		SqlCohortDefinition patientsInPMTCTTooLong = new SqlCohortDefinition(
+		/*SqlCohortDefinition patientsInPMTCTTooLong = new SqlCohortDefinition(
 				"select distinct patient_id from patient_program pp,program p where pp.program_id=p.program_id and p.name='"
 						+ pmtct.getName() + "' and DATEDIFF(CURDATE(),pp.date_enrolled) > " + gp.EIGHTANDHALF_MONTHS
 						+ " and pp.voided=false and pp.date_completed is null");
 		CohortIndicator patientsInPMTCTTooLongIndicator = Indicators
 				.newCountIndicator("PMTCTDQ: Number of patients in PMTCT program", patientsInPMTCTTooLong, null);
-
+*/
 		// ======================================================================================
 		// 3. Patients enrolled in Combined Clinic Mother for more than 19
 		// months
@@ -255,7 +255,7 @@ public class SetupDataQualityIndicatorReport {
 		// ======================================================================================
 
 		List<Program> PMTCTPrograms = new ArrayList<Program>();
-		PMTCTPrograms.add(pmtct);
+		//PMTCTPrograms.add(pmtct);
 		//PMTCTPrograms.add(pmtctCombinedClinicMother);
 		InProgramCohortDefinition inPMTCTPrograms = Cohorts.createInProgramParameterizableByDate("DQ: inHIVProgram",
 				PMTCTPrograms, "onDate");
@@ -491,7 +491,7 @@ public class SetupDataQualityIndicatorReport {
 		inAllPrograms.add(adultHIV);
 		//inAllPrograms.add(tb);
 		//inAllPrograms.add(nutritionpro);
-		inAllPrograms.add(pmtct);
+		//inAllPrograms.add(pmtct);
 		InProgramCohortDefinition enrolledInAllPrograms = Cohorts
 				.createInProgramParameterizableByDate("DQ: enrolledInAllPrograms", inAllPrograms, "onDate");
 
@@ -659,7 +659,7 @@ public class SetupDataQualityIndicatorReport {
 			j++;
 		}
 
-		SqlCohortDefinition patientsOnArtbeforeProgramEnrollmentDate = new SqlCohortDefinition();
+		/*SqlCohortDefinition patientsOnArtbeforeProgramEnrollmentDate = new SqlCohortDefinition();
 		patientsOnArtbeforeProgramEnrollmentDate.setName("patientsOnArtbeforeProgramEnrollmentDate");
 		String sql7 = "select firstDrugOder.patient_id from patient_program pp,(select * from (select o.patient_id,o.date_activated from orders o, order_type ot where o.order_type_id =ot.order_type_id and o.order_type_id="
 						+ drugOrderType.getOrderTypeId() + " and o.concept_id in (" + allArtConceptDrugIds.toString()
@@ -670,7 +670,7 @@ public class SetupDataQualityIndicatorReport {
 
 		StringBuilder allProgramsIdsWithOnAntiRetroviralState = new StringBuilder();
 		int k = 0;
-
+*/
 		/*for (Program p : allPrograms) {
 			programworkflow: for (ProgramWorkflow pw : p.getAllWorkflows()) {
 				for (ProgramWorkflowState pws : pw.getStates()) {
@@ -829,8 +829,8 @@ public class SetupDataQualityIndicatorReport {
 		/*dataSetDefinition.addColumn("1",
 				"Patients who are in Pediatric or Adult HIV program AND on ART whose accompagnateur is not listed in EMR",
 				new Mapped(patientsInHIVOnARTWithoutAccompIndicator, null), "");
-		*/dataSetDefinition.addColumn("2", "Patients enrolled in PMTCT Pregnancy for more than 8 months and a half",
-				new Mapped(patientsInPMTCTTooLongIndicator, null), "");
+		dataSetDefinition.addColumn("2", "Patients enrolled in PMTCT Pregnancy for more than 8 months and a half",
+				new Mapped(patientsInPMTCTTooLongIndicator, null), "");*/
 		//dataSetDefinition.addColumn("3", "Patients enrolled in Combined Clinic Mother for more than 19 months", new Mapped(patientsInPMTCTCCMTooLongIndicator, null), "");
 		//dataSetDefinition.addColumn("4", "Patients enrolled in Combined Clinic Infant for more than 19 months", new Mapped(patientsInPMTCTCCITooLongIndicator, null), "");
 		dataSetDefinition.addColumn("5",
@@ -1156,7 +1156,7 @@ public class SetupDataQualityIndicatorReport {
 	}
 
 	private void setUpProperties() {
-		pmtct = gp.getProgram(GlobalPropertiesManagement.PMTCT_PREGNANCY_PROGRAM);
+		//pmtct = gp.getProgram(GlobalPropertiesManagement.PMTCT_PREGNANCY_PROGRAM);
 		//pmtctCombinedClinicInfant = gp.getProgram(GlobalPropertiesManagement.PMTCT_COMBINED_CLINIC_PROGRAM);
 		//pmtctCombinedClinicMother = gp.getProgram(GlobalPropertiesManagement.PMTCT_COMBINED_MOTHER_PROGRAM);
 		//pediHIV = gp.getProgram(GlobalPropertiesManagement.PEDI_HIV_PROGRAM);
@@ -1209,7 +1209,7 @@ public class SetupDataQualityIndicatorReport {
 
 		allArtConceptDrug = gp.getConceptsByConceptSet(GlobalPropertiesManagement.ART_DRUGS_SET);
 		onAntiretroviral = gp.getConcept(GlobalPropertiesManagement.ON_ART_TREATMENT_STATUS_CONCEPT);
-		drugOrderType = gp.getOrderType(GlobalPropertiesManagement.DRUG_ORDER_TYPE);
+		//drugOrderType = gp.getOrderType(GlobalPropertiesManagement.DRUG_ORDER_TYPE);
 		//transfeInEncounterType = gp.getEncounterType(GlobalPropertiesManagement.TRANSFER_IN_ENCOUNTER_TYPE);
 	}
 

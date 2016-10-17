@@ -15,6 +15,7 @@ package org.openmrs.module.rwandasphstudyreports.api;
 
 import org.openmrs.Cohort;
 import org.openmrs.api.OpenmrsService;
+import org.openmrs.module.reporting.report.ReportRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -35,4 +36,6 @@ public interface CDCReportsService extends OpenmrsService {
 	 * 
 	 */
 	public Cohort getAllRwandaAdultsPatients();
+
+	ReportRequest executeAndGetAdultFollowUpReportRequest();
 }

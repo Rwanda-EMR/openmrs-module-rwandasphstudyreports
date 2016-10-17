@@ -15,7 +15,6 @@ package org.openmrs.module.rwandasphstudyreports;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.ModuleActivator;
 
 /**
@@ -44,13 +43,6 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 	 * @see ModuleActivator#willStart()
 	 */
 	public void willStart() {
-		try {
-			new SetupAdultHIVConsultationSheet().setup();
-			new SetupAdultLateVisitAndCD4Report().setup();
-			new SetupDataQualityIndicatorReport().setup();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		log.info("Starting Rwanda Reports For CDC Module");
 	}
 
@@ -59,6 +51,13 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 	 */
 	public void started() {
 		log.info("Rwanda Reports For CDC Module started");
+		try {
+			new SetupAdultHIVConsultationSheet().setup();
+			new SetupAdultLateVisitAndCD4Report().setup();
+			//new SetupDataQualityIndicatorReport().setup();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

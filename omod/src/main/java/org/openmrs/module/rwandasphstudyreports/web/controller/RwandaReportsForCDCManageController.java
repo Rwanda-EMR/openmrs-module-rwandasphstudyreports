@@ -47,10 +47,10 @@ public class RwandaReportsForCDCManageController {
 			new SetupAdultHIVConsultationSheet().setup();
 		} else if (request.getParameter("formAction").equals("indicatorReport")) {
 			// new SetupIDProgramQuarterlyIndicatorReport().setup();
-		} else if(request.getParameter("formAction").equals("dataQualityReport")) {
-			new SetupDataQualityIndicatorReport().setup();
-		} else if(request.getParameter("formAction").equals("lostToFollowPatiensReport")) {
-			new SetupLostToFollowupPatients().setup();
+		} else if (request.getParameter("formAction").equals("dataQualityReport")) {
+			// new SetupDataQualityIndicatorReport().setup();
+		} else if (request.getParameter("formAction").equals("lostToFollowPatiensReport")) {
+			// new SetupLostToFollowupPatients().setup();
 		}
 	}
 }
