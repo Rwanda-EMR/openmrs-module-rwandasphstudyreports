@@ -90,11 +90,17 @@
 				<c:if test="${patientProgram.program!=null}">
 					<tr>
 						<td class="nowrap" align="right">${patientProgram.program.name}</td>
+						<td>
+							<c:choose>
+								<c:when test="${patientProgram.dateEnrolled!=null}">
+									<i>Enrolled on <openmrs:formatDate date="${patientProgram.dateEnrolled}" type="medium" /></i>
+								</c:when>
+							</c:choose>
+						</td>
 						<td colspan="3">
 							<c:choose>
 								<c:when test="${patientProgram.dateCompleted!=null}">
-									<i>Completed on <openmrs:formatDate date="${patientProgram.dateCompleted}"
-					type="medium" /></i>
+									<i>Completed on <openmrs:formatDate date="${patientProgram.dateCompleted}" type="medium" /></i>
 								</c:when>
 								<c:otherwise>
 									<b>
@@ -465,7 +471,7 @@
 		<td>
 			<c:forEach var="graphconcept" items="${graphconcepts}">
 				<img
-					src="${pageContext.request.contextPath}/showGraphServlet?patientId=${patient.patientId}&conceptId=${graphconcept}&width=400&height=400&minRange=<c:out value="${graphdata['floor'][graphconcept]}" default="0.0"/>&maxRange=<c:out value="${graphdata['ceiling'][graphconcept]}" default="200.0"/>" width="650" height="650" />
+					src="${pageContext.request.contextPath}/showGraphServlet?patientId=${patient.patientId}&conceptId=${graphconcept}&width=200&height=200&minRange=<c:out value="${graphdata['floor'][graphconcept]}" default="0.0"/>&maxRange=<c:out value="${graphdata['ceiling'][graphconcept]}" default="200.0"/>" width="200" height="200" />
 			</c:forEach>
 		</td>
 	</tr>

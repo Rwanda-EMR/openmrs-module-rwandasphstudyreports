@@ -40,10 +40,8 @@
 	</extension>
 	
 	<!-- Maps hibernate file's, if present -->
-	<mappingFiles>
-				
+	<mappingFiles>		
 		CDCReports.hbm.xml
-				
 	</mappingFiles>
 	
 	<globalProperty>
@@ -221,7 +219,7 @@
 	<globalProperty>
 		<property>report.referedforfp</property>
 		<defaultValue>6734</defaultValue>
-		<description>rerefer for fp concept id. </description>
+		<description>referrer for fp concept id. </description>
 	</globalProperty>
 	
 	<globalProperty>
