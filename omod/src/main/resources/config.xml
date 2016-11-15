@@ -38,6 +38,10 @@
 		<point>org.openmrs.patientDashboardTab</point>
 		<class>${project.parent.groupId}.${project.parent.artifactId}.extension.html.PatientSummaryDashboardTab</class>
 	</extension>
+	<extension>
+		<point>org.openmrs.patientDashboardTab</point>
+		<class>${project.parent.groupId}.${project.parent.artifactId}.extension.html.QuickDataEntryTab</class>
+	</extension>
 	
 	<!-- Maps hibernate file's, if present -->
 	<mappingFiles>		
@@ -389,6 +393,10 @@
 		<defaultValue>TRACnet ID</defaultValue>
 		<description>Identifier type that should be returned for the TRACnet ID</description>
 	</globalProperty>
-
+	<globalProperty>
+		<property>reports.hivRapidTestConceptId</property>
+		<defaultValue>1040</defaultValue>
+		<description>HIV RAPID TEST Concept Id</description>
+	</globalProperty>
 </module>
 

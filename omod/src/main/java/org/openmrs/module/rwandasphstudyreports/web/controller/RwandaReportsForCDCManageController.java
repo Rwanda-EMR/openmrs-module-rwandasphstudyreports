@@ -13,12 +13,16 @@
  */
 package org.openmrs.module.rwandasphstudyreports.web.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.openmrs.module.rwandasphstudyreports.SetupAdultHIVConsultationSheet;
 import org.openmrs.module.rwandasphstudyreports.SetupAdultLateVisitAndCD4Report;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
@@ -58,5 +62,25 @@ public class RwandaReportsForCDCManageController {
 	public String reDirectToAdultFollowupReport() {
 		return "redirect:/module/reporting/reports/viewReport.form?uuid="
 				+ Context.getService(CDCReportsService.class).executeAndGetAdultFollowUpReportRequestUuid() + "#tabs-2";
+	}
+
+	@RequestMapping(value = "/module/rwandasphstudyreports/portlets/quickDataEntry", method = RequestMethod.GET)
+	public void quickDataEntry(ModelMap model) throws Exception {
+		List<QuickDataEntry> entries = new ArrayList<QuickDataEntry>();
+
+		entries.add(new QuickDataEntry(Context.getConceptService().getConcept(
+				Integer.parseInt(Context.getAdministrationService().getGlobalProperty("reports.cd4Concept")))));
+		entries.add(new QuickDataEntry(Context.getConceptService().getConcept(
+				Integer.parseInt(Context.getAdministrationService().getGlobalProperty("reports.viralLoadConcept")))));
+		entries.add(new QuickDataEntry(Context.getConceptService().getConcept(Integer
+				.parseInt(Context.getAdministrationService().getGlobalProperty("reports.hivRapidTestConceptId")))));
+		model.put("locations", Context.getLocationService().getAllLocations(false));
+		model.put("providers", Context.getProviderService().getAllProviders(false));
+		model.put("entries", entries);
+	}
+
+	@RequestMapping(value = "/module/rwandasphstudyreports/portlets/quickDataEntry", method = RequestMethod.POST)
+	public void quickDataEntry(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
 	}
 }
