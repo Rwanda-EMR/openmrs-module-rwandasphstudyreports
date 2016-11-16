@@ -398,5 +398,10 @@
 		<defaultValue>1040</defaultValue>
 		<description>HIV RAPID TEST Concept Id</description>
 	</globalProperty>
+	<globalProperty>
+		<property>reports.otherQuickDataEntryConceptIds</property>
+		<defaultValue></defaultValue>
+		<description>Comma separated Concept ids whose observations need to be captured as part of the quick data entry form on the patient dashboard</description>
+	</globalProperty>
 </module>
 

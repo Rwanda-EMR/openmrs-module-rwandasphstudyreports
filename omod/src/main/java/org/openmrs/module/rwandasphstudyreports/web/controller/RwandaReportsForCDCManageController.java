@@ -19,17 +19,25 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jettison.json.JSONArray;
+import org.openmrs.Encounter;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.openmrs.module.rwandasphstudyreports.SetupAdultHIVConsultationSheet;
 import org.openmrs.module.rwandasphstudyreports.SetupAdultLateVisitAndCD4Report;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
+import org.openmrs.web.WebConstants;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * The main controller.
@@ -66,7 +74,13 @@ public class RwandaReportsForCDCManageController {
 
 	@RequestMapping(value = "/module/rwandasphstudyreports/portlets/quickDataEntry", method = RequestMethod.GET)
 	public void quickDataEntry(ModelMap model) throws Exception {
+		initialiseQuickDataEntries(model);
+	}
+
+	private void initialiseQuickDataEntries(ModelMap model) {
 		List<QuickDataEntry> entries = new ArrayList<QuickDataEntry>();
+		String otherQuickEntryIds = Context.getAdministrationService()
+				.getGlobalProperty("reports.otherQuickDataEntryConceptIds");
 
 		entries.add(new QuickDataEntry(Context.getConceptService().getConcept(
 				Integer.parseInt(Context.getAdministrationService().getGlobalProperty("reports.cd4Concept")))));
@@ -74,13 +88,40 @@ public class RwandaReportsForCDCManageController {
 				Integer.parseInt(Context.getAdministrationService().getGlobalProperty("reports.viralLoadConcept")))));
 		entries.add(new QuickDataEntry(Context.getConceptService().getConcept(Integer
 				.parseInt(Context.getAdministrationService().getGlobalProperty("reports.hivRapidTestConceptId")))));
+		if (StringUtils.isNotBlank(otherQuickEntryIds)) {
+			String[] ids = otherQuickEntryIds.split(",");
+
+			for (int i = 0; i < ids.length; i++) {
+				String id = ids[i].replaceAll("\\s", "");
+
+				if (StringUtils.isNotBlank(id))
+					entries.add(new QuickDataEntry(Context.getConceptService().getConcept(Integer.parseInt(id))));
+			}
+		}
+
 		model.put("locations", Context.getLocationService().getAllLocations(false));
 		model.put("providers", Context.getProviderService().getAllProviders(false));
 		model.put("entries", entries);
 	}
 
 	@RequestMapping(value = "/module/rwandasphstudyreports/portlets/quickDataEntry", method = RequestMethod.POST)
-	public void quickDataEntry(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void quickDataEntry(ModelMap model, HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "entries", required = false) String entries,
+			@RequestParam(required = true, value = "patientId") Integer patientId) throws Exception {
+		Patient patient = Context.getPatientService().getPatient(patientId);
+		ObjectMapper objectMapper = new ObjectMapper();
+		// TODO failure
+		JSONArray quickEntries = objectMapper.readValue(entries, JSONArray.class);
 
+		for (int i = 0; i < quickEntries.length(); i++) {
+			QuickDataEntry entry = new QuickDataEntry(quickEntries.getJSONObject(i));
+			// TODO pass real encounter and probably attach to a visit,
+			// initially have created a quick data entry form attached to it
+			Encounter encounter = null;
+			Obs obs = Context.getService(CDCReportsService.class).saveQuickDataEntry(entry, patient, encounter);
+		}
+
+		request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Successfully saved quick data entry results");
+		initialiseQuickDataEntries(model);
 	}
 }

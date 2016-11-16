@@ -19,6 +19,9 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Cohort;
+import org.openmrs.Encounter;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.reporting.definition.DefinitionSummary;
@@ -31,6 +34,7 @@ import org.openmrs.module.reporting.report.definition.service.ReportDefinitionSe
 import org.openmrs.module.reporting.report.renderer.RenderingMode;
 import org.openmrs.module.reporting.report.service.ReportService;
 import org.openmrs.module.reporting.web.renderers.DefaultWebRenderer;
+import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.openmrs.module.rwandasphstudyreports.api.db.CDCReportsDAO;
 
@@ -131,7 +135,16 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	@Override
 	public String executeAndGetAdultFollowUpReportRequestUuid() {
 		ReportRequest req = executeAndGetAdultFollowUpReportRequest();
-		
+
 		return req != null ? executeAndGetAdultFollowUpReportRequest().getUuid() : "";
+	}
+
+	@Override
+	public Obs saveQuickDataEntry(QuickDataEntry entry, Patient patient, Encounter encounter) {
+		Obs obs = new Obs(patient, entry.getTest(), entry.getDateOfExam(), entry.getLocation());
+
+		obs.setEncounter(encounter);
+		obs.setValueNumeric(entry.getResult());
+		return Context.getObsService().saveObs(obs, "Creating a new observation from quick data entry form");
 	}
 }

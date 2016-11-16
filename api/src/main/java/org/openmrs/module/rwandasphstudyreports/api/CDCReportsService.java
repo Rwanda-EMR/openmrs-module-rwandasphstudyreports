@@ -14,8 +14,12 @@
 package org.openmrs.module.rwandasphstudyreports.api;
 
 import org.openmrs.Cohort;
+import org.openmrs.Encounter;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.reporting.report.ReportRequest;
+import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -40,4 +44,6 @@ public interface CDCReportsService extends OpenmrsService {
 	ReportRequest executeAndGetAdultFollowUpReportRequest();
 
 	String executeAndGetAdultFollowUpReportRequestUuid();
+
+	Obs saveQuickDataEntry(QuickDataEntry entry, Patient patient, Encounter encounter);
 }
