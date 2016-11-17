@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jettison.json.JSONArray;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
@@ -109,9 +108,7 @@ public class RwandaReportsForCDCManageController {
 			@RequestParam(value = "entries", required = false) String entries,
 			@RequestParam(required = true, value = "patientId") Integer patientId) throws Exception {
 		Patient patient = Context.getPatientService().getPatient(patientId);
-		ObjectMapper objectMapper = new ObjectMapper();
-		// TODO failure
-		JSONArray quickEntries = objectMapper.readValue(entries, JSONArray.class);
+		JSONArray quickEntries = new JSONArray(entries);
 
 		for (int i = 0; i < quickEntries.length(); i++) {
 			QuickDataEntry entry = new QuickDataEntry(quickEntries.getJSONObject(i));

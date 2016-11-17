@@ -7,8 +7,9 @@
 				function(event) {
 					jQuery("#formEntries").val(
 							JSON.stringify(generateQuickDataEntryToPost()));
-					if (jQuery("#formEntries").val() != "")
+					if (jQuery("#formEntries").val() != "") {
 						jQuery("#entriesForm").submit();
+					}
 				});
 	});
 
