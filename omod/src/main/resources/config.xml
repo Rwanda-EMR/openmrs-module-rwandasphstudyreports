@@ -403,5 +403,10 @@
 		<defaultValue></defaultValue>
 		<description>Comma separated Concept ids whose observations need to be captured as part of the quick data entry form on the patient dashboard</description>
 	</globalProperty>
+	<globalProperty>
+		<property>reports.adultStartingAge</property>
+		<defaultValue>16</defaultValue>
+		<description>Starting Age for an adult</description>
+	</globalProperty>
 </module>
 

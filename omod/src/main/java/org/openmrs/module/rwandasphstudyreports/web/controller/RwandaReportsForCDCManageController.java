@@ -117,8 +117,7 @@ public class RwandaReportsForCDCManageController {
 			Encounter encounter = null;
 			Obs obs = Context.getService(CDCReportsService.class).saveQuickDataEntry(entry, patient, encounter);
 		}
-
-		request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Successfully saved quick data entry results");
 		initialiseQuickDataEntries(model);
+		request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Successfully saved quick data entry results");
 	}
 }

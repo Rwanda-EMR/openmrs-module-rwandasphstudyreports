@@ -13,12 +13,15 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api.impl;
 
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Cohort;
+import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
@@ -144,7 +147,20 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		Obs obs = new Obs(patient, entry.getTest(), entry.getDateOfExam(), entry.getLocation());
 
 		obs.setEncounter(encounter);
-		obs.setValueNumeric(entry.getResult());
+		if ("Numeric".equals(entry.getTestType()))
+			obs.setValueNumeric((Double) entry.getResult());
+		else if ("Date".equals(entry.getTestType()) || "Datetime".equals(entry.getTestType()))
+			obs.setValueDate((Date) entry.getResult());
+		else if ("Boolean".equals(entry.getTestType()))
+			obs.setValueBoolean((Boolean) entry.getResult());
+		else if ("Text".equals(entry.getTestType()))
+			try {
+				obs.setValueAsString((String) entry.getResult());
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		else if ("Coded".equals(entry.getTestType()))
+			obs.setValueCoded((Concept) entry.getResult());
 		return Context.getObsService().saveObs(obs, "Creating a new observation from quick data entry form");
 	}
 }

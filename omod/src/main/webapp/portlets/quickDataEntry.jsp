@@ -3,14 +3,12 @@
 
 <script type="text/javascript">
 	jQuery(function() {
-		jQuery("#submitEntries").click(
-				function(event) {
-					jQuery("#formEntries").val(
-							JSON.stringify(generateQuickDataEntryToPost()));
-					if (jQuery("#formEntries").val() != "") {
-						jQuery("#entriesForm").submit();
-					}
-				});
+		jQuery("#submitEntries").click(function(event) {
+			jQuery("#formEntries").val(JSON.stringify(generateQuickDataEntryToPost()));
+			if (jQuery("#formEntries").val() != "") {
+				jQuery("#entriesForm").submit();
+			}
+		});
 	});
 
 	function generateQuickDataEntryToPost() {
@@ -22,6 +20,11 @@
 			var provider = jQuery(".testProvider:eq(" + i + ")").val();
 			var location = jQuery(".testLocation:eq(" + i + ")").val();
 			var result = jQuery(".testResult:eq(" + i + ")").val();
+			var type = jQuery(".testType:eq(" + i + ")").val();
+			
+			if(type == "Boolean") {
+				result = jQuery(".testResult:eq(" + i + ")").prop('checked');
+			}
 			var entry = {
 				"conceptId" : concept,
 				"date" : date,
@@ -56,6 +59,7 @@
 				<input type="hidden" name="entries" id="formEntries">
 				<c:forEach items="${entries}" var="entry">
 					<tr>
+						<input type="hidden" class="testType" value="${entry.testType}"/>
 						<td><label class="testName" id="${entry.test.conceptId}">${entry.testName}</label>
 						</td>
 						<td><input type="text" class="testDate date"
@@ -72,7 +76,25 @@
 									<option value="${location.uuid}">${location.name}</option>
 								</c:forEach>
 						</select></td>
-						<td><input class="testResult" type="text" /></td>
+						<td>
+							<c:if test="${entry.testType == 'Numeric' || entry.testType == 'Text'}">
+								<input class="testResult" type="text" />
+							</c:if>
+							<c:if test="${entry.testType == 'Datetime' || entry.testType == 'Date'}">
+								<input class="testResult" type="text" class="testDate date" onfocus="showCalendar(this)" />
+							</c:if>
+							<c:if test="${entry.testType == 'Boolean'}">
+								<input class="testResult" type="checkbox" />
+							</c:if>
+							<c:if test="${entry.testType == 'Coded'}">
+								<select class="testResult">
+									<option></option>
+									<c:forEach items="${entry.codedAnswers}" var="answer">
+										<option value="${answer}">${answer}</option>
+									</c:forEach>
+								</select>
+							</c:if>
+						</td>
 					</tr>
 				</c:forEach>
 			<tbody>
