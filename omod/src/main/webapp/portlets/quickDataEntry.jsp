@@ -22,9 +22,6 @@
 			var result = jQuery(".testResult:eq(" + i + ")").val();
 			var type = jQuery(".testType:eq(" + i + ")").val();
 			
-			if(type == "Boolean") {
-				result = jQuery(".testResult:eq(" + i + ")").prop('checked');
-			}
 			var entry = {
 				"conceptId" : concept,
 				"date" : date,
@@ -84,7 +81,11 @@
 								<input class="testResult" type="text" class="testDate date" onfocus="showCalendar(this)" />
 							</c:if>
 							<c:if test="${entry.testType == 'Boolean'}">
-								<input class="testResult" type="checkbox" />
+								<select class="testResult">
+									<option></option>
+									<option value="true">true</option>
+									<option value="false">false</option>
+								</select>
 							</c:if>
 							<c:if test="${entry.testType == 'Coded'}">
 								<select class="testResult">

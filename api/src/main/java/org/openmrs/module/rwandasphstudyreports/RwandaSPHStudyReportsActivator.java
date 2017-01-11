@@ -54,7 +54,8 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 		try {
 			new SetupAdultHIVConsultationSheet().setup();
 			new SetupAdultLateVisitAndCD4Report().setup();
-			//new SetupDataQualityIndicatorReport().setup();
+			// new SetupDataQualityIndicatorReport().setup();
+			new EMRReportAlerts().setup();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

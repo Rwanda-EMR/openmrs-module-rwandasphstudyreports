@@ -62,12 +62,12 @@ public class QuickDataEntry {
 			else if ("Date".equals(getTestType()) || "Datetime".equals(getTestType()))
 				setResult(sdf.parse((String) result));
 			else if ("Boolean".equals(getTestType()))
-				setResult((Boolean) result);
+				setResult(Boolean.parseBoolean((String) result));
 			else if ("Text".equals(getTestType()))
 				setResult(result);
 			else if ("Coded".equals(getTestType())) {
-				setResult(Context.getConceptService().getConcept(
-						((String) result).substring(((String) result).indexOf("(") + 1, ((String) result).indexOf(")"))));
+				setResult(Context.getConceptService().getConcept(((String) result)
+						.substring(((String) result).indexOf("(") + 1, ((String) result).indexOf(")"))));
 			}
 
 		} catch (ParseException e) {

@@ -9,4 +9,13 @@
         for a list of supported elements and attributes
     -->
     
+    <changeSet id="20171101-1120" author="k-joseph">
+		<comment>
+			Updates patient summary concepts to be displayed as graphs on the patient summary
+		</comment>
+		<update tableName="global_property">
+			<column name="property_value" value="5089,5497,856"/>
+			<where>property='patientsummary.adultconceptIdsToGraph'</where>
+		</update>
+	</changeSet>
 </databaseChangeLog>
