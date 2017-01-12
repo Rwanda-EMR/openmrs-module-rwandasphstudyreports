@@ -23,8 +23,10 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Cohort;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
+import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.reporting.definition.DefinitionSummary;
@@ -163,4 +165,23 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 			obs.setValueCoded((Concept) entry.getResult());
 		return Context.getObsService().saveObs(obs, "Creating a new observation from quick data entry form");
 	}
+	
+	@Override
+	public Visit getActiveVisit(Patient patient, String visitLocationUuid) {
+        List<Visit> activeVisits = Context.getVisitService().getActiveVisitsByPatient(patient);
+        if (visitLocationUuid != null) {
+            return getVisitBasedOnLocation(visitLocationUuid, activeVisits);
+        }
+        return activeVisits != null && !activeVisits.isEmpty() ? activeVisits.get(0) : null;
+    }
+	
+	private Visit getVisitBasedOnLocation(String locationUuid, List<Visit> activeVisits) {
+        for (Visit visit : activeVisits) {
+            Location visitLocation = visit.getLocation();
+            if (visitLocation != null && (visitLocation.getUuid()).equals(locationUuid)){
+                return visit;
+            }
+        }
+        return null;
+    }
 }

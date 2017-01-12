@@ -157,6 +157,13 @@
 		<td class="th"><spring:message code="rwandasphstudyreports.alerts" /></td>
 	</tr>
 	<tr>
+		<td class="alert">
+			<c:forEach var="cdcAlert" items="${cdcAlerts}">
+				${cdcAlert}<br/>
+			</c:forEach>
+		</td>
+	</tr>
+	<tr>
 		<td class="alert"><c:forEach var="alertconcept"
 			items="${alertconcepts}">
 			<openmrs:concept conceptId="${alertconcept}" var="concept"
