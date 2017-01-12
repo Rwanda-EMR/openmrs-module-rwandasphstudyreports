@@ -19,7 +19,7 @@ import org.openmrs.module.reporting.report.service.ReportService;
 import org.openmrs.util.OpenmrsClassLoader;
 
 public class Helper {
-	
+
 	public static void purgeReportDefinition(String name) {
 		ReportDefinitionService rds = Context.getService(ReportDefinitionService.class);
 		try {
@@ -27,12 +27,11 @@ public class Helper {
 			if (findDefinition != null) {
 				rds.purgeDefinition(findDefinition);
 			}
-		}
-		catch (RuntimeException e) {
+		} catch (RuntimeException e) {
 			// intentional empty as the author is too long out of business...
 		}
 	}
-	
+
 	public static ReportDefinition findReportDefinition(String name) {
 		ReportDefinitionService s = (ReportDefinitionService) Context.getService(ReportDefinitionService.class);
 		List<ReportDefinition> defs = s.getDefinitions(name, true);
@@ -41,11 +40,11 @@ public class Helper {
 		}
 		throw new RuntimeException("Couldn't find Definition " + name);
 	}
-	
+
 	public static void saveReportDefinition(ReportDefinition rd) {
 		ReportDefinitionService rds = (ReportDefinitionService) Context.getService(ReportDefinitionService.class);
-		
-		//try to find existing report definitions to replace
+
+		// try to find existing report definitions to replace
 		List<ReportDefinition> definitions = rds.getDefinitions(rd.getName(), true);
 		if (definitions.size() > 0) {
 			ReportDefinition existingDef = definitions.get(0);
@@ -54,26 +53,23 @@ public class Helper {
 		}
 		try {
 			rds.saveDefinition(rd);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			SerializedDefinitionService s = (SerializedDefinitionService) Context
-			        .getService(SerializedDefinitionService.class);
+					.getService(SerializedDefinitionService.class);
 			s.saveDefinition(rd);
 		}
 	}
-	
-	
-	public static ReportDesign createRowPerPatientXlsOverviewReportDesign(ReportDefinition rd, String resourceName, String name,
-	                                                               Map<? extends Object, ? extends Object> properties)
-	    throws IOException {
-		
+
+	public static ReportDesign createRowPerPatientXlsOverviewReportDesign(ReportDefinition rd, String resourceName,
+			String name, Map<? extends Object, ? extends Object> properties) throws IOException {
+
 		ReportService rs = Context.getService(ReportService.class);
 		for (ReportDesign rdd : rs.getAllReportDesigns(false)) {
 			if (name.equals(rdd.getName())) {
 				rs.purgeReportDesign(rdd);
 			}
 		}
-		
+
 		ReportDesignResource resource = new ReportDesignResource();
 		resource.setName(resourceName);
 		resource.setExtension("xls");
@@ -88,20 +84,21 @@ public class Helper {
 			design.getProperties().putAll(properties);
 		}
 		resource.setReportDesign(design);
-		
+
 		return design;
 	}
-	
+
 	/**
 	 * @return a new ReportDesign for a standard Excel output
 	 */
-	public static ReportDesign createExcelDesign(ReportDefinition reportDefinition, String reportDesignName,boolean includeParameters) {
+	public static ReportDesign createExcelDesign(ReportDefinition reportDefinition, String reportDesignName,
+			boolean includeParameters) {
 		ReportDesign design = new ReportDesign();
 		design.setName(reportDesignName);
 		design.setReportDefinition(reportDefinition);
 		design.setRendererType(XlsReportRenderer.class);
-		if(includeParameters)
-		   design.addPropertyValue(XlsReportRenderer.INCLUDE_DATASET_NAME_AND_PARAMETERS_PROPERTY, "true");
+		if (includeParameters)
+			design.addPropertyValue(XlsReportRenderer.INCLUDE_DATASET_NAME_AND_PARAMETERS_PROPERTY, "true");
 		return design;
 	}
 
@@ -115,10 +112,10 @@ public class Helper {
 		design.setRendererType(CsvReportRenderer.class);
 		return design;
 	}
-	
+
 	public static void saveReportDesign(ReportDesign design) {
 		ReportService rs = Context.getService(ReportService.class);
 		rs.saveReportDesign(design);
 	}
-	
+
 }

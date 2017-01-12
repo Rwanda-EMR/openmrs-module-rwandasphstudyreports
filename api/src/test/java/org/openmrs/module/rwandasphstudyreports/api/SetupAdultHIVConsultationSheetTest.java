@@ -45,7 +45,6 @@ public class SetupAdultHIVConsultationSheetTest extends StandaloneContextSensiti
 	@Qualifier(value = "reportingCohortDefinitionService")
 	CohortDefinitionService cohortDefinitionService;
 
-
 	@Autowired
 	@Qualifier(value = "locationService")
 	LocationService locationService;
@@ -53,7 +52,7 @@ public class SetupAdultHIVConsultationSheetTest extends StandaloneContextSensiti
 	@Test
 	public void test_dataSetDefinition() throws EvaluationException {
 		System.out.println("::::::::>Adult Consultation Sheet Report<::::::::");
-		
+
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 		Program hivProgram = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
@@ -66,11 +65,7 @@ public class SetupAdultHIVConsultationSheetTest extends StandaloneContextSensiti
 		context.addParameterValue("beforeDate", new Date());
 		context.addParameterValue("onDate", new Date());
 		context.addParameterValue("endDate", new Date());
-		context.addParameterValue("location", locationService
-				.getLocation(54));/*
-									 * 'Gahini HD' contains more data
-									 */
-
+		context.addParameterValue("location", locationService.getLocation(54));
 		MostRecentObservation mostRecentHeight = RowPerPatientColumns.getMostRecentHeight("RecentHeight", null);
 
 		AllObservationValues viralLoadTest = RowPerPatientColumns.getAllViralLoadsValues("viralLoadTest", "ddMMMyy",
@@ -82,12 +77,7 @@ public class SetupAdultHIVConsultationSheetTest extends StandaloneContextSensiti
 		alert.addPatientDataToBeEvaluated(cd4Test, new HashMap<String, Object>());
 		alert.addPatientDataToBeEvaluated(weight, new HashMap<String, Object>());
 		alert.addPatientDataToBeEvaluated(mostRecentHeight, new HashMap<String, Object>());
-		// alert.addPatientDataToBeEvaluated(io, new HashMap<String, Object>());
-		// alert.addPatientDataToBeEvaluated(sideEffect, new HashMap<String,
-		// Object>());
 		alert.addPatientDataToBeEvaluated(viralLoadTest, new HashMap<String, Object>());
-		// alert.addPatientDataToBeEvaluated(lastEncInMonth, new HashMap<String,
-		// Object>());
 		alert.setCalculator(new HIVAdultAlerts());
 		alert.addParameter(new Parameter("state", "State", Date.class));
 
@@ -97,23 +87,19 @@ public class SetupAdultHIVConsultationSheetTest extends StandaloneContextSensiti
 		bmi.setCalculator(new BMI());
 		RowPerPatientDataSetDefinition dataSetDefinition = new RowPerPatientDataSetDefinition();
 		dataSetDefinition.setName("Adult HIV Consultation Sheet Data Set");
-		//dataSetDefinition.addParameter(new Parameter("state", "State", ProgramWorkflowState.class));
 		dataSetDefinition.addParameter(new Parameter("location", "Location/Health Center", Date.class));
 		dataSetDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		System.out.println("::::::::> adultPatientsCohort: " + cohortDefinitionService.evaluate(adultPatientsCohort, context).size());
+
+		System.out.println("::::::::> adultPatientsCohort: "
+				+ cohortDefinitionService.evaluate(adultPatientsCohort, context).size());
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
-		
-		//CohortDefinition inStatesCohorts = Cohorts.createInCurrentStateParameterized("in state", "states");
-		InProgramCohortDefinition adultProgramCohort = Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram);
-		
-		System.out.println("::::::::> adultProgramCohort: " + cohortDefinitionService.evaluate(adultProgramCohort, context).size());
-		//System.out.println("::::::::> inStatesCohorts: " + cohortDefinitionService.evaluate(inStatesCohorts, context).size());
-		/*dataSetDefinition.addFilter(inStatesCohorts ,
-				ParameterizableUtil.createParameterMappings("states=${state},onDate=${now}"));
-		dataSetDefinition.addFilter(adultProgramCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${now}"));
-		*/
+
+		InProgramCohortDefinition adultProgramCohort = Cohorts
+				.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram);
+
+		System.out.println("::::::::> adultProgramCohort: "
+				+ cohortDefinitionService.evaluate(adultProgramCohort, context).size());
+
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFirstNameColumn("givenName"),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFamilyNameColumn("familyName"),

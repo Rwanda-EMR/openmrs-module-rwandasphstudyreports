@@ -17,13 +17,13 @@ import org.openmrs.Cohort;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 
 /**
- *  Database methods for {@link CDCReportsService}.
+ * Database methods for {@link CDCReportsService}.
  */
 public interface CDCReportsDAO {
-	
+
 	/*
 	 * Add DAO methods here
 	 */
-	
+
 	public Cohort getAllRwandaAdultsPatients();
 }

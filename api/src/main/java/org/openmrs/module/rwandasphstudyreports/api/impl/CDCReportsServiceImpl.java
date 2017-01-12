@@ -165,23 +165,23 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 			obs.setValueCoded((Concept) entry.getResult());
 		return Context.getObsService().saveObs(obs, "Creating a new observation from quick data entry form");
 	}
-	
+
 	@Override
 	public Visit getActiveVisit(Patient patient, String visitLocationUuid) {
-        List<Visit> activeVisits = Context.getVisitService().getActiveVisitsByPatient(patient);
-        if (visitLocationUuid != null) {
-            return getVisitBasedOnLocation(visitLocationUuid, activeVisits);
-        }
-        return activeVisits != null && !activeVisits.isEmpty() ? activeVisits.get(0) : null;
-    }
-	
+		List<Visit> activeVisits = Context.getVisitService().getActiveVisitsByPatient(patient);
+		if (visitLocationUuid != null) {
+			return getVisitBasedOnLocation(visitLocationUuid, activeVisits);
+		}
+		return activeVisits != null && !activeVisits.isEmpty() ? activeVisits.get(0) : null;
+	}
+
 	private Visit getVisitBasedOnLocation(String locationUuid, List<Visit> activeVisits) {
-        for (Visit visit : activeVisits) {
-            Location visitLocation = visit.getLocation();
-            if (visitLocation != null && (visitLocation.getUuid()).equals(locationUuid)){
-                return visit;
-            }
-        }
-        return null;
-    }
+		for (Visit visit : activeVisits) {
+			Location visitLocation = visit.getLocation();
+			if (visitLocation != null && (visitLocation.getUuid()).equals(locationUuid)) {
+				return visit;
+			}
+		}
+		return null;
+	}
 }

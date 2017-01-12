@@ -51,20 +51,6 @@ public class SetupAdultLateVisitAndCD4Report {
 	// Properties retrieved from global variables
 	private Program hivProgram;
 
-	//private ProgramWorkflow treatmentGroup;
-
-	//private ProgramWorkflow treatmentStatus;
-
-	//private ProgramWorkflowState onART;
-
-	//private ProgramWorkflowState following;
-
-	//private List<EncounterType> clinicalEnountersIncLab;
-
-	//private List<EncounterType> clinicalEncoutersExcLab;
-
-	//private EncounterType labTestEncounterType;
-
 	private Concept cd4;
 
 	private Concept height;
@@ -81,15 +67,9 @@ public class SetupAdultLateVisitAndCD4Report {
 		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "AdultLateVisitAndCD4Template.xls",
 				"XlsAdultLateVisitAndCD4Template", null);
 
-		//ReportDefinition rdp = createReportDefinitionPreArt();
-		//ReportDesign designp = Helper.createRowPerPatientXlsOverviewReportDesign(rdp,
-				//"AdultLateVisitAndCD4PreARTTemplate.xls", "XlsAdultLateVisitAndCD4PreARTTemplate", null);
-
 		createDataSetDefinition(rd, null);
 
 		Helper.saveReportDefinition(rd);
-		//Helper.saveReportDefinition(rdp);
-		// h.saveReportDefinition(artDecline);
 
 		Properties props = new Properties();
 		props.put("repeatingSections",
@@ -102,8 +82,6 @@ public class SetupAdultLateVisitAndCD4Report {
 		propsp.put("repeatingSections",
 				"sheet:1,row:8,dataset:AdultPreARTLateVisit|sheet:2,row:8,dataset:AdultHIVLateCD4Count|sheet:3,row:8,dataset:HIVLostToFollowup|sheet:4,row:8,dataset:PreARTBelow350CD4|sheet:5,row:8,dataset:HIVLowBMI");
 		propsp.put("sortWeight", "5000");
-		//designp.setProperties(propsp);
-		//Helper.saveReportDesign(designp);
 	}
 
 	public void delete() {
@@ -116,7 +94,6 @@ public class SetupAdultLateVisitAndCD4Report {
 		}
 		Helper.purgeReportDefinition("HIV-Adult ART Report-Monthly");
 		Helper.purgeReportDefinition("HIV-Adult Pre ART Report-Monthly");
-		// h.purgeReportDefinition("Monthly Adult Art Decline");
 	}
 
 	private ReportDefinition createReportDefinition() {
@@ -142,7 +119,7 @@ public class SetupAdultLateVisitAndCD4Report {
 
 		return reportDefinition;
 	}
-	
+
 	private void createDataSetDefinition(ReportDefinition art, ReportDefinition preArt) {
 		// ====================================================================
 		// Patients Dataset definitions
@@ -185,7 +162,8 @@ public class SetupAdultLateVisitAndCD4Report {
 
 		// Patients whose viral loads are greater than 20 in the last 3 months
 		RowPerPatientDataSetDefinition viralLoadGreaterThan20InTheLast3Months = new RowPerPatientDataSetDefinition();
-		viralLoadGreaterThan20InTheLast3Months.setName("Patients with Viral Load greater than 20 in the last three months");
+		viralLoadGreaterThan20InTheLast3Months
+				.setName("Patients with Viral Load greater than 20 in the last three months");
 
 		// 50% decline from highest CD4 count from baseline CD4 after ART
 		// initiation
@@ -209,10 +187,8 @@ public class SetupAdultLateVisitAndCD4Report {
 				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
 		preARTBelow350CD4.addFilter(adultHivProgramCohort,
 				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		hIVLowBMI.addFilter(adultHivProgramCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		hIVLowBMI_1.addFilter(adultHivProgramCohort,
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		hIVLowBMI.addFilter(adultHivProgramCohort, ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		hIVLowBMI_1.addFilter(adultHivProgramCohort, ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
 		dataSetDefinition7.addFilter(adultHivProgramCohort,
 				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
 		viralLoadGreaterThan20InTheLast3Months.addFilter(adultHivProgramCohort,
@@ -267,27 +243,6 @@ public class SetupAdultLateVisitAndCD4Report {
 		dataSetDefinition9.addFilter(patientsWithClinicalEncounters,
 				ParameterizableUtil.createParameterMappings("onOrAfter=${endDate-12m}"));
 
-		// Patients without Any clinical Encounter(Test lab excluded) in last
-		// three months.
-
-		/*CompositionCohortDefinition patientsWithoutClinicalEncounters = new CompositionCohortDefinition();
-		patientsWithoutClinicalEncounters.setName("patientsWithoutClinicalEncounters");
-		patientsWithoutClinicalEncounters.addParameter(new Parameter("onOrAfter", "onOrAfter", Date.class));
-		patientsWithoutClinicalEncounters.getSearches().put("patientsWithClinicalEncountersWithoutLabTest",
-				new Mapped<CohortDefinition>(patientsWithClinicalEncountersWithoutLabTest,
-						ParameterizableUtil.createParameterMappings("onOrAfter=${onOrAfter}")));
-		patientsWithoutClinicalEncounters.setCompositionString("NOT patientsWithClinicalEncountersWithoutLabTest");
-
-		// before was in 3m, now is in 6m
-		adultARTLateVisit.addFilter(patientsWithoutClinicalEncounters,
-				ParameterizableUtil.createParameterMappings("onOrAfter=${endDate-6m}"));
-*/
-		// ==================================================================
-		// 2. Adult Pre-ART late visit
-		// ==================================================================
-
-		// Following state cohort definition.
-
 		InStateCohortDefinition followingStatusCohort = Cohorts
 				.createInProgramStateParameterizableByDate("followingStatusCohort", null);
 
@@ -303,16 +258,6 @@ public class SetupAdultLateVisitAndCD4Report {
 			hIVLowBMI_1.addFilter(followingStatusCohort,
 					ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
 		}
-		
-
-		// Patients without Any clinical Encounter(Test lab excluded) in last
-		// six months.
-		//adultPreARTLateVisit.addFilter(patientsWithoutClinicalEncounters,
-		//	ParameterizableUtil.createParameterMappings("onOrAfter=${endDate-6m}"));
-
-		// ==================================================================
-		// 3. Adult HIV late CD4 count
-		// ==================================================================
 
 		NumericObsCohortDefinition cd4CohortDefinition = Cohorts.createNumericObsCohortDefinition("cd4CohortDefinition",
 				"onOrAfter", cd4, new Double(0), null, TimeModifier.LAST);
@@ -328,12 +273,6 @@ public class SetupAdultLateVisitAndCD4Report {
 				ParameterizableUtil.createParameterMappings("onOrAfter=${endDate-12m}"));
 		adultHIVLateCD4Count_1.addFilter(patientsWithouthCD4RecordComposition,
 				ParameterizableUtil.createParameterMappings("onOrAfter=${endDate-9m}"));
-
-		// ==================================================================
-		// 4. HIV lost to follow-up
-		// ==================================================================
-
-		// Patients with no encounters of any kind in the past year
 
 		InverseCohortDefinition patientsWithoutEncountersInPastYear = new InverseCohortDefinition(
 				patientsWithClinicalEncounters);
@@ -368,10 +307,8 @@ public class SetupAdultLateVisitAndCD4Report {
 						+ weight.getUuid()
 						+ "' order by o.obs_datetime desc) as lastweight group by lastweight.person_id) w,(select p.patient_id from patient p, person_attribute pa, person_attribute_type pat where p.patient_id = pa.person_id and pat.name ='Health Center' and pat.person_attribute_type_id = pa.person_attribute_type_id and pa.voided = 0 and pa.value = :location) loc where loc.patient_id=w.person_id and w.person_id=h.person_id and ROUND(((w.value_numeric*10000)/(h.value_numeric*h.value_numeric)),2)<16.0");
 		patientWithLowBMI.addParameter(new Parameter("location", "location", Location.class));
-		hIVLowBMI.addFilter(patientWithLowBMI,
-				ParameterizableUtil.createParameterMappings("location=${location}"));
-		hIVLowBMI_1.addFilter(patientWithLowBMI,
-				ParameterizableUtil.createParameterMappings("location=${location}"));
+		hIVLowBMI.addFilter(patientWithLowBMI, ParameterizableUtil.createParameterMappings("location=${location}"));
+		hIVLowBMI_1.addFilter(patientWithLowBMI, ParameterizableUtil.createParameterMappings("location=${location}"));
 
 		// ==================================================================
 		// 7 . Patients Declining in CD4 by more than 50
@@ -478,28 +415,6 @@ public class SetupAdultLateVisitAndCD4Report {
 		viralLoadGreaterThan20InTheLast3Months.addColumn(birthdate, new HashMap<String, Object>());
 		dataSetDefinition9.addColumn(birthdate, new HashMap<String, Object>());
 
-		/*StateOfPatient txGroup = RowPerPatientColumns.getStateOfPatient("Group", hivProgram, treatmentGroup,
-			new GroupStateFilter());
-		adultARTLateVisit.addColumn(txGroup, new HashMap<String, Object>());
-		adultPreARTLateVisit.addColumn(txGroup, new HashMap<String, Object>());
-		adultHIVLateCD4Count.addColumn(txGroup, new HashMap<String, Object>());
-		adultHIVLateCD4Count_1.addColumn(txGroup, new HashMap<String, Object>());
-		hIVLostToFollowup.addColumn(txGroup, new HashMap<String, Object>());
-		hIVLostToFollowup_1.addColumn(txGroup, new HashMap<String, Object>());
-		preARTBelow350CD4.addColumn(txGroup, new HashMap<String, Object>());
-		hIVLowBMI.addColumn(txGroup, new HashMap<String, Object>());
-		hIVLowBMI_1.addColumn(txGroup, new HashMap<String, Object>());
-		dataSetDefinition7.addColumn(txGroup, new HashMap<String, Object>());
-		viralLoadGreaterThan20InTheLast3Months.addColumn(txGroup, new HashMap<String, Object>());
-		dataSetDefinition9.addColumn(txGroup, new HashMap<String, Object>());
-
-		StateOfPatient stOfPatient = RowPerPatientColumns.getStateOfPatient("Treatment", hivProgram, treatmentStatus,
-				new TreatmentStateFilter());
-		
-		dataSetDefinition7.addColumn(stOfPatient, new HashMap<String, Object>());
-		
-		dataSetDefinition9.addColumn(stOfPatient, new HashMap<String, Object>());
-*/
 		MostRecentObservation returnVisitDate = RowPerPatientColumns
 				.getMostRecentReturnVisitDate("Date of missed appointment", null);
 		adultARTLateVisit.addColumn(returnVisitDate, new HashMap<String, Object>());
@@ -530,24 +445,19 @@ public class SetupAdultLateVisitAndCD4Report {
 		DateDiff lateCD4InMonths = RowPerPatientColumns.getDifferenceSinceLastObservation("Late CD4 in months", cd4,
 				DateDiffType.MONTHS);
 		lateCD4InMonths.addParameter(new Parameter("endDate", "endDate", Date.class));
-		adultARTLateVisit.addColumn(lateCD4InMonths,
-				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		adultARTLateVisit.addColumn(lateCD4InMonths, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		adultPreARTLateVisit.addColumn(lateCD4InMonths,
 				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		adultHIVLateCD4Count.addColumn(lateCD4InMonths,
 				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		adultHIVLateCD4Count_1.addColumn(lateCD4InMonths,
 				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		hIVLostToFollowup.addColumn(lateCD4InMonths,
-				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		hIVLostToFollowup.addColumn(lateCD4InMonths, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		hIVLostToFollowup_1.addColumn(lateCD4InMonths,
 				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		preARTBelow350CD4.addColumn(lateCD4InMonths,
-				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		hIVLowBMI.addColumn(lateCD4InMonths,
-				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		hIVLowBMI_1.addColumn(lateCD4InMonths,
-				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		preARTBelow350CD4.addColumn(lateCD4InMonths, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		hIVLowBMI.addColumn(lateCD4InMonths, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		hIVLowBMI_1.addColumn(lateCD4InMonths, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition7.addColumn(lateCD4InMonths,
 				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		viralLoadGreaterThan20InTheLast3Months.addColumn(lateCD4InMonths,
@@ -599,8 +509,6 @@ public class SetupAdultLateVisitAndCD4Report {
 		dataSetDefinition9.addColumn(tracNetId, new HashMap<String, Object>());
 
 		MostRecentObservation viralLoad = RowPerPatientColumns.getMostRecentViralLoad("Most recent viralLoad", null);
-		// dataSetDefinition8.addColumn(viralLoad, new HashMap<String,
-		// Object>());
 		adultARTLateVisit.addColumn(viralLoad, new HashMap<String, Object>());
 		adultHIVLateCD4Count.addColumn(viralLoad, new HashMap<String, Object>());
 		hIVLostToFollowup.addColumn(viralLoad, new HashMap<String, Object>());
@@ -676,63 +584,42 @@ public class SetupAdultLateVisitAndCD4Report {
 		mappings.put("location", "${location}");
 		mappings.put("endDate", "${endDate}");
 
-		//filter all dataset definitions by adult age
-		/*SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		adultARTLateVisit.addFilter(adultPatientsCohort, null);
-		adultHIVLateCD4Count.addFilter(adultPatientsCohort, null);
-		hIVLostToFollowup.addFilter(adultPatientsCohort, null);
-		hIVLowBMI.addFilter(adultPatientsCohort, null);
-		viralLoadGreaterThan20InTheLast3Months.addFilter(adultPatientsCohort, null);
-		*/
-		SqlCohortDefinition allPatientsOnARVTreatment = Cohorts.getAllPatientsOnARVTreatment();//this cohort models IMB/PIH way of using on antiretroviral treatment status program workflow state 
+		SqlCohortDefinition allPatientsOnARVTreatment = Cohorts.getAllPatientsOnARVTreatment();// this
+																								// cohort
+																								// models
+																								// IMB/PIH
+																								// way
+																								// of
+																								// using
+																								// on
+																								// antiretroviral
+																								// treatment
+																								// status
+																								// program
+																								// workflow
+																								// state
 		adultARTLateVisit.addFilter(allPatientsOnARVTreatment, null);
 		adultHIVLateCD4Count.addFilter(allPatientsOnARVTreatment, null);
 		hIVLostToFollowup.addFilter(allPatientsOnARVTreatment, null);
 		hIVLowBMI.addFilter(allPatientsOnARVTreatment, null);
 		viralLoadGreaterThan20InTheLast3Months.addFilter(allPatientsOnARVTreatment, null);
-		
-		
+
 		art.addDataSetDefinition("AdultARTLateVisit", adultARTLateVisit, mappings);
 		art.addDataSetDefinition("AdultHIVLateCD4Count", adultHIVLateCD4Count, mappings);
 		art.addDataSetDefinition("HIVLostToFollowup", hIVLostToFollowup, mappings);
 		art.addDataSetDefinition("HIVLowBMI", hIVLowBMI, mappings);
-		art.addDataSetDefinition("ViralLoadGreaterThan20InTheLast3Months", viralLoadGreaterThan20InTheLast3Months, mappings);
+		art.addDataSetDefinition("ViralLoadGreaterThan20InTheLast3Months", viralLoadGreaterThan20InTheLast3Months,
+				mappings);
 
-		/*preArt.addDataSetDefinition("AdultPreARTLateVisit", adultPreARTLateVisit, mappings);
-		preArt.addDataSetDefinition("AdultHIVLateCD4Count", adultHIVLateCD4Count_1, mappings);
-		preArt.addDataSetDefinition("HIVLostToFollowup", hIVLostToFollowup_1, mappings);
-		preArt.addDataSetDefinition("PreARTBelow350CD4", preARTBelow350CD4, mappings);
-		preArt.addDataSetDefinition("HIVLowBMI", hIVLowBMI_1, mappings);*/
 	}
 
 	private void setupProperties() {
 		hivProgram = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
-
-		//onART = gp.getProgramWorkflowState(GlobalPropertiesManagement.ON_ANTIRETROVIRALS_STATE,
-		//		GlobalPropertiesManagement.TREATMENT_STATUS_WORKFLOW, GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
-
-		//clinicalEnountersIncLab = gp.getEncounterTypeList(GlobalPropertiesManagement.CLINICAL_ENCOUNTER_TYPES);
-
-		//clinicalEncoutersExcLab = gp
-				//.getEncounterTypeList(GlobalPropertiesManagement.CLINICAL_ENCOUNTER_TYPES_EXC_LAB_TEST);
-
-		//following = gp.getProgramWorkflowState(GlobalPropertiesManagement.FOLLOWING_STATE,
-				//GlobalPropertiesManagement.TREATMENT_STATUS_WORKFLOW, GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
-
 		cd4 = gp.getConcept(GlobalPropertiesManagement.CD4_TEST);
-
-		/*treatmentGroup = gp.getProgramWorkflow(GlobalPropertiesManagement.TREATMENT_GROUP_WORKFLOW,
-				GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
-
-		treatmentStatus = gp.getProgramWorkflow(GlobalPropertiesManagement.TREATMENT_STATUS_WORKFLOW,
-				GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
-		*/
 		height = gp.getConcept(GlobalPropertiesManagement.HEIGHT_CONCEPT);
 
 		weight = gp.getConcept(GlobalPropertiesManagement.WEIGHT_CONCEPT);
 
 		viralLoad = gp.getConcept(GlobalPropertiesManagement.VIRAL_LOAD_TEST);
-
-		//labTestEncounterType = gp.getEncounterType(GlobalPropertiesManagement.LAB_ENCOUNTER_TYPE);
 	}
 }

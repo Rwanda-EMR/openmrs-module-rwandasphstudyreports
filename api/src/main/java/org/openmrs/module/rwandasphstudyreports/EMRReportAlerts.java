@@ -32,7 +32,7 @@ public class EMRReportAlerts implements SetupReport {
 
 	public void delete() {
 		ReportService rs = Context.getService(ReportService.class);
-		
+
 		for (ReportDesign rd : rs.getAllReportDesigns(false)) {
 			if ("EMRReportAlerts".equals(rd.getName())) {
 				rs.purgeReportDesign(rd);

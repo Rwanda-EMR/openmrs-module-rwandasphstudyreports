@@ -20,25 +20,25 @@ import org.openmrs.module.Extension;
 import org.openmrs.module.web.extension.AdministrationSectionExt;
 
 /**
- * This class defines the links that will appear on the administration page under the
- * "rwandasphstudyreports.title" heading. 
+ * This class defines the links that will appear on the administration page
+ * under the "rwandasphstudyreports.title" heading.
  */
 public class AdminList extends AdministrationSectionExt {
-	
+
 	/**
 	 * @see AdministrationSectionExt#getMediaType()
 	 */
 	public Extension.MEDIA_TYPE getMediaType() {
 		return Extension.MEDIA_TYPE.html;
 	}
-	
+
 	/**
 	 * @see AdministrationSectionExt#getTitle()
 	 */
 	public String getTitle() {
 		return "rwandasphstudyreports.title";
 	}
-	
+
 	/**
 	 * @see AdministrationSectionExt#getLinks()
 	 */
@@ -47,5 +47,5 @@ public class AdminList extends AdministrationSectionExt {
 		map.put("/module/rwandasphstudyreports/executeReports.list", "Execute Reports");
 		return map;
 	}
-	
+
 }

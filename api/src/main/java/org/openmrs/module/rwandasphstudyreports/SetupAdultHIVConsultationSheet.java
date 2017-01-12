@@ -32,10 +32,6 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 	// properties retrieved from global variables
 	private Program hivProgram;
 
-	// private EncounterType flowsheetAdult;
-
-	// private List<EncounterType> clinicalEnountersIncLab;
-
 	public void setup() throws Exception {
 
 		setupProperties();
@@ -72,13 +68,6 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 
 		Properties stateProperties = new Properties();
 		stateProperties.setProperty("Program", hivProgram.getName());
-		// stateProperties.setProperty("Workflow",
-		// Context.getAdministrationService()
-		// .getGlobalProperty(GlobalPropertiesManagement.TREATMENT_GROUP_WORKFLOW));
-
-		// reportDefinition.addParameter(new Parameter("state", "Group",
-		// ProgramWorkflowState.class, stateProperties));
-
 		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
 				ParameterizableUtil.createParameterMappings("location=${location}"));
 
@@ -93,14 +82,6 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		// Create new dataset definition
 		RowPerPatientDataSetDefinition dataSetDefinition = new RowPerPatientDataSetDefinition();
 		dataSetDefinition.setName(reportDefinition.getName() + " Data Set");
-		// dataSetDefinition.addParameter(new Parameter("state", "State",
-		// ProgramWorkflowState.class));
-
-		// Add Filters
-		// dataSetDefinition.addFilter(Cohorts.createInCurrentStateParameterized("in
-		// state", "states"),
-		// ParameterizableUtil.createParameterMappings("states=${state},onDate=${now}"));
-
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
 				ParameterizableUtil.createParameterMappings("onDate=${now}"));
 
@@ -148,24 +129,15 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 
 		AllObservationValues cd4Test = RowPerPatientColumns.getAllCD4Values("CD4Test", "ddMMMyy",
 				new LastThreeObsFilter(), new ObservationFilter());
-
-		//ObservationInMostRecentEncounterOfType io = RowPerPatientColumns.getIOInMostRecentEncounterOfType("IO", flowsheetAdult);
-
-		//ObservationInMostRecentEncounterOfType sideEffect = RowPerPatientColumns.getSideEffectInMostRecentEncounterOfType("SideEffects", flowsheetAdult);
-
 		AllObservationValues viralLoadTest = RowPerPatientColumns.getAllViralLoadsValues("viralLoadTest", "ddMMMyy",
 				new LastThreeObsFilter(), new ObservationFilter());
-		//RecentEncounterType lastEncInMonth = RowPerPatientColumns.getRecentEncounterType("lastEncInMonth", clinicalEnountersIncLab, null, null);
 
 		CustomCalculationBasedOnMultiplePatientDataDefinitions alert = new CustomCalculationBasedOnMultiplePatientDataDefinitions();
 		alert.setName("alert");
 		alert.addPatientDataToBeEvaluated(cd4Test, new HashMap<String, Object>());
 		alert.addPatientDataToBeEvaluated(weight, new HashMap<String, Object>());
 		alert.addPatientDataToBeEvaluated(mostRecentHeight, new HashMap<String, Object>());
-		//alert.addPatientDataToBeEvaluated(io, new HashMap<String, Object>());
-		//alert.addPatientDataToBeEvaluated(sideEffect, new HashMap<String, Object>());
 		alert.addPatientDataToBeEvaluated(viralLoadTest, new HashMap<String, Object>());
-		//alert.addPatientDataToBeEvaluated(lastEncInMonth, new HashMap<String, Object>());
 		alert.setCalculator(new HIVAdultAlerts());
 		alert.addParameter(new Parameter("state", "State", Date.class));
 		dataSetDefinition.addColumn(alert, ParameterizableUtil.createParameterMappings("state=${state}"));
@@ -192,11 +164,5 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 
 	private void setupProperties() {
 		hivProgram = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
-
-		// flowsheetAdult =
-		// gp.getEncounterType(GlobalPropertiesManagement.ADULT_FLOWSHEET_ENCOUNTER);
-
-		// clinicalEnountersIncLab =
-		// gp.getEncounterTypeList(GlobalPropertiesManagement.CLINICAL_ENCOUNTER_TYPES);
 	}
 }

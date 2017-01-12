@@ -24,35 +24,37 @@ import org.openmrs.Cohort;
 import org.openmrs.module.rwandasphstudyreports.api.db.CDCReportsDAO;
 
 /**
- * It is a default implementation of  {@link CDCReportsDAO}.
+ * It is a default implementation of {@link CDCReportsDAO}.
  */
 public class HibernateCDCReportsDAO implements CDCReportsDAO {
 	protected final Log log = LogFactory.getLog(this.getClass());
-	
+
 	private SessionFactory sessionFactory;
-	
+
 	/**
-     * @param sessionFactory the sessionFactory to set
-     */
-    public void setSessionFactory(SessionFactory sessionFactory) {
-	    this.sessionFactory = sessionFactory;
-    }
-    
+	 * @param sessionFactory
+	 *            the sessionFactory to set
+	 */
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+
 	/**
-     * @return the sessionFactory
-     */
-    public SessionFactory getSessionFactory() {
-	    return sessionFactory;
-    }
-    
-    @SuppressWarnings("unchecked")
+	 * @return the sessionFactory
+	 */
+	public SessionFactory getSessionFactory() {
+		return sessionFactory;
+	}
+
+	@SuppressWarnings("unchecked")
 	public Cohort getAllRwandaAdultsPatients() {
-		
-		Query query = sessionFactory.getCurrentSession().createQuery("select distinct p.patient_id from patient p inner join person pp on pp.person_id = p.patient_id where p.voided=0 and pp.voided=0 and (pp.birthdate is null or (select DATEDIFF(NOW(), pp.birthdate) / 365.25) >= 16)");
-		
+
+		Query query = sessionFactory.getCurrentSession().createQuery(
+				"select distinct p.patient_id from patient p inner join person pp on pp.person_id = p.patient_id where p.voided=0 and pp.voided=0 and (pp.birthdate is null or (select DATEDIFF(NOW(), pp.birthdate) / 365.25) >= 16)");
+
 		Set<Integer> ids = new HashSet<Integer>();
 		ids.addAll(query.list());
-		
+
 		return new Cohort("All Rwanda Adults patients", "", ids);
 	}
 }

@@ -18,14 +18,14 @@ import org.openmrs.module.reporting.web.renderers.AbstractWebReportRenderer;
  *
  */
 public abstract class AbstractRwandaWebRenderer extends AbstractWebReportRenderer {
-	
+
 	protected final Log log = LogFactory.getLog(getClass());
 
 	/**
-	 * This should contain the display name for the report output that the user will choose in the UI
+	 * This should contain the display name for the report output that the user
+	 * will choose in the UI
 	 */
-    public abstract String getLabel();
-    
+	public abstract String getLabel();
 
 	/**
 	 * This should be set to the name of the dataset that a report must contain
@@ -36,7 +36,7 @@ public abstract class AbstractRwandaWebRenderer extends AbstractWebReportRendere
 	@Override
 	public boolean canRender(ReportDefinition reportDefinition) {
 		return !getRenderingModes(reportDefinition).isEmpty();
-		
+
 	}
 
 	/**
@@ -49,8 +49,8 @@ public abstract class AbstractRwandaWebRenderer extends AbstractWebReportRendere
 			String name = e.getKey();
 			DataSetDefinition def = e.getValue().getParameterizable();
 			if (getDataSetNameToCheck() != null && getDataSetNameToCheck().equals(def.getName())) {
-				ret.add(new RenderingMode(this, this.getLabel() , name, Integer.MAX_VALUE - 5));
-	    	}
+				ret.add(new RenderingMode(this, this.getLabel(), name, Integer.MAX_VALUE - 5));
+			}
 		}
 		return ret;
 	}

@@ -641,7 +641,6 @@ public class DefaultPatientSummaryController {
 			Calendar activeVisitLastYearEndsAt = Calendar.getInstance(Context.getLocale());
 			Calendar activeVisitLast6MonthsEndsAt = Calendar.getInstance(Context.getLocale());
 
-			
 			if (vLDate != null) {
 				vLCalendar.setTime(vLDate);
 				activeVisitLastYearEndsAt.setTime(getCurrentVisitEndDate(patient));

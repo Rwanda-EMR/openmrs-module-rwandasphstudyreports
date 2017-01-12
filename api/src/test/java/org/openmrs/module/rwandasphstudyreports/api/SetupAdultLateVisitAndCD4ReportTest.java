@@ -128,7 +128,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 	@Before
 	public void runBeforeTesting() {
 		System.out.println("::::::::>Lost to Follow-up Report<::::::::");
-		
+
 		context = new EvaluationContext();
 
 		context.addParameterValue("beforeDate", new Date());
@@ -245,7 +245,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 
 		weightObs = RowPerPatientColumns.getMostRecentWeight("Weight", "dd-mmm-yyyy");
 		heightObs = RowPerPatientColumns.getMostRecentHeight("Height", "dd-mmm-yyyy");
-		
+
 		viralLoadGreaterThan1000InLast12Months = new SqlCohortDefinition(
 				"select vload.person_id from (select * from obs where concept_id=" + viralLoadConceptId
 						+ " and value_numeric>1000 and obs_datetime> :beforeDate and obs_datetime<= :onDate order by obs_datetime desc) as vload group by vload.person_id");
@@ -253,7 +253,6 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		viralLoadGreaterThan1000InLast12Months.addParameter(new Parameter("beforeDate", "beforeDate", Date.class));
 		viralLoadGreaterThan1000InLast12Months.addParameter(new Parameter("onDate", "onDate", Date.class));
 		viralLoadGreaterThan1000InLast12Months.addParameter(new Parameter("location", "location", Location.class));
-
 
 		patientsWithoutClinicalEncounters.addParameter(new Parameter("onDate", "On Date", Date.class));
 		adultHivProgramCohort.addParameter(new Parameter("onDate", "On Date", Date.class));
@@ -266,7 +265,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		patientsWithouthCD4RecordComposition.addParameter(new Parameter("onDate", "On Date", Date.class));
 		patientsWithoutEncountersInPastYear.addParameter(new Parameter("endDate", "End Date", Date.class));
 		viralLoadGreaterThan1000InLast12Months.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
+
 		bmi = new CustomCalculationBasedOnMultiplePatientDataDefinitions();
 		bmi.setName("BMI");
 		bmi.addPatientDataToBeEvaluated(weightObs, new HashMap<String, Object>());
@@ -415,7 +414,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		adultHIVLateCD4Count.addParameter(new Parameter("location", "Location", Location.class));
 		adultHIVLateCD4Count.addParameter(new Parameter("endDate", "End Date", Date.class));
 		adultHIVLateCD4Count.addParameter(new Parameter("onDate", "On Date", Date.class));
-		
+
 		evaluateReportDataSetDefinition(adultHIVLateCD4Count, "adultHIVLateCD4Count");
 	}
 
@@ -437,7 +436,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 	@Test
 	public void test_hivLostToFollowup() throws EvaluationException {
 		RowPerPatientDataSetDefinition hIVLostToFollowup = new RowPerPatientDataSetDefinition();
-		
+
 		hIVLostToFollowup.setName("Adult HIV lost to follow-up dataSetDefinition");
 
 		hIVLostToFollowup.addFilter(adultPatientsCohort, null);
@@ -470,7 +469,7 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 	public void test_hIVLowBMI() throws EvaluationException {
 		RowPerPatientDataSetDefinition hIVLowBMI = new RowPerPatientDataSetDefinition();
 		hIVLowBMI.setName("Patients with BMI below 16 dataSetDefinition");
-		
+
 		hIVLowBMI.addFilter(adultPatientsCohort, null);
 		hIVLowBMI.addFilter(adultHivProgramCohort, ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
 		hIVLowBMI.addFilter(onARTStatusCohort, ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
@@ -529,7 +528,8 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		viralLoadGreaterThan20InTheLast3Months.addColumn(viralLoadObs, new HashMap<String, Object>());
 		viralLoadGreaterThan20InTheLast3Months.addParameter(new Parameter("location", "Location", Location.class));
 		viralLoadGreaterThan20InTheLast3Months.addParameter(new Parameter("endDate", "End Date", Date.class));
-		
-		evaluateReportDataSetDefinition(viralLoadGreaterThan20InTheLast3Months, "viralLoadGreaterThan20InTheLast3Months");
+
+		evaluateReportDataSetDefinition(viralLoadGreaterThan20InTheLast3Months,
+				"viralLoadGreaterThan20InTheLast3Months");
 	}
 }
