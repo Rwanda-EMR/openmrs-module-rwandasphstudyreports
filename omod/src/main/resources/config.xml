@@ -395,8 +395,8 @@
 	</globalProperty>
 	<globalProperty>
 		<property>reports.hivRapidTestConceptId</property>
-		<defaultValue>1040</defaultValue>
-		<description>HIV RAPID TEST Concept Id</description>
+		<defaultValue>2169</defaultValue>
+		<description>HIV RAPID TEST#1040 Concept Id, afterwards set to:RESULT OF HIV TEST</description>
 	</globalProperty>
 	<globalProperty>
 		<property>reports.otherQuickDataEntryConceptIds</property>

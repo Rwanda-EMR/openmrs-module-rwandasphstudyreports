@@ -18,4 +18,13 @@
 			<where>property='patientsummary.adultconceptIdsToGraph'</where>
 		</update>
 	</changeSet>
+	<changeSet id="20171201-1442" author="k-joseph">
+		<comment>
+			Updates HIV status concept from HIV RAPID TEST#1040 to RESULT OF HIV TEST#2169
+		</comment>
+		<update tableName="global_property">
+			<column name="property_value" value="2169"/>
+			<where>property='reports.hivRapidTestConceptId'</where>
+		</update>
+	</changeSet>
 </databaseChangeLog>
