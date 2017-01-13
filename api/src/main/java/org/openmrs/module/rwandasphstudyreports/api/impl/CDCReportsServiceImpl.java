@@ -17,6 +17,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,6 +40,7 @@ import org.openmrs.module.reporting.report.definition.service.ReportDefinitionSe
 import org.openmrs.module.reporting.report.renderer.RenderingMode;
 import org.openmrs.module.reporting.report.service.ReportService;
 import org.openmrs.module.reporting.web.renderers.DefaultWebRenderer;
+import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.openmrs.module.rwandasphstudyreports.api.db.CDCReportsDAO;
@@ -183,5 +185,21 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public boolean checkIfPatientIsHIVPositive(Patient patient) {
+		Concept hiv = Context.getConceptService().getConcept(Integer.parseInt(
+				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.HIV_STATUS_CONCEPTID)));
+
+		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, hiv);
+
+		if (!vLObs.isEmpty()) {
+			for (Obs o : vLObs) {
+				if ("POSITIVE".equals(o.getValueCoded().getFullySpecifiedName(Locale.ENGLISH).getName()))
+					return true;
+			}
+		}
+		return false;
 	}
 }

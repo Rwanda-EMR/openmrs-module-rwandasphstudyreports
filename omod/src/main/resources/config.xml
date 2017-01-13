@@ -408,5 +408,19 @@
 		<defaultValue>16</defaultValue>
 		<description>Starting Age for an adult</description>
 	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.arvDrugsConceptSetId</property>
+		<defaultValue>1085</defaultValue>
+		<description>
+			concept id of the ARV concept set whose members are HIV ANTIRETROVIRAL DRUGS concepts
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.otherArvDrugsConceptIds</property>
+		<defaultValue>749,795</defaultValue>
+		<description>
+			other concept ids for ON ANTIRETROVIRALS concepts which are not members of arv concept set
+		</description>
+	</globalProperty>
 </module>
 

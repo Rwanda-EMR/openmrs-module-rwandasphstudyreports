@@ -50,4 +50,6 @@ public interface CDCReportsService extends OpenmrsService {
 	Obs saveQuickDataEntry(QuickDataEntry entry, Patient patient, Encounter encounter);
 
 	Visit getActiveVisit(Patient patient, String visitLocationUuid);
+
+	boolean checkIfPatientIsHIVPositive(Patient patient);
 }

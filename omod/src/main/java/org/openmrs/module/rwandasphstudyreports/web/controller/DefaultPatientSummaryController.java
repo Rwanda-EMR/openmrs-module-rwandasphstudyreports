@@ -3,7 +3,6 @@ package org.openmrs.module.rwandasphstudyreports.web.controller;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -23,12 +22,11 @@ import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.Person;
 import org.openmrs.Relationship;
-import org.openmrs.Visit;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.mohorderentrybridge.MoHDrugOrder;
 import org.openmrs.module.mohorderentrybridge.api.MoHOrderEntryBridgeService;
-import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
+import org.openmrs.module.rwandasphstudyreports.CDCRulesAlgorithm;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -152,6 +150,7 @@ public class DefaultPatientSummaryController {
 
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(p, null, null,
 				null, null, null, false);
+		CDCRulesAlgorithm cdcRulrsAlgorithm = new CDCRulesAlgorithm();
 
 		model.addAttribute("programs", patientPrograms);
 
@@ -161,7 +160,7 @@ public class DefaultPatientSummaryController {
 		model.addAttribute("locale", Context.getLocale());
 		model.addAttribute("agestring", getAgeString(p));
 		model.addAttribute("alerts", prepareAlerts(conceptsToWatch, p));
-		model.addAttribute("cdcAlerts", cdcDsRulesAlerts(p));
+		model.addAttribute("cdcAlerts", cdcRulrsAlgorithm.cdcDsRulesAlerts(p));
 		model.addAttribute("alertconcepts", conceptsIdsToWatch.split(","));
 		model.addAttribute("lastencounter", getLastEncounter(encounters));
 		model.addAttribute("infections", prepareMostRecentObs(opportunisticInfection));
@@ -627,49 +626,4 @@ public class DefaultPatientSummaryController {
 				.toString();
 	}
 
-	public List<String> cdcDsRulesAlerts(Patient patient) {
-		List<String> alerts = new ArrayList<String>();
-		Concept vl = Context.getConceptService().getConcept(
-				Integer.parseInt(Context.getAdministrationService().getGlobalProperty("reports.viralLoadConcept")));
-		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, vl);
-
-		sortObsListByObsDateTime(vLObs);
-
-		if (!vLObs.isEmpty()) {
-			Date vLDate = vLObs.get(vLObs.size() - 1).getObsDatetime();
-			Calendar vLCalendar = Calendar.getInstance(Context.getLocale());
-			Calendar activeVisitLastYearEndsAt = Calendar.getInstance(Context.getLocale());
-			Calendar activeVisitLast6MonthsEndsAt = Calendar.getInstance(Context.getLocale());
-
-			if (vLDate != null) {
-				vLCalendar.setTime(vLDate);
-				activeVisitLastYearEndsAt.setTime(getCurrentVisitEndDate(patient));
-
-				activeVisitLastYearEndsAt.add(Calendar.YEAR, -1);
-				activeVisitLast6MonthsEndsAt.add(Calendar.MONTH, -6);
-				if (vLCalendar.before(activeVisitLastYearEndsAt)) {
-					alerts.add(
-							"The last VL was done > 1 year before current visit date; Please order repeat viral load test");
-				}
-			}
-
-		}
-
-		return alerts;
-	}
-
-	private Date getCurrentVisitEndDate(Patient patient) {
-		Visit activeVisit = Context.getService(CDCReportsService.class).getActiveVisit(patient, null);
-
-		return activeVisit != null && activeVisit.getStopDatetime().before(new Date()) ? activeVisit.getStopDatetime()
-				: new Date();
-	}
-
-	private void sortObsListByObsDateTime(List<Obs> obsList) {
-		Collections.sort(obsList, new Comparator<Obs>() {
-			public int compare(Obs o1, Obs o2) {
-				return o1.getObsDatetime().compareTo(o2.getObsDatetime());
-			}
-		});
-	}
 }

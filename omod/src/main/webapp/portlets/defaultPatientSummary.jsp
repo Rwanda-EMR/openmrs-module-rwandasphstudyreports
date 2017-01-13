@@ -156,13 +156,13 @@
 	<tr>
 		<td class="th"><spring:message code="rwandasphstudyreports.alerts" /></td>
 	</tr>
-	<tr>
-		<td class="alert">
-			<c:forEach var="cdcAlert" items="${cdcAlerts}">
-				${cdcAlert}<br/>
-			</c:forEach>
-		</td>
-	</tr>
+	<c:if test="${not empty cdcAlerts}">
+		<c:forEach var="cdcAlert" items="${cdcAlerts}">
+			<tr>
+				<td class="alert">${cdcAlert}</td>
+			</tr>
+		</c:forEach>
+	</c:if>
 	<tr>
 		<td class="alert"><c:forEach var="alertconcept"
 			items="${alertconcepts}">
