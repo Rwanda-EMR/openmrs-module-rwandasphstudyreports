@@ -14,6 +14,7 @@
 package org.openmrs.module.rwandasphstudyreports.api.impl;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -202,4 +203,5 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		}
 		return false;
 	}
+
 }
