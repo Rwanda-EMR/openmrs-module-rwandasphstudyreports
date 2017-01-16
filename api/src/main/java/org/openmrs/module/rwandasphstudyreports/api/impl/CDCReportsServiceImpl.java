@@ -14,8 +14,9 @@
 package org.openmrs.module.rwandasphstudyreports.api.impl;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -188,6 +189,14 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		return null;
 	}
 
+	private void sortObsListByObsDateTime(List<Obs> obsList) {
+		Collections.sort(obsList, new Comparator<Obs>() {
+			public int compare(Obs o1, Obs o2) {
+				return o1.getObsDatetime().compareTo(o2.getObsDatetime());
+			}
+		});
+	}
+
 	@Override
 	public boolean checkIfPatientIsHIVPositive(Patient patient) {
 		Concept hiv = Context.getConceptService().getConcept(Integer.parseInt(
@@ -195,11 +204,10 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 
 		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, hiv);
 
-		if (!vLObs.isEmpty()) {
-			for (Obs o : vLObs) {
-				if ("POSITIVE".equals(o.getValueCoded().getFullySpecifiedName(Locale.ENGLISH).getName()))
-					return true;
-			}
+		sortObsListByObsDateTime(vLObs);
+		if (!vLObs.isEmpty()) {// check last status reported instead
+			if ("POSITIVE".equals(vLObs.get(0).getValueCoded().getFullySpecifiedName(Locale.ENGLISH).getName()))
+				return true;
 		}
 		return false;
 	}

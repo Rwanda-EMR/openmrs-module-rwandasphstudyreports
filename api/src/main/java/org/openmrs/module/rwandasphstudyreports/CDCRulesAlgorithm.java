@@ -27,7 +27,7 @@ public class CDCRulesAlgorithm {
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.CD4_COUNT_CONCEPTID)));
 
 		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, vl);
-		List<Visit> visits = Context.getVisitService().getVisitsByPatient(patient, true, true);
+		List<Visit> visits = Context.getVisitService().getVisitsByPatient(patient);
 		Date lastVisitDate = null;
 		List<Obs> cd4Obs = getOnlyObsWithDatetimeMoreThanNMonthsAfterObsDate(
 				Context.getObsService().getObservationsByPersonAndConcept(patient, cd4),
