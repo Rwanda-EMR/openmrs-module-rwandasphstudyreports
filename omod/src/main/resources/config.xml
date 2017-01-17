@@ -416,11 +416,14 @@
 		</description>
 	</globalProperty>
 	<globalProperty>
-		<property>rwandasphstudyreports.otherArvDrugsConceptIds</property>
-		<defaultValue>749,795</defaultValue>
-		<description>
-			other concept ids for ON ANTIRETROVIRALS concepts which are not members of arv concept set
-		</description>
+		<property>rwandasphstudyreports.returnVisitConceptId</property>
+		<defaultValue>8130</defaultValue>
+		<description>RETURN VISIT DATE concept id</description>
+	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.adultInitialAndReturnEncounterTypes</property>
+		<defaultValue>1,2</defaultValue>
+		<description>Adult initial and return encounter type id</description>
 	</globalProperty>
 </module>
 

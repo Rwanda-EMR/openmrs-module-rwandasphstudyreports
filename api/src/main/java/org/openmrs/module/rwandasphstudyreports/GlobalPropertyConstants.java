@@ -11,4 +11,8 @@ public class GlobalPropertyConstants {
 	public static String ARV_DRUGS_CONCEPTSETID = "rwandasphstudyreports.arvDrugsConceptSetId";
 
 	public static String OTHER_ARV_DRUGS_CONCEPTIDS = "rwandasphstudyreports.otherArvDrugsConceptIds";
+
+	public static String RETURN_VISIT_CONCEPTID = "rwandasphstudyreports.returnVisitConceptId";
+
+	public static String ADULT_ENCOUNTER_TYPE_IDS = "rwandasphstudyreports.adultInitialAndReturnEncounterTypes";
 }
