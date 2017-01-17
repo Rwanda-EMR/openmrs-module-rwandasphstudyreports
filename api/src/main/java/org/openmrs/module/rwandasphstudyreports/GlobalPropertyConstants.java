@@ -15,4 +15,7 @@ public class GlobalPropertyConstants {
 	public static String RETURN_VISIT_CONCEPTID = "rwandasphstudyreports.returnVisitConceptId";
 
 	public static String ADULT_ENCOUNTER_TYPE_IDS = "rwandasphstudyreports.adultInitialAndReturnEncounterTypes";
+
+	public static final String ADULT_FOLLOWUP_ENCOUNTER_TYPEID = "rwandasphstudyreports.adultReturnEncounterTypeId";
+
 }

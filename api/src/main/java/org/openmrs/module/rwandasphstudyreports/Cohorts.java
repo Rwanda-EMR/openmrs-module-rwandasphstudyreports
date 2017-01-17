@@ -75,6 +75,17 @@ public class Cohorts {
 		return adultPatients;
 	}
 
+	public static SqlCohortDefinition getPatientsWithEncountersInLastNMonths(EncounterType adultFollowUpEncounterType,
+			Concept scheduledVisit, Integer numberOfMonths) {
+		return new SqlCohortDefinition(
+				"select distinct o.person_id from obs o, (select * from (select * from encounter where encounter_type="
+						+ adultFollowUpEncounterType.getEncounterTypeId()
+						+ " and voided=0 order by encounter_datetime desc) as e group by patient_id) as last_encounters where last_encounters.encounter_id=o.encounter_id and last_encounters.encounter_datetime < o.value_datetime and o.voided = 0 and o.concept_id ="
+						+ scheduledVisit.getConceptId() + " and o.value_datetime > DATE_SUB(:endDate, INTERVAL "
+						+ numberOfMonths + " MONTH)");
+
+	}
+
 	public static SqlCohortDefinition getAllPatientsOnARVTreatment() {
 		SqlCohortDefinition adultPatientsOnARVS = new SqlCohortDefinition(
 				"select distinct p.patient_id from patient p inner join orders o on o.patient_id=p.patient_id "

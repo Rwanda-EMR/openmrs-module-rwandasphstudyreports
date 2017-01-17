@@ -425,5 +425,11 @@
 		<defaultValue>1,2</defaultValue>
 		<description>Adult initial and return encounter type id</description>
 	</globalProperty>
+	
+	<globalProperty>
+		<property>rwandasphstudyreports.adultReturnEncounterTypeId</property>
+		<defaultValue>2</defaultValue>
+		<description>Adult return encounter type id</description>
+	</globalProperty>
 </module>
 
