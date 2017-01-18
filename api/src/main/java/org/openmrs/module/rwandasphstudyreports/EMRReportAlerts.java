@@ -26,6 +26,7 @@ import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff.DateDiffType;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.MostRecentObservation;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.RecentEncounterType;
+import org.openmrs.module.rwandareports.filter.LastEncounterFilter;
 import org.openmrs.module.rwandareports.filter.LastThreeObsFilter;
 import org.openmrs.module.rwandareports.filter.ObservationFilter;
 import org.openmrs.module.rwandareports.reporting.SetupReport;
@@ -53,8 +54,7 @@ public class EMRReportAlerts implements SetupReport {
 				"EMRReportAlerts", null);
 		Properties props = new Properties();
 
-		props.put("repeatingSections", "sheet:1,row:6,dataset:EMRReportAlerts");
-		props.put("repeatingSections", "sheet:1,row:8,dataset:AdultARTLateVisit");
+		props.put("repeatingSections", "sheet:1,row:6,dataset:EMRReportAlerts");// "|sheet:2,row:8,dataset:AdultARTLateVisit");
 		props.put("sortWeight", "5000");
 		design.setProperties(props);
 
@@ -75,7 +75,7 @@ public class EMRReportAlerts implements SetupReport {
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 
-		reportDefinition.setName("EMR Report Alerts");
+		reportDefinition.setName("EMRReportAlerts");
 		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
 		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -90,7 +90,7 @@ public class EMRReportAlerts implements SetupReport {
 
 	private void createDataSetDefinition(ReportDefinition reportDefinition) {
 		RowPerPatientDataSetDefinition dataSetDefinition = new RowPerPatientDataSetDefinition();
-		RowPerPatientDataSetDefinition dataSetDefinition2 = null;
+		//RowPerPatientDataSetDefinition dataSetDefinition2 = null;
 		DateDiff monthSinceLastVisit = RowPerPatientColumns.getDifferenceSinceLastEncounter("MonthsSinceLastVisit",
 				encounterTypes, DateDiffType.MONTHS);
 		DateDiff monthSinceLastCD4 = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastCD4",
@@ -105,6 +105,7 @@ public class EMRReportAlerts implements SetupReport {
 
 		sortCriteria.addSortElement("nextRDV", SortDirection.ASC);
 		sortCriteria.addSortElement("familyName", SortDirection.ASC);
+		sortCriteria.addSortElement("LastVisit Date", SortDirection.DESC);
 		dataSetDefinition.setSortCriteria(sortCriteria);
 
 		dataSetDefinition.addParameter(reportDefinition.getParameter("startDate"));
@@ -174,7 +175,7 @@ public class EMRReportAlerts implements SetupReport {
 				.getPatientsWithEncountersInLastNMonths(adultFollowUpEncounterType, scheduledVisit, 3);
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
-		dataSetDefinition2 = dataSetDefinition;
+		/*dataSetDefinition2 = dataSetDefinition;
 		dataSetDefinition2.addFilter(withNoEncountersInLast3Months, null);
 
 		withNoEncountersInLast3Months.addParameter(new Parameter("endDate", "endDate", Date.class));
@@ -182,8 +183,13 @@ public class EMRReportAlerts implements SetupReport {
 		dataSetDefinition2.addFilter(withNoEncountersInLast3Months,
 				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 
+		RecentEncounterType lastEncounterType = RowPerPatientColumns.getRecentEncounterType("LastVisit", encounterTypes,
+				null, new LastEncounterFilter());
+		dataSetDefinition2.addColumn(lastEncounterType, new HashMap<String, Object>());
+*/
 		reportDefinition.addDataSetDefinition("EMRReportAlerts", dataSetDefinition, mappings);
-		reportDefinition.addDataSetDefinition("AdultARTLateVisit", dataSetDefinition2, mappings);
+		// reportDefinition.addDataSetDefinition("AdultARTLateVisit",
+		// dataSetDefinition2, mappings);
 	}
 
 	private void setupProperties() {
