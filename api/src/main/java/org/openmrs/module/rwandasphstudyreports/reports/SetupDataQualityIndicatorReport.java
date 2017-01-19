@@ -1,4 +1,4 @@
-package org.openmrs.module.rwandasphstudyreports;
+package org.openmrs.module.rwandasphstudyreports.reports;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,6 +38,9 @@ import org.openmrs.module.rwandareports.indicator.EncounterIndicator;
 import org.openmrs.module.rwandareports.renderer.DataQualityWebRenderedForNCDandOncology;
 import org.openmrs.module.rwandareports.renderer.DataQualityWebRendererForSites;
 import org.openmrs.module.rwandareports.util.Indicators;
+import org.openmrs.module.rwandasphstudyreports.Cohorts;
+import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
+import org.openmrs.module.rwandasphstudyreports.Helper;
 import org.openmrs.module.rwandasphstudyreports.renderer.SPHDataQualityReportWebRenderer;
 
 public class SetupDataQualityIndicatorReport {

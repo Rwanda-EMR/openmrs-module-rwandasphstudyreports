@@ -1,4 +1,4 @@
-package org.openmrs.module.rwandasphstudyreports;
+package org.openmrs.module.rwandasphstudyreports.reports;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -11,6 +11,7 @@ import org.openmrs.EncounterType;
 import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
@@ -20,18 +21,16 @@ import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.reporting.report.service.ReportService;
 import org.openmrs.module.rowperpatientreports.dataset.definition.RowPerPatientDataSetDefinition;
-import org.openmrs.module.rowperpatientreports.patientdata.definition.AllObservationValues;
-import org.openmrs.module.rowperpatientreports.patientdata.definition.CustomCalculationBasedOnMultiplePatientDataDefinitions;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff.DateDiffType;
-import org.openmrs.module.rowperpatientreports.patientdata.definition.MostRecentObservation;
-import org.openmrs.module.rowperpatientreports.patientdata.definition.RecentEncounterType;
-import org.openmrs.module.rwandareports.filter.LastEncounterFilter;
-import org.openmrs.module.rwandareports.filter.LastThreeObsFilter;
-import org.openmrs.module.rwandareports.filter.ObservationFilter;
 import org.openmrs.module.rwandareports.reporting.SetupReport;
+import org.openmrs.module.rwandasphstudyreports.Cohorts;
+import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
+import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
+import org.openmrs.module.rwandasphstudyreports.Helper;
+import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
 
-public class EMRReportAlerts implements SetupReport {
+public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupReport {
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 
 	private Program hivProgram;
@@ -46,39 +45,47 @@ public class EMRReportAlerts implements SetupReport {
 
 	private EncounterType adultFollowUpEncounterType;
 
+	private Concept hivStatus;
+
+	private Concept telephone;
+
+	private Concept telephone2;
+
+	@Override
 	public void setup() throws Exception {
 		setupProperties();
 
 		ReportDefinition rd = createReportDefinition();
-		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "EMR_Report_Alerts.xls",
-				"EMRReportAlerts", null);
+		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd,
+				"HIVPositivePatientsDelayInLinkageToCare.xls", "HIVPositivePatientsDelayInLinkageToCare", null);
 		Properties props = new Properties();
 
-		props.put("repeatingSections", "sheet:1,row:6,dataset:EMRReportAlerts");// "|sheet:2,row:8,dataset:AdultARTLateVisit");
+		props.put("repeatingSections", "sheet:1,row:6,dataset:HIVPositivePatientsDelayInLinkageToCare");
 		props.put("sortWeight", "5000");
 		design.setProperties(props);
 
 		Helper.saveReportDesign(design);
 	}
 
+	@Override
 	public void delete() {
 		ReportService rs = Context.getService(ReportService.class);
 
 		for (ReportDesign rd : rs.getAllReportDesigns(false)) {
-			if ("EMRReportAlerts".equals(rd.getName())) {
+			if ("HIVPositivePatientsDelayInLinkageToCare".equals(rd.getName())) {
 				rs.purgeReportDesign(rd);
 			}
 		}
-		Helper.purgeReportDefinition("EMRReportAlerts");
+		Helper.purgeReportDefinition("HIVPositivePatientsDelayInLinkageToCare");
 	}
 
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 
-		reportDefinition.setName("EMRReportAlerts");
-		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
+		reportDefinition.setName("HIVPositivePatientsDelayInLinkageToCare");
 		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
 		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
 				ParameterizableUtil.createParameterMappings("location=${location}"));
 
@@ -90,13 +97,15 @@ public class EMRReportAlerts implements SetupReport {
 
 	private void createDataSetDefinition(ReportDefinition reportDefinition) {
 		RowPerPatientDataSetDefinition dataSetDefinition = new RowPerPatientDataSetDefinition();
-		//RowPerPatientDataSetDefinition dataSetDefinition2 = null;
 		DateDiff monthSinceLastVisit = RowPerPatientColumns.getDifferenceSinceLastEncounter("MonthsSinceLastVisit",
 				encounterTypes, DateDiffType.MONTHS);
 		DateDiff monthSinceLastCD4 = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastCD4",
 				cd4Count, DateDiffType.MONTHS);
 		DateDiff monthSinceLastVL = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastViralLoad",
 				viralLoad, DateDiffType.MONTHS);
+		DateDiff daysSinceHivPositive = RowPerPatientColumns.getDifferenceSinceLastObservation("DaysSinceHivPositive",
+				hivStatus, DateDiffType.DAYS);
+
 		SortCriteria sortCriteria = new SortCriteria();
 		Map<String, Object> mappings = new HashMap<String, Object>();
 
@@ -133,6 +142,8 @@ public class EMRReportAlerts implements SetupReport {
 		monthSinceLastVisit.addParameter(reportDefinition.getParameter("startDate"));
 		monthSinceLastCD4.addParameter(reportDefinition.getParameter("startDate"));
 		monthSinceLastVL.addParameter(reportDefinition.getParameter("startDate"));
+		daysSinceHivPositive.addParameter(reportDefinition.getParameter("startDate"));
+		daysSinceHivPositive.addParameter(reportDefinition.getParameter("endDate"));
 
 		dataSetDefinition.addColumn(monthSinceLastVisit,
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
@@ -140,56 +151,28 @@ public class EMRReportAlerts implements SetupReport {
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 		dataSetDefinition.addColumn(monthSinceLastVL,
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
+		dataSetDefinition.addColumn(daysSinceHivPositive,
+				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("nextRDV", scheduledVisit, "dd/MMM/yyyy"),
+				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("telephone", telephone, null),
+				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("telephone2", telephone2, null),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getPatientAddress("address", true, true, true, true),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getAccompRelationship("accompagnateur"),
 				new HashMap<String, Object>());
-		MostRecentObservation mostRecentHeight = RowPerPatientColumns.getMostRecentHeight("RecentHeight", null);
 
-		AllObservationValues weight = RowPerPatientColumns.getAllWeightValues("weightObs", "ddMMMyy",
-				new LastThreeObsFilter(), new ObservationFilter());
-
-		AllObservationValues cd4Test = RowPerPatientColumns.getAllCD4Values("CD4Test", "ddMMMyy",
-				new LastThreeObsFilter(), new ObservationFilter());
-
-		AllObservationValues viralLoadTest = RowPerPatientColumns.getAllViralLoadsValues("viralLoadTest", "ddMMMyy",
-				new LastThreeObsFilter(), new ObservationFilter());
-		RecentEncounterType lastEncInMonth = RowPerPatientColumns.getRecentEncounterType("lastEncInMonth",
-				encounterTypes, null, null);
-
-		CustomCalculationBasedOnMultiplePatientDataDefinitions alert = new CustomCalculationBasedOnMultiplePatientDataDefinitions();
-		alert.setName("alerts");
-		alert.addPatientDataToBeEvaluated(cd4Test, new HashMap<String, Object>());
-		alert.addPatientDataToBeEvaluated(weight, new HashMap<String, Object>());
-		alert.addPatientDataToBeEvaluated(mostRecentHeight, new HashMap<String, Object>());
-		alert.addPatientDataToBeEvaluated(viralLoadTest, new HashMap<String, Object>());
-		alert.addPatientDataToBeEvaluated(lastEncInMonth, new HashMap<String, Object>());
-		alert.setCalculator(new HIVAdultAlerts());
-		alert.addParameter(new Parameter("state", "State", Date.class));
-		dataSetDefinition.addColumn(alert, ParameterizableUtil.createParameterMappings("state=${state}"));
-
+		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		SqlCohortDefinition withNoEncountersInLast3Months = Cohorts
-				.getPatientsWithEncountersInLastNMonths(adultFollowUpEncounterType, scheduledVisit, 3);
+		SqlCohortDefinition notInART = Cohorts.getPatientsNotOnART();
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
-		/*dataSetDefinition2 = dataSetDefinition;
-		dataSetDefinition2.addFilter(withNoEncountersInLast3Months, null);
+		dataSetDefinition.addFilter(hivPositive, null);
+		dataSetDefinition.addFilter(notInART, null);
 
-		withNoEncountersInLast3Months.addParameter(new Parameter("endDate", "endDate", Date.class));
-
-		dataSetDefinition2.addFilter(withNoEncountersInLast3Months,
-				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-
-		RecentEncounterType lastEncounterType = RowPerPatientColumns.getRecentEncounterType("LastVisit", encounterTypes,
-				null, new LastEncounterFilter());
-		dataSetDefinition2.addColumn(lastEncounterType, new HashMap<String, Object>());
-*/
-		reportDefinition.addDataSetDefinition("EMRReportAlerts", dataSetDefinition, mappings);
-		// reportDefinition.addDataSetDefinition("AdultARTLateVisit",
-		// dataSetDefinition2, mappings);
+		reportDefinition.addDataSetDefinition("HIVPositivePatientsDelayInLinkageToCare", dataSetDefinition, mappings);
 	}
 
 	private void setupProperties() {
@@ -199,5 +182,9 @@ public class EMRReportAlerts implements SetupReport {
 		cd4Count = gp.getConcept(GlobalPropertyConstants.CD4_COUNT_CONCEPTID);
 		viralLoad = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);
 		adultFollowUpEncounterType = gp.getEncounterType(GlobalPropertyConstants.ADULT_FOLLOWUP_ENCOUNTER_TYPEID);
+		hivStatus = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
+		telephone = gp.getConcept(GlobalPropertiesManagement.TELEPHONE_NUMBER_CONCEPT);
+		telephone2 = gp.getConcept(GlobalPropertiesManagement.SECONDARY_TELEPHONE_NUMBER_CONCEPT);
 	}
+
 }

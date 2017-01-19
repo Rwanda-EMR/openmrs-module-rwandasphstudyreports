@@ -1,4 +1,4 @@
-package org.openmrs.module.rwandasphstudyreports;
+package org.openmrs.module.rwandasphstudyreports.reports;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,6 +24,8 @@ import org.openmrs.module.rwandareports.filter.LastThreeObsFilter;
 import org.openmrs.module.rwandareports.filter.ObservationFilter;
 import org.openmrs.module.rwandareports.util.GlobalPropertiesManagement;
 import org.openmrs.module.rwandareports.util.RowPerPatientColumns;
+import org.openmrs.module.rwandasphstudyreports.Cohorts;
+import org.openmrs.module.rwandasphstudyreports.Helper;
 
 public class SetupLostToFollowupPatients {
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();

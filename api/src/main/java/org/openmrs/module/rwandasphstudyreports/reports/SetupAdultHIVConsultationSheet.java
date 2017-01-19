@@ -1,4 +1,4 @@
-package org.openmrs.module.rwandasphstudyreports;
+package org.openmrs.module.rwandasphstudyreports.reports;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -24,6 +24,11 @@ import org.openmrs.module.rwandareports.filter.DrugNameFilter;
 import org.openmrs.module.rwandareports.filter.LastThreeObsFilter;
 import org.openmrs.module.rwandareports.filter.ObservationFilter;
 import org.openmrs.module.rwandareports.reporting.SetupReport;
+import org.openmrs.module.rwandasphstudyreports.Cohorts;
+import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
+import org.openmrs.module.rwandasphstudyreports.HIVAdultAlerts;
+import org.openmrs.module.rwandasphstudyreports.Helper;
+import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
 
 public class SetupAdultHIVConsultationSheet implements SetupReport {
 

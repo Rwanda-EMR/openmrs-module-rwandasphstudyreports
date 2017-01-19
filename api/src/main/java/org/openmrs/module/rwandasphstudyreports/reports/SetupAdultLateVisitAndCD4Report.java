@@ -1,4 +1,4 @@
-package org.openmrs.module.rwandasphstudyreports;
+package org.openmrs.module.rwandasphstudyreports.reports;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +41,10 @@ import org.openmrs.module.rowperpatientreports.patientdata.definition.PatientRel
 import org.openmrs.module.rwandareports.customcalculator.BMICalculation;
 import org.openmrs.module.rwandareports.customcalculator.DeclineHighestCD4;
 import org.openmrs.module.rwandareports.customcalculator.DifferenceBetweenLastTwoObs;
+import org.openmrs.module.rwandasphstudyreports.Cohorts;
+import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
+import org.openmrs.module.rwandasphstudyreports.Helper;
+import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
 
 public class SetupAdultLateVisitAndCD4Report {
 

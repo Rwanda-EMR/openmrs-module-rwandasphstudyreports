@@ -63,6 +63,23 @@ public class Cohorts {
 		return patientsNotVoided;
 	}
 
+	public static CodedObsCohortDefinition getHIVPositivePatients() {
+		Concept hivStatus = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
+		Concept hivPositive = gp.getConcept(GlobalPropertyConstants.HIV_POSITIVE_CONCEPTID);
+
+		return createCodedObsCohortDefinition("hivPositive", hivStatus, hivPositive, SetComparator.IN,
+				TimeModifier.LAST);
+	}
+
+	public static SqlCohortDefinition getPatientsNotOnART() {
+		Concept arvDrugs = gp.getConcept(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
+
+		return new SqlCohortDefinition("select distinct p.patient_id from patient p "
+				+ "inner join orders ord on p.patient_id = ord.patient_id "
+				+ "where ord.concept_id not in (select distinct concept_id from concept_set where concept_set =  "
+				+ arvDrugs.getConceptId() + ") " + "or p.patient_id not in (select distinct patient_id from orders)");
+	}
+
 	/**
 	 * Looks like Rwanda Adults are 16 years and above
 	 * 

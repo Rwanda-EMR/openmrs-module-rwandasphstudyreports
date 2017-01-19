@@ -431,5 +431,20 @@
 		<defaultValue>2</defaultValue>
 		<description>Adult return encounter type id</description>
 	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.hivPositiveConceptId</property>
+		<defaultValue>703</defaultValue>
+		<description>Adult return encounter type id</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.secondaryTelephoneNumberConcept</property>
+		<defaultValue>6194</defaultValue>
+		<description>Adult return encounter type id</description>
+	</globalProperty>
+	<globalProperty>
+		<property>reports.telephoneNumberConcept</property>
+		<defaultValue>1426</defaultValue>
+		<description>Adult return encounter type id</description>
+	</globalProperty>
 </module>
 

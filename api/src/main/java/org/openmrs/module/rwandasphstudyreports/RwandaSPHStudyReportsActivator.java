@@ -16,6 +16,10 @@ package org.openmrs.module.rwandasphstudyreports;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.ModuleActivator;
+import org.openmrs.module.rwandasphstudyreports.reports.EMRReportAlertsReport;
+import org.openmrs.module.rwandasphstudyreports.reports.HIVPositivePatientsDelayInLinkageToCareReport;
+import org.openmrs.module.rwandasphstudyreports.reports.SetupAdultHIVConsultationSheet;
+import org.openmrs.module.rwandasphstudyreports.reports.SetupAdultLateVisitAndCD4Report;
 
 /**
  * This class contains the logic that is run every time this module is either
@@ -55,7 +59,8 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 			new SetupAdultHIVConsultationSheet().setup();
 			new SetupAdultLateVisitAndCD4Report().setup();
 			// new SetupDataQualityIndicatorReport().setup();
-			new EMRReportAlerts().setup();
+			new EMRReportAlertsReport().setup();
+			new HIVPositivePatientsDelayInLinkageToCareReport().setup();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
