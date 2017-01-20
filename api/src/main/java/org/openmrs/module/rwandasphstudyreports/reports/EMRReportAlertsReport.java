@@ -25,6 +25,7 @@ import org.openmrs.module.rowperpatientreports.patientdata.definition.CustomCalc
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff.DateDiffType;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.MostRecentObservation;
+import org.openmrs.module.rowperpatientreports.patientdata.definition.PatientAttribute;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.RecentEncounterType;
 import org.openmrs.module.rwandareports.filter.LastThreeObsFilter;
 import org.openmrs.module.rwandareports.filter.ObservationFilter;
@@ -81,12 +82,12 @@ public class EMRReportAlertsReport implements SetupReport {
 		ReportDefinition reportDefinition = new ReportDefinition();
 
 		reportDefinition.setName("EMRReportAlerts");
-		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
 		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		/*reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
 		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
 				ParameterizableUtil.createParameterMappings("location=${location}"));
-
+*/
 		createDataSetDefinition(reportDefinition);
 		Helper.saveReportDefinition(reportDefinition);
 
@@ -192,6 +193,8 @@ public class EMRReportAlertsReport implements SetupReport {
 				null, new LastEncounterFilter());
 		dataSetDefinition2.addColumn(lastEncounterType, new HashMap<String, Object>());
 */
+		PatientAttribute healthCenter = RowPerPatientColumns.getHealthCenter("healthcenter");
+		dataSetDefinition.addColumn(healthCenter, new HashMap<String, Object>());
 		reportDefinition.addDataSetDefinition("EMRReportAlerts", dataSetDefinition, mappings);
 		// reportDefinition.addDataSetDefinition("AdultARTLateVisit",
 		// dataSetDefinition2, mappings);

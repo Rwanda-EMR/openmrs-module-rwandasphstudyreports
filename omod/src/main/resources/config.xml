@@ -434,17 +434,27 @@
 	<globalProperty>
 		<property>rwandasphstudyreports.hivPositiveConceptId</property>
 		<defaultValue>703</defaultValue>
-		<description>Adult return encounter type id</description>
+		<description>Adult Hiv positive concept id</description>
 	</globalProperty>
 	<globalProperty>
 		<property>reports.secondaryTelephoneNumberConcept</property>
-		<defaultValue>6194</defaultValue>
-		<description>Adult return encounter type id</description>
+		<defaultValue>2615</defaultValue>
+		<description>secondary/home telephone number concept id</description>
 	</globalProperty>
 	<globalProperty>
 		<property>reports.telephoneNumberConcept</property>
 		<defaultValue>1426</defaultValue>
-		<description>Adult return encounter type id</description>
+		<description>Telephone number concept id</description>
+	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.contactTelephoneNumberConceptId</property>
+		<defaultValue>6194</defaultValue>
+		<description>Contact's telephone number concept id</description>
+	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.guardianTelephoneNumberConceptId</property>
+		<defaultValue>6330</defaultValue>
+		<description>Guardian's telephone number concept id</description>
 	</globalProperty>
 </module>
 

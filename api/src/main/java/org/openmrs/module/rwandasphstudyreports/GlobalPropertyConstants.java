@@ -19,5 +19,9 @@ public class GlobalPropertyConstants {
 	public static final String ADULT_FOLLOWUP_ENCOUNTER_TYPEID = "rwandasphstudyreports.adultReturnEncounterTypeId";
 
 	public static final String HIV_POSITIVE_CONCEPTID = "rwandasphstudyreports.hivPositiveConceptId";
+	
+	public static final String CONTACT_TEL_CONCEPTID = "rwandasphstudyreports.contactTelephoneNumberConceptId";
+	
+	public static final String GUARDIAN_TEL_CONCEPTID = "rwandasphstudyreports.guardianTelephoneNumberConceptId";
 
 }

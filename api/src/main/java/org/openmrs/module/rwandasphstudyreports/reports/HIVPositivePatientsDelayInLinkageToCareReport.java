@@ -51,6 +51,10 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 
 	private Concept telephone2;
 
+	private Concept guardianTelephone;
+
+	private Concept contactTelephone;
+
 	@Override
 	public void setup() throws Exception {
 		setupProperties();
@@ -163,6 +167,10 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getAccompRelationship("accompagnateur"),
 				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("contactTel", contactTelephone, null),
+				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("guardianTel", guardianTelephone, null),
+				new HashMap<String, Object>());
 
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
@@ -185,6 +193,8 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 		hivStatus = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
 		telephone = gp.getConcept(GlobalPropertiesManagement.TELEPHONE_NUMBER_CONCEPT);
 		telephone2 = gp.getConcept(GlobalPropertiesManagement.SECONDARY_TELEPHONE_NUMBER_CONCEPT);
+		contactTelephone = gp.getConcept(GlobalPropertyConstants.CONTACT_TEL_CONCEPTID);
+		guardianTelephone = gp.getConcept(GlobalPropertyConstants.GUARDIAN_TEL_CONCEPTID);
 	}
 
 }
