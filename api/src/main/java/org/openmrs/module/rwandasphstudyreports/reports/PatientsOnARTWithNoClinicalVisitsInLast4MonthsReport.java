@@ -11,7 +11,6 @@ import org.openmrs.EncounterType;
 import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
@@ -30,7 +29,7 @@ import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.Helper;
 import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
 
-public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupReport {
+public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements SetupReport {
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 
 	private Program hivProgram;
@@ -61,10 +60,11 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 
 		ReportDefinition rd = createReportDefinition();
 		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd,
-				"HIVPositivePatientsDelayInLinkageToCare.xls", "HIVPositivePatientsDelayInLinkageToCare", null);
+				"PatientsOnARTWithNoClinicalVisitsInLast4Months.xls", "PatientsOnARTWithNoClinicalVisitsInLast4Months",
+				null);
 		Properties props = new Properties();
 
-		props.put("repeatingSections", "sheet:1,row:6,dataset:HIVPositivePatientsDelayInLinkageToCare");
+		props.put("repeatingSections", "sheet:1,row:6,dataset:PatientsOnARTWithNoClinicalVisitsInLast4Months");
 		props.put("sortWeight", "5000");
 		design.setProperties(props);
 
@@ -76,17 +76,17 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 		ReportService rs = Context.getService(ReportService.class);
 
 		for (ReportDesign rd : rs.getAllReportDesigns(false)) {
-			if ("HIVPositivePatientsDelayInLinkageToCare".equals(rd.getName())) {
+			if ("PatientsOnARTWithNoClinicalVisitsInLast4Months".equals(rd.getName())) {
 				rs.purgeReportDesign(rd);
 			}
 		}
-		Helper.purgeReportDefinition("HIVPositivePatientsDelayInLinkageToCare");
+		Helper.purgeReportDefinition("PatientsOnARTWithNoClinicalVisitsInLast4Months");
 	}
 
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 
-		reportDefinition.setName("HIVPositivePatientsDelayInLinkageToCare");
+		reportDefinition.setName("PatientsOnARTWithNoClinicalVisitsInLast4Months");
 		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
@@ -107,9 +107,6 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 				cd4Count, DateDiffType.MONTHS);
 		DateDiff monthSinceLastVL = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastViralLoad",
 				viralLoad, DateDiffType.MONTHS);
-		DateDiff daysSinceHivPositive = RowPerPatientColumns.getDifferenceSinceLastObservation("DaysSinceHivPositive",
-				hivStatus, DateDiffType.DAYS);
-
 		SortCriteria sortCriteria = new SortCriteria();
 		Map<String, Object> mappings = new HashMap<String, Object>();
 
@@ -146,16 +143,12 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 		monthSinceLastVisit.addParameter(reportDefinition.getParameter("startDate"));
 		monthSinceLastCD4.addParameter(reportDefinition.getParameter("startDate"));
 		monthSinceLastVL.addParameter(reportDefinition.getParameter("startDate"));
-		daysSinceHivPositive.addParameter(reportDefinition.getParameter("startDate"));
-		daysSinceHivPositive.addParameter(reportDefinition.getParameter("endDate"));
 
 		dataSetDefinition.addColumn(monthSinceLastVisit,
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 		dataSetDefinition.addColumn(monthSinceLastCD4,
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 		dataSetDefinition.addColumn(monthSinceLastVL,
-				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
-		dataSetDefinition.addColumn(daysSinceHivPositive,
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("nextRDV", scheduledVisit, "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
@@ -172,15 +165,16 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("guardianTel", guardianTelephone, null),
 				new HashMap<String, Object>());
 
-		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		SqlCohortDefinition notInART = Cohorts.getPatientsOnOrNotOnART(false);
+		SqlCohortDefinition onART = Cohorts.getPatientsOnOrNotOnART(true);
+		SqlCohortDefinition withVisits = Cohorts.patientsWithNoClinicalVisitforMoreThanNMonths(4);
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
-		dataSetDefinition.addFilter(hivPositive, null);
-		dataSetDefinition.addFilter(notInART, null);
+		dataSetDefinition.addFilter(onART, null);
+		dataSetDefinition.addFilter(withVisits, null);
 
-		reportDefinition.addDataSetDefinition("HIVPositivePatientsDelayInLinkageToCare", dataSetDefinition, mappings);
+		reportDefinition.addDataSetDefinition("PatientsOnARTWithNoClinicalVisitsInLast4Months", dataSetDefinition,
+				mappings);
 	}
 
 	private void setupProperties() {
@@ -196,5 +190,4 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 		contactTelephone = gp.getConcept(GlobalPropertyConstants.CONTACT_TEL_CONCEPTID);
 		guardianTelephone = gp.getConcept(GlobalPropertyConstants.GUARDIAN_TEL_CONCEPTID);
 	}
-
 }

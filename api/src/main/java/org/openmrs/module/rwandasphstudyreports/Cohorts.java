@@ -48,7 +48,6 @@ public class Cohorts {
 	public Log log = LogFactory.getLog(getClass());
 
 	public static SqlCohortDefinition createParameterizedLocationCohort(String name) {
-
 		SqlCohortDefinition location = new SqlCohortDefinition();
 		location.setQuery(
 				"select p.patient_id from patient p, person_attribute pa, person_attribute_type pat where p.patient_id = pa.person_id and pat.name ='Health Center' and pa.voided = 0 and pat.person_attribute_type_id = pa.person_attribute_type_id and pa.value = :location");
@@ -71,13 +70,27 @@ public class Cohorts {
 				TimeModifier.LAST);
 	}
 
-	public static SqlCohortDefinition getPatientsNotOnART() {
+	public static SqlCohortDefinition getPatientsOnOrNotOnART(boolean onArt) {
 		Concept arvDrugs = gp.getConcept(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
 
 		return new SqlCohortDefinition("select distinct p.patient_id from patient p "
-				+ "inner join orders ord on p.patient_id = ord.patient_id "
-				+ "where ord.concept_id not in (select distinct concept_id from concept_set where concept_set =  "
+				+ "inner join orders ord on p.patient_id = ord.patient_id " + "where ord.concept_id "
+				+ (onArt ? "" : "not") + " in (select distinct concept_id from concept_set where concept_set =  "
 				+ arvDrugs.getConceptId() + ") " + "or p.patient_id not in (select distinct patient_id from orders)");
+	}
+
+	// TODO MoH doesn't use visits but it understands encounters as visits at
+	// the point this functionality is being added
+	public static SqlCohortDefinition patientsWithLastClinicalVisitMoreThanNMonths(Integer numberOfMonths) {
+		return new SqlCohortDefinition(
+				"select distinct patient_id from encounter where encounter_datetime > DATE_SUB(now(), INTERVAL "
+						+ numberOfMonths + " MONTH)");
+	}
+
+	public static SqlCohortDefinition patientsWithNoClinicalVisitforMoreThanNMonths(Integer numberOfMonths) {
+		return new SqlCohortDefinition(
+				"select distinct patient_id from patient where patient_id not in (select distinct patient_id from encounter where encounter_datetime > DATE_SUB(now(), INTERVAL "
+						+ numberOfMonths + " MONTH))");
 	}
 
 	/**
@@ -92,6 +105,8 @@ public class Cohorts {
 		return adultPatients;
 	}
 
+	// TODO MoH doesn't use visits but it understands encounters as visits at
+	// the point this functionality is being added
 	public static SqlCohortDefinition getPatientsWithEncountersInLastNMonths(EncounterType adultFollowUpEncounterType,
 			Concept scheduledVisit, Integer numberOfMonths) {
 		return new SqlCohortDefinition(
