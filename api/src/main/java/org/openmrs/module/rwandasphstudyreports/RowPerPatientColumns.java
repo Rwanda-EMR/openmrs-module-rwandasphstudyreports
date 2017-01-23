@@ -486,6 +486,10 @@ public class RowPerPatientColumns {
 		return getMostRecent(name, gp.getConcept(GlobalPropertiesManagement.CD4_TEST), dateFormat);
 	}
 
+	public static MostRecentObservation getMostRecentHIVTest(String name, String dateFormat) {
+		return getMostRecent(name, gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID), dateFormat);
+	}
+
 	public static MostRecentObservation getMostRecentCD4(String name, String dateFormat, ResultFilter resultFilter) {
 		return getMostRecent(name, gp.getConcept(GlobalPropertiesManagement.CD4_TEST), dateFormat, resultFilter);
 	}

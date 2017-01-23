@@ -101,12 +101,6 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 
 	private void createDataSetDefinition(ReportDefinition reportDefinition) {
 		RowPerPatientDataSetDefinition dataSetDefinition = new RowPerPatientDataSetDefinition();
-		DateDiff monthSinceLastVisit = RowPerPatientColumns.getDifferenceSinceLastEncounter("MonthsSinceLastVisit",
-				encounterTypes, DateDiffType.MONTHS);
-		DateDiff monthSinceLastCD4 = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastCD4",
-				cd4Count, DateDiffType.MONTHS);
-		DateDiff monthSinceLastVL = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastViralLoad",
-				viralLoad, DateDiffType.MONTHS);
 		DateDiff daysSinceHivPositive = RowPerPatientColumns.getDifferenceSinceLastObservation("DaysSinceHivPositive",
 				hivStatus, DateDiffType.DAYS);
 
@@ -128,6 +122,7 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 				ParameterizableUtil.createParameterMappings("onDate=${now}"));
 
 		dataSetDefinition.addColumn(RowPerPatientColumns.getTracnetId("TRACNET_ID"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getSystemId("patientID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFirstNameColumn("givenName"),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFamilyNameColumn("familyName"),
@@ -135,26 +130,13 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 		dataSetDefinition.addColumn(RowPerPatientColumns.getGender("sex"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getDateOfBirth("birth_date", "dd/MMM/yyyy", null),
 				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentCD4("cD4Test", "dd/MMM/yyyy"),
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentHIVTest("hivTest", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentViralLoad("viralLoad", "dd/MMM/yyyy"),
+		dataSetDefinition.addColumn(RowPerPatientColumns.getDrugOrderForStartOfART("artInitiation", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
 
-		monthSinceLastVisit.addParameter(reportDefinition.getParameter("endDate"));
-		monthSinceLastCD4.addParameter(reportDefinition.getParameter("endDate"));
-		monthSinceLastVL.addParameter(reportDefinition.getParameter("endDate"));
-		monthSinceLastVisit.addParameter(reportDefinition.getParameter("startDate"));
-		monthSinceLastCD4.addParameter(reportDefinition.getParameter("startDate"));
-		monthSinceLastVL.addParameter(reportDefinition.getParameter("startDate"));
 		daysSinceHivPositive.addParameter(reportDefinition.getParameter("startDate"));
 		daysSinceHivPositive.addParameter(reportDefinition.getParameter("endDate"));
-
-		dataSetDefinition.addColumn(monthSinceLastVisit,
-				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
-		dataSetDefinition.addColumn(monthSinceLastCD4,
-				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
-		dataSetDefinition.addColumn(monthSinceLastVL,
-				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 		dataSetDefinition.addColumn(daysSinceHivPositive,
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("nextRDV", scheduledVisit, "dd/MMM/yyyy"),
