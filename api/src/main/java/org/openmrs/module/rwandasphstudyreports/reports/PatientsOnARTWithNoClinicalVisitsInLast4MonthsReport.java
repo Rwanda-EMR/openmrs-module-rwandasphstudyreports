@@ -50,10 +50,6 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 
 	private Concept telephone2;
 
-	private Concept guardianTelephone;
-
-	private Concept contactTelephone;
-
 	@Override
 	public void setup() throws Exception {
 		setupProperties();
@@ -105,8 +101,6 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 				encounterTypes, DateDiffType.MONTHS);
 		DateDiff monthSinceLastCD4 = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastCD4",
 				cd4Count, DateDiffType.MONTHS);
-		DateDiff monthSinceLastVL = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastViralLoad",
-				viralLoad, DateDiffType.MONTHS);
 		SortCriteria sortCriteria = new SortCriteria();
 		Map<String, Object> mappings = new HashMap<String, Object>();
 
@@ -125,6 +119,7 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 				ParameterizableUtil.createParameterMappings("onDate=${now}"));
 
 		dataSetDefinition.addColumn(RowPerPatientColumns.getTracnetId("TRACNET_ID"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getSystemId("patientID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFirstNameColumn("givenName"),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFamilyNameColumn("familyName"),
@@ -132,23 +127,22 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		dataSetDefinition.addColumn(RowPerPatientColumns.getGender("sex"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getDateOfBirth("birth_date", "dd/MMM/yyyy", null),
 				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentReturnVisitDate("returnVisit", "dd/MMM/yyyy"),
+				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentCD4("cD4Test", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentViralLoad("viralLoad", "dd/MMM/yyyy"),
-				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(
+				RowPerPatientColumns.getDrugRegimenInformationParameterized("regimen", false, false),
+				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 
 		monthSinceLastVisit.addParameter(reportDefinition.getParameter("endDate"));
 		monthSinceLastCD4.addParameter(reportDefinition.getParameter("endDate"));
-		monthSinceLastVL.addParameter(reportDefinition.getParameter("endDate"));
 		monthSinceLastVisit.addParameter(reportDefinition.getParameter("startDate"));
 		monthSinceLastCD4.addParameter(reportDefinition.getParameter("startDate"));
-		monthSinceLastVL.addParameter(reportDefinition.getParameter("startDate"));
 
 		dataSetDefinition.addColumn(monthSinceLastVisit,
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 		dataSetDefinition.addColumn(monthSinceLastCD4,
-				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
-		dataSetDefinition.addColumn(monthSinceLastVL,
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("nextRDV", scheduledVisit, "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
@@ -157,12 +151,6 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("telephone2", telephone2, null),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getPatientAddress("address", true, true, true, true),
-				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.getAccompRelationship("accompagnateur"),
-				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("contactTel", contactTelephone, null),
-				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("guardianTel", guardianTelephone, null),
 				new HashMap<String, Object>());
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
@@ -187,7 +175,5 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		hivStatus = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
 		telephone = gp.getConcept(GlobalPropertiesManagement.TELEPHONE_NUMBER_CONCEPT);
 		telephone2 = gp.getConcept(GlobalPropertiesManagement.SECONDARY_TELEPHONE_NUMBER_CONCEPT);
-		contactTelephone = gp.getConcept(GlobalPropertyConstants.CONTACT_TEL_CONCEPTID);
-		guardianTelephone = gp.getConcept(GlobalPropertyConstants.GUARDIAN_TEL_CONCEPTID);
 	}
 }

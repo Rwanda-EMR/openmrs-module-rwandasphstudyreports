@@ -8,7 +8,6 @@ import java.util.Properties;
 
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
-import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
@@ -52,6 +51,10 @@ public class EMRReportAlertsReport implements SetupReport {
 
 	private EncounterType adultFollowUpEncounterType;
 
+	private Concept contactTelephone;
+
+	private Concept guardianTelephone;
+
 	public void setup() throws Exception {
 		setupProperties();
 
@@ -84,10 +87,13 @@ public class EMRReportAlertsReport implements SetupReport {
 		reportDefinition.setName("EMRReportAlerts");
 		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		/*reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
-		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
-				ParameterizableUtil.createParameterMappings("location=${location}"));
-*/
+		/*
+		 * reportDefinition.addParameter(new Parameter("location",
+		 * "Health Center", Location.class));
+		 * reportDefinition.setBaseCohortDefinition(Cohorts.
+		 * createParameterizedLocationCohort("At Location"),
+		 * ParameterizableUtil.createParameterMappings("location=${location}"));
+		 */
 		createDataSetDefinition(reportDefinition);
 		Helper.saveReportDefinition(reportDefinition);
 
@@ -96,7 +102,7 @@ public class EMRReportAlertsReport implements SetupReport {
 
 	private void createDataSetDefinition(ReportDefinition reportDefinition) {
 		RowPerPatientDataSetDefinition dataSetDefinition = new RowPerPatientDataSetDefinition();
-		//RowPerPatientDataSetDefinition dataSetDefinition2 = null;
+		// RowPerPatientDataSetDefinition dataSetDefinition2 = null;
 		DateDiff monthSinceLastVisit = RowPerPatientColumns.getDifferenceSinceLastEncounter("MonthsSinceLastVisit",
 				encounterTypes, DateDiffType.MONTHS);
 		DateDiff monthSinceLastCD4 = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastCD4",
@@ -152,6 +158,11 @@ public class EMRReportAlertsReport implements SetupReport {
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getAccompRelationship("accompagnateur"),
 				new HashMap<String, Object>());
+
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("contactTel", contactTelephone, null),
+				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("guardianTel", guardianTelephone, null),
+				new HashMap<String, Object>());
 		MostRecentObservation mostRecentHeight = RowPerPatientColumns.getMostRecentHeight("RecentHeight", null);
 
 		AllObservationValues weight = RowPerPatientColumns.getAllWeightValues("weightObs", "ddMMMyy",
@@ -181,18 +192,22 @@ public class EMRReportAlertsReport implements SetupReport {
 				.getPatientsWithEncountersInLastNMonths(adultFollowUpEncounterType, scheduledVisit, 3);
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
-		/*dataSetDefinition2 = dataSetDefinition;
-		dataSetDefinition2.addFilter(withNoEncountersInLast3Months, null);
-
-		withNoEncountersInLast3Months.addParameter(new Parameter("endDate", "endDate", Date.class));
-
-		dataSetDefinition2.addFilter(withNoEncountersInLast3Months,
-				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-
-		RecentEncounterType lastEncounterType = RowPerPatientColumns.getRecentEncounterType("LastVisit", encounterTypes,
-				null, new LastEncounterFilter());
-		dataSetDefinition2.addColumn(lastEncounterType, new HashMap<String, Object>());
-*/
+		/*
+		 * dataSetDefinition2 = dataSetDefinition;
+		 * dataSetDefinition2.addFilter(withNoEncountersInLast3Months, null);
+		 * 
+		 * withNoEncountersInLast3Months.addParameter(new Parameter("endDate",
+		 * "endDate", Date.class));
+		 * 
+		 * dataSetDefinition2.addFilter(withNoEncountersInLast3Months,
+		 * ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		 * 
+		 * RecentEncounterType lastEncounterType =
+		 * RowPerPatientColumns.getRecentEncounterType("LastVisit",
+		 * encounterTypes, null, new LastEncounterFilter());
+		 * dataSetDefinition2.addColumn(lastEncounterType, new HashMap<String,
+		 * Object>());
+		 */
 		PatientAttribute healthCenter = RowPerPatientColumns.getHealthCenter("healthcenter");
 		dataSetDefinition.addColumn(healthCenter, new HashMap<String, Object>());
 		reportDefinition.addDataSetDefinition("EMRReportAlerts", dataSetDefinition, mappings);
@@ -207,5 +222,7 @@ public class EMRReportAlertsReport implements SetupReport {
 		cd4Count = gp.getConcept(GlobalPropertyConstants.CD4_COUNT_CONCEPTID);
 		viralLoad = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);
 		adultFollowUpEncounterType = gp.getEncounterType(GlobalPropertyConstants.ADULT_FOLLOWUP_ENCOUNTER_TYPEID);
+		contactTelephone = gp.getConcept(GlobalPropertyConstants.CONTACT_TEL_CONCEPTID);
+		guardianTelephone = gp.getConcept(GlobalPropertyConstants.GUARDIAN_TEL_CONCEPTID);
 	}
 }

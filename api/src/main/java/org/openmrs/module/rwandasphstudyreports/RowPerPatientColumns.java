@@ -1434,8 +1434,8 @@ public class RowPerPatientColumns {
 		info.setName(name);
 		info.setShowStartDate(showStartDate);
 		info.setShowDrugDetails(showDrugDetails);
-		info.addParameter(new Parameter("asOfDate", "asOfDate", Date.class));
-		info.addParameter(new Parameter("untilDate", "untilDate", Date.class));
+		info.addParameter(new Parameter("startDate", "asOfDate", Date.class));
+		info.addParameter(new Parameter("endDate", "untilDate", Date.class));
 		return info;
 	}
 
