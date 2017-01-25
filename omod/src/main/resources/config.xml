@@ -457,5 +457,15 @@
 		<defaultValue>6330</defaultValue>
 		<description>Guardian's telephone number concept id</description>
 	</globalProperty>
+	<globalProperty>
+		<property>reports.reasonForExitingCare</property>
+		<defaultValue>1811</defaultValue>
+		<description>Reason for exiting care concept id</description>
+	</globalProperty>
+	<globalProperty>
+		<property>report.patienttransferedOut</property>
+		<defaultValue>1744</defaultValue>
+		<description>Transfer out as reason for exiting care concept id</description>
+	</globalProperty>
 </module>
 

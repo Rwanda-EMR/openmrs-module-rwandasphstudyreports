@@ -74,9 +74,10 @@ public class Cohorts {
 		Concept arvDrugs = gp.getConcept(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
 
 		return new SqlCohortDefinition("select distinct p.patient_id from patient p "
-				+ "inner join orders ord on p.patient_id = ord.patient_id " + "where ord.concept_id "
+				+ "left join orders ord on p.patient_id = ord.patient_id " + "where ord.concept_id "
 				+ (onArt ? "" : "not") + " in (select distinct concept_id from concept_set where concept_set =  "
-				+ arvDrugs.getConceptId() + ") " + "or p.patient_id not in (select distinct patient_id from orders)");
+				+ arvDrugs.getConceptId() + ")"
+				+ (onArt ? "" : " or p.patient_id not in (select distinct patient_id from orders)"));
 	}
 
 	// TODO MoH doesn't use visits but it understands encounters as visits at
@@ -983,6 +984,18 @@ public class Cohorts {
 				timeModifier);
 		obsCohortDefinition.setName(name);
 		return obsCohortDefinition;
+	}
+
+	public static SqlCohortDefinition createSQLCodedObsCohortDefinition(Concept question, Concept value,
+			Boolean valueNotIn) {
+		if (question != null && value != null && valueNotIn != null) {
+			String sql = "select distinct p.patient_id from patient p left join obs o on o.person_id = p.patient_id where (concept_id = "
+					+ question.getConceptId() + " and value_coded" + (valueNotIn ? "not" : "") + " in ("
+					+ value.getConceptId() + "))"
+					+ (valueNotIn ? " or p.patient_id not in (select person_id as patient_id from obs)" : "");
+			return new SqlCohortDefinition(sql);
+		}
+		return null;
 	}
 
 	public static CodedObsCohortDefinition createCodedObsCohortDefinition(String name, String parameterName,

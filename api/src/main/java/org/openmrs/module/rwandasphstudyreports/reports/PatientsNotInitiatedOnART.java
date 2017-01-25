@@ -8,10 +8,12 @@ import java.util.Properties;
 
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
-import org.openmrs.Location;
 import org.openmrs.Program;
+import org.openmrs.api.PatientSetService.TimeModifier;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
+import org.openmrs.module.reporting.common.SetComparator;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -29,7 +31,7 @@ import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.Helper;
 import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
 
-public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements SetupReport {
+public class PatientsNotInitiatedOnART implements SetupReport {
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 
 	private Program hivProgram;
@@ -50,17 +52,20 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 
 	private Concept telephone2;
 
+	private Concept reasonForExitingCare;
+
+	private Concept transferOut;
+
 	@Override
 	public void setup() throws Exception {
 		setupProperties();
 
 		ReportDefinition rd = createReportDefinition();
-		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd,
-				"PatientsOnARTWithNoClinicalVisitsInLast4Months.xls", "PatientsOnARTWithNoClinicalVisitsInLast4Months",
-				null);
+		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "PatientsNotInitiatedOnART.xls",
+				"PatientsNotInitiatedOnART", null);
 		Properties props = new Properties();
 
-		props.put("repeatingSections", "sheet:1,row:6,dataset:PatientsOnARTWithNoClinicalVisitsInLast4Months");
+		props.put("repeatingSections", "sheet:1,row:6,dataset:PatientsNotInitiatedOnART");
 		props.put("sortWeight", "5000");
 		design.setProperties(props);
 
@@ -72,23 +77,26 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		ReportService rs = Context.getService(ReportService.class);
 
 		for (ReportDesign rd : rs.getAllReportDesigns(false)) {
-			if ("PatientsOnARTWithNoClinicalVisitsInLast4Months".equals(rd.getName())) {
+			if ("PatientsNotInitiatedOnART".equals(rd.getName())) {
 				rs.purgeReportDesign(rd);
 			}
 		}
-		Helper.purgeReportDefinition("PatientsOnARTWithNoClinicalVisitsInLast4Months");
+		Helper.purgeReportDefinition("PatientsNotInitiatedOnART");
 	}
 
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 
-		reportDefinition.setName("PatientsOnARTWithNoClinicalVisitsInLast4Months");
+		reportDefinition.setName("PatientsNotInitiatedOnART");
 		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
-		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
-				ParameterizableUtil.createParameterMappings("location=${location}"));
-
+		/*
+		 * reportDefinition.addParameter(new Parameter("location",
+		 * "Health Center", Location.class));
+		 * reportDefinition.setBaseCohortDefinition(Cohorts.
+		 * createParameterizedLocationCohort("At Location"),
+		 * ParameterizableUtil.createParameterMappings("location=${location}"));
+		 */
 		createDataSetDefinition(reportDefinition);
 		Helper.saveReportDefinition(reportDefinition);
 
@@ -154,15 +162,17 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 				new HashMap<String, Object>());
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		SqlCohortDefinition onART = Cohorts.getPatientsOnOrNotOnART(true);
-		SqlCohortDefinition withNoVisits = Cohorts.patientsWithNoClinicalVisitforMoreThanNMonths(4);
+		SqlCohortDefinition notOnART = Cohorts.getPatientsOnOrNotOnART(false);
+		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
+		SqlCohortDefinition patientsNotTransferredOut = Cohorts.createSQLCodedObsCohortDefinition(reasonForExitingCare,
+				transferOut, true);
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
-		dataSetDefinition.addFilter(onART, null);
-		dataSetDefinition.addFilter(withNoVisits, null);
+		dataSetDefinition.addFilter(notOnART, null);
+		dataSetDefinition.addFilter(hivPositive, null);
+		dataSetDefinition.addFilter(patientsNotTransferredOut, null);
 
-		reportDefinition.addDataSetDefinition("PatientsOnARTWithNoClinicalVisitsInLast4Months", dataSetDefinition,
-				mappings);
+		reportDefinition.addDataSetDefinition("PatientsNotInitiatedOnART", dataSetDefinition, mappings);
 	}
 
 	private void setupProperties() {
@@ -175,5 +185,7 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		hivStatus = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
 		telephone = gp.getConcept(GlobalPropertiesManagement.TELEPHONE_NUMBER_CONCEPT);
 		telephone2 = gp.getConcept(GlobalPropertiesManagement.SECONDARY_TELEPHONE_NUMBER_CONCEPT);
+		reasonForExitingCare = gp.getConcept(GlobalPropertiesManagement.REASON_FOR_EXITING_CARE);
+		transferOut = gp.getConcept(GlobalPropertiesManagement.TRASNFERED_OUT);
 	}
 }
