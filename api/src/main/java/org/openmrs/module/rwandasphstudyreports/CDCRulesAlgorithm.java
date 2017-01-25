@@ -51,6 +51,13 @@ public class CDCRulesAlgorithm {
 				}
 
 			}
+			if (Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
+					&& Context.getService(CDCReportsService.class).checkIfPatientIsOnARVMoreThanNMonths(patient, 12)
+					&& vLObs.get(vLObs.size() - 1).getValueNumeric() > 1000) {
+				alerts.add(Context.getMessageSourceService()
+						.getMessage("rwandasphstudyreports.alerts.vlBasedTreatmentFailure"));
+			}
+
 		}
 
 		if (visits.isEmpty()) {
@@ -63,13 +70,13 @@ public class CDCRulesAlgorithm {
 			lastVisitDate = visits.get(0).getDateCreated();
 		}
 		if (lastVisitDate != null) {
-			Calendar twelveMonthsAfterLastRecordedVisit = Calendar.getInstance(Context.getLocale());
+			Calendar lastRecordedVisit = Calendar.getInstance(Context.getLocale());
 
-			twelveMonthsAfterLastRecordedVisit.setTime(lastVisitDate);
-			twelveMonthsAfterLastRecordedVisit.add(Calendar.MONTH, 12);
+			lastRecordedVisit.setTime(lastVisitDate);
+			lastRecordedVisit.add(Calendar.MONTH, 8);
 
-			if (getOnlyObsWithDatetimeMoreThanNMonthsAfterObsDate(vLObs, twelveMonthsAfterLastRecordedVisit.getTime(),
-					12).isEmpty() && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)) {
+			if (getOnlyObsWithDatetimeMoreThanNMonthsAfterObsDate(vLObs, lastRecordedVisit.getTime(), 8).isEmpty()
+					&& Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)) {
 				alerts.add(
 						Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.orderBaselineVL"));
 			}
