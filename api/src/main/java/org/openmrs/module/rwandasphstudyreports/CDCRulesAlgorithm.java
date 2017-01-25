@@ -2,12 +2,9 @@ package org.openmrs.module.rwandasphstudyreports;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
@@ -15,7 +12,6 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.mohorderentrybridge.api.MoHOrderEntryBridgeService;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 
 public class CDCRulesAlgorithm {
@@ -29,12 +25,13 @@ public class CDCRulesAlgorithm {
 		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, vl);
 		List<Visit> visits = Context.getVisitService().getVisitsByPatient(patient);
 		Date lastVisitDate = null;
+		DrugOrder artInitDrug = Context.getService(CDCReportsService.class).getARTInitiationDrug(patient);
 		List<Obs> cd4Obs = getOnlyObsWithDatetimeMoreThanNMonthsAfterObsDate(
 				Context.getObsService().getObservationsByPersonAndConcept(patient, cd4),
-				getDateWhenARTWasInitiated(patient), 2);
+				artInitDrug != null ? artInitDrug.getEffectiveStartDate() : null, 2);
 
-		visits = sortVisitsListByCreationDate(visits);
-		sortObsListByObsDateTime(vLObs);
+		visits = Context.getService(CDCReportsService.class).sortVisitsListByCreationDate(visits);
+		Context.getService(CDCReportsService.class).sortObsListByObsDateTime(vLObs);
 
 		if (!vLObs.isEmpty()) {
 			Date vLDate = vLObs.get(vLObs.size() - 1).getObsDatetime();
@@ -58,7 +55,7 @@ public class CDCRulesAlgorithm {
 
 		if (visits.isEmpty()) {
 			List<Encounter> encs = Context.getEncounterService().getEncountersByPatient(patient);
-			encs = sortEncountersListByCreationDate(encs);
+			encs = Context.getService(CDCReportsService.class).sortEncountersListByCreationDate(encs);
 			if (!encs.isEmpty())
 				lastVisitDate = (encs.get(0).getEncounterDatetime() != null) ? encs.get(0).getEncounterDatetime()
 						: new Date();
@@ -81,13 +78,20 @@ public class CDCRulesAlgorithm {
 			alerts.add(Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.orderBaselineCD4"));
 		}
 
+		if (Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
+				&& Context.getService(CDCReportsService.class).checkForAtleast50PercentDecreaseInCD4(patient)
+				&& Context.getService(CDCReportsService.class).checkIfPatientIsOnARVMoreThanNMonths(patient, 12)) {
+			alerts.add(Context.getMessageSourceService()
+					.getMessage("rwandasphstudyreports.alerts.cd4BasedTreatmentFailure"));
+		}
+
 		return alerts;
 	}
 
 	private Date getCurrentVisitEndDate(Patient patient) {
 		Visit activeVisit = Context.getService(CDCReportsService.class).getActiveVisit(patient, null);
 		List<Encounter> encs = Context.getEncounterService().getEncountersByPatient(patient);
-		encs = sortEncountersListByCreationDate(encs);
+		encs = Context.getService(CDCReportsService.class).sortEncountersListByCreationDate(encs);
 
 		if (activeVisit != null && activeVisit.getStopDatetime().before(new Date())) {
 			return activeVisit.getStopDatetime();
@@ -98,40 +102,6 @@ public class CDCRulesAlgorithm {
 			else
 				return new Date();
 		}
-	}
-
-	private void sortObsListByObsDateTime(List<Obs> obsList) {
-		Collections.sort(obsList, new Comparator<Obs>() {
-			public int compare(Obs o1, Obs o2) {
-				return o1.getObsDatetime().compareTo(o2.getObsDatetime());
-			}
-		});
-	}
-
-	private void sortOrderListByStartDate(List<DrugOrder> arvDrugsOrders) {
-		Collections.sort(arvDrugsOrders, new Comparator<DrugOrder>() {
-			public int compare(DrugOrder o1, DrugOrder o2) {
-				return o1.getEffectiveStartDate().compareTo(o2.getEffectiveStartDate());
-			}
-		});
-	}
-
-	private List<Encounter> sortEncountersListByCreationDate(List<Encounter> encs) {
-		Collections.sort(encs, new Comparator<Encounter>() {
-			public int compare(Encounter o1, Encounter o2) {
-				return o1.getDateCreated().compareTo(o2.getDateCreated());
-			}
-		});
-		return encs;
-	}
-
-	private List<Visit> sortVisitsListByCreationDate(List<Visit> visits) {
-		Collections.sort(visits, new Comparator<Visit>() {
-			public int compare(Visit o1, Visit o2) {
-				return o1.getDateCreated().compareTo(o2.getDateCreated());
-			}
-		});
-		return visits;
 	}
 
 	private List<Obs> getOnlyObsWithDatetimeMoreThanNMonthsAfterObsDate(List<Obs> obsList, Date startingDate,
@@ -150,43 +120,5 @@ public class CDCRulesAlgorithm {
 			}
 		}
 		return matchedObs;
-	}
-
-	private Date getDateWhenARTWasInitiated(Patient patient) {
-		List<DrugOrder> arvDrugsOrders = new ArrayList<DrugOrder>();
-		List<DrugOrder> drugOrders = Context.getService(MoHOrderEntryBridgeService.class)
-				.getDrugOrdersByPatient(patient);
-
-		String otherARVDrugConceptsIds = Context.getAdministrationService()
-				.getGlobalProperty(GlobalPropertyConstants.OTHER_ARV_DRUGS_CONCEPTIDS);
-		String aRVDrugConceptSetIds = Context.getAdministrationService()
-				.getGlobalProperty(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
-		if (StringUtils.isNotBlank(otherARVDrugConceptsIds))
-			for (String s : otherARVDrugConceptsIds.split(",")) {
-				arvDrugsOrders.addAll(matchOnlyDrugConceptFromOrders(drugOrders,
-						Context.getConceptService().getConcept(Integer.parseInt(s.trim()))));
-			}
-		if (StringUtils.isNotBlank(aRVDrugConceptSetIds)
-				&& Context.getConceptService().getConcept(Integer.parseInt(aRVDrugConceptSetIds)).isSet())
-			for (Concept c : Context.getConceptService().getConcept(Integer.parseInt(aRVDrugConceptSetIds))
-					.getSetMembers()) {
-				arvDrugsOrders.addAll(matchOnlyDrugConceptFromOrders(drugOrders, c));
-			}
-		sortOrderListByStartDate(arvDrugsOrders);
-
-		if (!arvDrugsOrders.isEmpty())
-			return arvDrugsOrders.get(0).getEffectiveStartDate();
-
-		return null;
-	}
-
-	private List<DrugOrder> matchOnlyDrugConceptFromOrders(List<DrugOrder> dOrders, Concept c) {
-		List<DrugOrder> orders = new ArrayList<DrugOrder>();
-
-		for (DrugOrder o : dOrders) {
-			if (c.getConceptId().equals(o.getConcept().getConceptId()))
-				orders.add(o);
-		}
-		return orders;
 	}
 }

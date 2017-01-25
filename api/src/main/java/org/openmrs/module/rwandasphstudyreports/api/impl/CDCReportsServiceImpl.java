@@ -14,6 +14,7 @@
 package org.openmrs.module.rwandasphstudyreports.api.impl;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,10 +22,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Cohort;
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Location;
 import org.openmrs.Obs;
@@ -32,6 +35,7 @@ import org.openmrs.Patient;
 import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
+import org.openmrs.module.mohorderentrybridge.api.MoHOrderEntryBridgeService;
 import org.openmrs.module.reporting.definition.DefinitionSummary;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.report.ReportRequest;
@@ -189,19 +193,21 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		return null;
 	}
 
-	private void sortObsListByObsDateTime(List<Obs> obsList) {
-		Collections.sort(obsList, new Comparator<Obs>() {
-			public int compare(Obs o1, Obs o2) {
-				return o1.getObsDatetime().compareTo(o2.getObsDatetime());
-			}
-		});
+	@Override
+	public List<DrugOrder> matchOnlyDrugConceptFromOrders(List<DrugOrder> dOrders, Concept c) {
+		List<DrugOrder> orders = new ArrayList<DrugOrder>();
+
+		for (DrugOrder o : dOrders) {
+			if (c.getConceptId().equals(o.getConcept().getConceptId()))
+				orders.add(o);
+		}
+		return orders;
 	}
 
 	@Override
 	public boolean checkIfPatientIsHIVPositive(Patient patient) {
 		Concept hiv = Context.getConceptService().getConcept(Integer.parseInt(
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.HIV_STATUS_CONCEPTID)));
-
 		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, hiv);
 
 		sortObsListByObsDateTime(vLObs);
@@ -212,4 +218,109 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		return false;
 	}
 
+	@Override
+	public void sortObsListByObsDateTime(List<Obs> obsList) {
+		Collections.sort(obsList, new Comparator<Obs>() {
+			public int compare(Obs o1, Obs o2) {
+				return o1.getObsDatetime().compareTo(o2.getObsDatetime());
+			}
+		});
+	}
+
+	@Override
+	public void sortOrderListByStartDate(List<DrugOrder> arvDrugsOrders) {
+		Collections.sort(arvDrugsOrders, new Comparator<DrugOrder>() {
+			public int compare(DrugOrder o1, DrugOrder o2) {
+				return o1.getEffectiveStartDate().compareTo(o2.getEffectiveStartDate());
+			}
+		});
+	}
+
+	@Override
+	public List<Encounter> sortEncountersListByCreationDate(List<Encounter> encs) {
+		Collections.sort(encs, new Comparator<Encounter>() {
+			public int compare(Encounter o1, Encounter o2) {
+				return o1.getDateCreated().compareTo(o2.getDateCreated());
+			}
+		});
+		return encs;
+	}
+
+	@Override
+	public List<Visit> sortVisitsListByCreationDate(List<Visit> visits) {
+		Collections.sort(visits, new Comparator<Visit>() {
+			public int compare(Visit o1, Visit o2) {
+				return o1.getDateCreated().compareTo(o2.getDateCreated());
+			}
+		});
+		return visits;
+	}
+
+	@Override
+	public DrugOrder getARTInitiationDrug(Patient patient) {
+		List<DrugOrder> arvDrugsOrders = new ArrayList<DrugOrder>();
+		List<DrugOrder> drugOrders = Context.getService(MoHOrderEntryBridgeService.class)
+				.getDrugOrdersByPatient(patient);
+
+		String otherARVDrugConceptsIds = Context.getAdministrationService()
+				.getGlobalProperty(GlobalPropertyConstants.OTHER_ARV_DRUGS_CONCEPTIDS);
+		String aRVDrugConceptSetIds = Context.getAdministrationService()
+				.getGlobalProperty(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
+		if (StringUtils.isNotBlank(otherARVDrugConceptsIds))
+			for (String s : otherARVDrugConceptsIds.split(",")) {
+				arvDrugsOrders.addAll(Context.getService(CDCReportsService.class).matchOnlyDrugConceptFromOrders(
+						drugOrders, Context.getConceptService().getConcept(Integer.parseInt(s.trim()))));
+			}
+		if (StringUtils.isNotBlank(aRVDrugConceptSetIds)
+				&& Context.getConceptService().getConcept(Integer.parseInt(aRVDrugConceptSetIds)).isSet())
+			for (Concept c : Context.getConceptService().getConcept(Integer.parseInt(aRVDrugConceptSetIds))
+					.getSetMembers()) {
+				arvDrugsOrders.addAll(
+						Context.getService(CDCReportsService.class).matchOnlyDrugConceptFromOrders(drugOrders, c));
+			}
+		Context.getService(CDCReportsService.class).sortOrderListByStartDate(arvDrugsOrders);
+
+		if (!arvDrugsOrders.isEmpty())
+			return arvDrugsOrders.get(0);
+
+		return null;
+	}
+
+	@Override
+	public boolean checkIfPatientIsOnARVMoreThanNMonths(Patient patient, Integer numberOfMonths) {
+		if (patient != null && numberOfMonths != null) {
+			DrugOrder artInitDrug = getARTInitiationDrug(patient);
+			if (artInitDrug != null) {
+				Calendar artInit = Calendar.getInstance(Context.getLocale());
+
+				artInit.setTime(artInitDrug.getEffectiveStartDate());
+				artInit.add(Calendar.MONTH, numberOfMonths);
+
+				if (artInit.getTime().before(new Date())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * decrease in CD4 of ≥50% from last recorded outcomes.
+	 */
+	@Override
+	public boolean checkForAtleast50PercentDecreaseInCD4(Patient patient) {
+		Concept cd4 = Context.getConceptService().getConcept(Integer.parseInt(
+				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.CD4_COUNT_CONCEPTID)));
+
+		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, cd4);
+
+		sortObsListByObsDateTime(vLObs);
+
+		if (vLObs.size() > 2 && (vLObs.get(vLObs.size() - 1).getValueNumeric() * 100)
+				/ vLObs.get(vLObs.size() - 2).getValueNumeric() >= 50) {
+			return true;
+		}
+
+		return false;
+	}
 }

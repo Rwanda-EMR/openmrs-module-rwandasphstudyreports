@@ -13,7 +13,11 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api;
 
+import java.util.List;
+
 import org.openmrs.Cohort;
+import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
@@ -52,4 +56,20 @@ public interface CDCReportsService extends OpenmrsService {
 	Visit getActiveVisit(Patient patient, String visitLocationUuid);
 
 	boolean checkIfPatientIsHIVPositive(Patient patient);
+
+	List<DrugOrder> matchOnlyDrugConceptFromOrders(List<DrugOrder> dOrders, Concept c);
+
+	List<Visit> sortVisitsListByCreationDate(List<Visit> visits);
+
+	void sortObsListByObsDateTime(List<Obs> obsList);
+
+	void sortOrderListByStartDate(List<DrugOrder> arvDrugsOrders);
+
+	List<Encounter> sortEncountersListByCreationDate(List<Encounter> encs);
+
+	DrugOrder getARTInitiationDrug(Patient patient);
+
+	boolean checkIfPatientIsOnARVMoreThanNMonths(Patient patient, Integer numberOfMonths);
+
+	boolean checkForAtleast50PercentDecreaseInCD4(Patient patient);
 }
