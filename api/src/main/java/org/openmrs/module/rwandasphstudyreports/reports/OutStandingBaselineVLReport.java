@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
+import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
@@ -89,13 +90,10 @@ public class OutStandingBaselineVLReport implements SetupReport {
 		reportDefinition.setName("OutStandingBaselineVL");
 		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		/*
-		 * reportDefinition.addParameter(new Parameter("location",
-		 * "Health Center", Location.class));
-		 * reportDefinition.setBaseCohortDefinition(Cohorts.
-		 * createParameterizedLocationCohort("At Location"),
-		 * ParameterizableUtil.createParameterMappings("location=${location}"));
-		 */
+		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
+		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
+				ParameterizableUtil.createParameterMappings("location=${location}"));
+
 		createDataSetDefinition(reportDefinition);
 		Helper.saveReportDefinition(reportDefinition);
 
@@ -167,7 +165,7 @@ public class OutStandingBaselineVLReport implements SetupReport {
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
-		SqlCohortDefinition onART = Cohorts.getPatientsOnOrNotOnART(true);
+		SqlCohortDefinition onART = Cohorts.getPatientsOnART(null);
 		InverseCohortDefinition noBaselineVL8MonthsAfterArtInit = new InverseCohortDefinition(
 				Cohorts.createPatientsWithBaseLineObservationAfterNMonthsAfterArtInitiaion(viralLoad, 8));
 

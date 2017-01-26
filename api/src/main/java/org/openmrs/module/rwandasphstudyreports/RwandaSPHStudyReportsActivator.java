@@ -23,6 +23,7 @@ import org.openmrs.module.rwandasphstudyreports.reports.PatientsNotInitiatedOnAR
 import org.openmrs.module.rwandasphstudyreports.reports.PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport;
 import org.openmrs.module.rwandasphstudyreports.reports.SetupAdultHIVConsultationSheet;
 import org.openmrs.module.rwandasphstudyreports.reports.SetupAdultLateVisitAndCD4Report;
+import org.openmrs.module.rwandasphstudyreports.reports.VLBasedTreatmentFailureReport;
 
 /**
  * This class contains the logic that is run every time this module is either
@@ -67,6 +68,7 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 			new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().setup();
 			new PatientsNotInitiatedOnART().setup();
 			new OutStandingBaselineVLReport().setup();
+			new VLBasedTreatmentFailureReport().setup();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

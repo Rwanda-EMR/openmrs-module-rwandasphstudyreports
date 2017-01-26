@@ -70,14 +70,17 @@ public class Cohorts {
 				TimeModifier.LAST);
 	}
 
-	public static SqlCohortDefinition getPatientsOnOrNotOnART(boolean onArt) {
+	public static SqlCohortDefinition getPatientsOnART(Integer onArtForMoreThanNMonths) {
 		Concept arvDrugs = gp.getConcept(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
+		String sql = "select distinct p.patient_id from patient p "
+				+ "inner join orders ord on p.patient_id = ord.patient_id " + "where ord.concept_id "
+				+ "in (select distinct concept_id from concept_set where concept_set =  " + arvDrugs.getConceptId()
+				+ ")"
+				+ (onArtForMoreThanNMonths == null ? ""
+						: " and now() > DATE_ADD(IFNULL(ord.date_activated, ord.scheduled_date), INTERVAL "
+								+ onArtForMoreThanNMonths + " MONTH )");
 
-		return new SqlCohortDefinition("select distinct p.patient_id from patient p "
-				+ "left join orders ord on p.patient_id = ord.patient_id " + "where ord.concept_id "
-				+ (onArt ? "" : "not") + " in (select distinct concept_id from concept_set where concept_set =  "
-				+ arvDrugs.getConceptId() + ")"
-				+ (onArt ? "" : " or p.patient_id not in (select distinct patient_id from orders)"));
+		return new SqlCohortDefinition(sql);
 	}
 
 	// TODO MoH doesn't use visits but it understands encounters as visits at

@@ -12,6 +12,7 @@ import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
@@ -159,7 +160,7 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 				new HashMap<String, Object>());
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		SqlCohortDefinition notOnART = Cohorts.getPatientsOnOrNotOnART(false);
+		InverseCohortDefinition notOnART = new InverseCohortDefinition(Cohorts.getPatientsOnART(null));
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition patientsNotTransferredOut = Cohorts.createSQLCodedObsCohortDefinition(reasonForExitingCare,
 				transferOut, true);

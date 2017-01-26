@@ -8,9 +8,9 @@ import java.util.Properties;
 
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
-import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
@@ -29,7 +29,7 @@ import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.Helper;
 import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
 
-public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements SetupReport {
+public class VLBasedTreatmentFailureReport implements SetupReport {
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 
 	private Program hivProgram;
@@ -50,17 +50,20 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 
 	private Concept telephone2;
 
+	private Concept reasonForExitingCare;
+
+	private Concept transferOut;
+
 	@Override
 	public void setup() throws Exception {
 		setupProperties();
 
 		ReportDefinition rd = createReportDefinition();
-		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd,
-				"PatientsOnARTWithNoClinicalVisitsInLast4Months.xls", "PatientsOnARTWithNoClinicalVisitsInLast4Months",
-				null);
+		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "VLBasedTreatmentFailure.xls",
+				"VLBasedTreatmentFailure", null);
 		Properties props = new Properties();
 
-		props.put("repeatingSections", "sheet:1,row:6,dataset:PatientsOnARTWithNoClinicalVisitsInLast4Months");
+		props.put("repeatingSections", "sheet:1,row:6,dataset:VLBasedTreatmentFailure");
 		props.put("sortWeight", "5000");
 		design.setProperties(props);
 
@@ -72,23 +75,26 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		ReportService rs = Context.getService(ReportService.class);
 
 		for (ReportDesign rd : rs.getAllReportDesigns(false)) {
-			if ("PatientsOnARTWithNoClinicalVisitsInLast4Months".equals(rd.getName())) {
+			if ("VLBasedTreatmentFailure".equals(rd.getName())) {
 				rs.purgeReportDesign(rd);
 			}
 		}
-		Helper.purgeReportDefinition("PatientsOnARTWithNoClinicalVisitsInLast4Months");
+		Helper.purgeReportDefinition("VLBasedTreatmentFailure");
 	}
 
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 
-		reportDefinition.setName("PatientsOnARTWithNoClinicalVisitsInLast4Months");
+		reportDefinition.setName("VLBasedTreatmentFailure");
 		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
-		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
-				ParameterizableUtil.createParameterMappings("location=${location}"));
-
+		/*
+		 * reportDefinition.addParameter(new Parameter("location",
+		 * "Health Center", Location.class));
+		 * reportDefinition.setBaseCohortDefinition(Cohorts.
+		 * createParameterizedLocationCohort("At Location"),
+		 * ParameterizableUtil.createParameterMappings("location=${location}"));
+		 */
 		createDataSetDefinition(reportDefinition);
 		Helper.saveReportDefinition(reportDefinition);
 
@@ -99,8 +105,8 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		RowPerPatientDataSetDefinition dataSetDefinition = new RowPerPatientDataSetDefinition();
 		DateDiff monthSinceLastVisit = RowPerPatientColumns.getDifferenceSinceLastEncounter("MonthsSinceLastVisit",
 				encounterTypes, DateDiffType.MONTHS);
-		DateDiff monthSinceLastCD4 = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastCD4",
-				cd4Count, DateDiffType.MONTHS);
+		DateDiff monthSinceLastVL = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastViralLoad",
+				viralLoad, DateDiffType.MONTHS);
 		SortCriteria sortCriteria = new SortCriteria();
 		Map<String, Object> mappings = new HashMap<String, Object>();
 
@@ -117,7 +123,10 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		dataSetDefinition.setName(reportDefinition.getName() + " Data Set");
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
 				ParameterizableUtil.createParameterMappings("onDate=${now}"));
-
+		dataSetDefinition.addColumn(RowPerPatientColumns.getDrugOrderForStartOfART("artInitiation", "dd/MMM/yyyy"),
+				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getAccompRelationship("accompagnateur"),
+				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getTracnetId("TRACNET_ID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getSystemId("patientID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFirstNameColumn("givenName"),
@@ -129,20 +138,14 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentReturnVisitDate("returnVisit", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentCD4("cD4Test", "dd/MMM/yyyy"),
-				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(
-				RowPerPatientColumns.getDrugRegimenInformationParameterized("regimen", false, false),
-				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
-
 		monthSinceLastVisit.addParameter(reportDefinition.getParameter("endDate"));
-		monthSinceLastCD4.addParameter(reportDefinition.getParameter("endDate"));
 		monthSinceLastVisit.addParameter(reportDefinition.getParameter("startDate"));
-		monthSinceLastCD4.addParameter(reportDefinition.getParameter("startDate"));
+		monthSinceLastVL.addParameter(reportDefinition.getParameter("endDate"));
+		monthSinceLastVL.addParameter(reportDefinition.getParameter("startDate"));
 
 		dataSetDefinition.addColumn(monthSinceLastVisit,
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
-		dataSetDefinition.addColumn(monthSinceLastCD4,
+		dataSetDefinition.addColumn(monthSinceLastVL,
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("nextRDV", scheduledVisit, "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
@@ -152,17 +155,26 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getPatientAddress("address", true, true, true, true),
 				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentViralLoad("viralLoad", "dd/MMM/yyyy"),
+				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(
+				RowPerPatientColumns.getRecentEncounterType("lastvisit", encounterTypes, "dd/MMM/yyyy", null),
+				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(
+				RowPerPatientColumns.getAllViralLoadsValues("viralLoads", "dd/MMM/yyyy", null, null),
+				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentCD4("cD4Test", "dd/MMM/yyyy"),
+				new HashMap<String, Object>());
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		SqlCohortDefinition onART = Cohorts.getPatientsOnART(null);
-		SqlCohortDefinition withNoVisits = Cohorts.patientsWithNoClinicalVisitforMoreThanNMonths(4);
+		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
+		SqlCohortDefinition onART = Cohorts.getPatientsOnART(12);
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
+		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(onART, null);
-		dataSetDefinition.addFilter(withNoVisits, null);
 
-		reportDefinition.addDataSetDefinition("PatientsOnARTWithNoClinicalVisitsInLast4Months", dataSetDefinition,
-				mappings);
+		reportDefinition.addDataSetDefinition("VLBasedTreatmentFailure", dataSetDefinition, mappings);
 	}
 
 	private void setupProperties() {
@@ -175,5 +187,7 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		hivStatus = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
 		telephone = gp.getConcept(GlobalPropertiesManagement.TELEPHONE_NUMBER_CONCEPT);
 		telephone2 = gp.getConcept(GlobalPropertiesManagement.SECONDARY_TELEPHONE_NUMBER_CONCEPT);
+		reasonForExitingCare = gp.getConcept(GlobalPropertiesManagement.REASON_FOR_EXITING_CARE);
+		transferOut = gp.getConcept(GlobalPropertiesManagement.TRASNFERED_OUT);
 	}
 }

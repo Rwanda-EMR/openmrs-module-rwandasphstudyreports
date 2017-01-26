@@ -52,7 +52,7 @@ public class CDCRulesAlgorithm {
 
 			}
 			if (Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
-					&& Context.getService(CDCReportsService.class).checkIfPatientIsOnARVMoreThanNMonths(patient, 12)
+					&& Context.getService(CDCReportsService.class).checkIfPatientIsOnARVMoreThanNMonths(patient, 6)
 					&& vLObs.get(vLObs.size() - 1).getValueNumeric() > 1000) {
 				alerts.add(Context.getMessageSourceService()
 						.getMessage("rwandasphstudyreports.alerts.vlBasedTreatmentFailure"));

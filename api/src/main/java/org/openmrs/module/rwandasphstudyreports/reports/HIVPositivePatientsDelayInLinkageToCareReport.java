@@ -12,6 +12,7 @@ import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
@@ -156,7 +157,7 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		SqlCohortDefinition notInART = Cohorts.getPatientsOnOrNotOnART(false);
+		InverseCohortDefinition notInART = new InverseCohortDefinition(Cohorts.getPatientsOnART(null));
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(hivPositive, null);
