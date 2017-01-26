@@ -26,7 +26,7 @@ public class CDCRulesAlgorithm {
 		List<Visit> visits = Context.getVisitService().getVisitsByPatient(patient);
 		Date lastVisitDate = null;
 		DrugOrder artInitDrug = Context.getService(CDCReportsService.class).getARTInitiationDrug(patient);
-		List<Obs> cd4Obs = getOnlyObsWithDatetimeMoreThanNMonthsAfterObsDate(
+		List<Obs> cd4Obs = getOnlyObsWithDatetimeMoreThanNMonthsAfterStartingDate(
 				Context.getObsService().getObservationsByPersonAndConcept(patient, cd4),
 				artInitDrug != null ? artInitDrug.getEffectiveStartDate() : null, 2);
 
@@ -75,7 +75,7 @@ public class CDCRulesAlgorithm {
 			lastRecordedVisit.setTime(lastVisitDate);
 			lastRecordedVisit.add(Calendar.MONTH, 8);
 
-			if (getOnlyObsWithDatetimeMoreThanNMonthsAfterObsDate(vLObs, lastRecordedVisit.getTime(), 8).isEmpty()
+			if (getOnlyObsWithDatetimeMoreThanNMonthsAfterStartingDate(vLObs, lastRecordedVisit.getTime(), 8).isEmpty()
 					&& Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)) {
 				alerts.add(
 						Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.orderBaselineVL"));
@@ -111,7 +111,7 @@ public class CDCRulesAlgorithm {
 		}
 	}
 
-	private List<Obs> getOnlyObsWithDatetimeMoreThanNMonthsAfterObsDate(List<Obs> obsList, Date startingDate,
+	private List<Obs> getOnlyObsWithDatetimeMoreThanNMonthsAfterStartingDate(List<Obs> obsList, Date startingDate,
 			Integer months) {
 		List<Obs> matchedObs = new ArrayList<Obs>();
 

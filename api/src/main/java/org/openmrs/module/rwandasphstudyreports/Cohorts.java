@@ -94,6 +94,20 @@ public class Cohorts {
 						+ numberOfMonths + " MONTH))");
 	}
 
+	public static SqlCohortDefinition createPatientsWithBaseLineObservationAfterNMonthsAfterArtInitiaion(
+			Concept concept, Integer nMonths) {
+		return new SqlCohortDefinition(
+				"select distinct p.patient_id from patient p, obs o, orders ord  where p.voided = 0 and o.voided = 0 and p.patient_id"
+						+ "= o.person_id and ord.order_id = (select order_id from orders where voided = 0 and patient_id "
+						+ "= p.patient_id and concept_id in (select concept_id from concept_set where concept_set = "
+						+ Context.getAdministrationService()
+								.getGlobalProperty(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID)
+						+ ") order by IFNULL(date_activated, scheduled_date) asc limit 1) and o.concept_id = "
+						+ concept.getConceptId()
+						+ " and o.value_numeric is not null and o.obs_datetime > DATE_ADD(IFNULL(ord.date_activated, ord.scheduled_date),INTERVAL "
+						+ nMonths + " MONTH)");
+	}
+
 	/**
 	 * Looks like Rwanda Adults are 16 years and above
 	 * 
@@ -125,7 +139,7 @@ public class Cohorts {
 						+ "inner join drug_order dor on dor.order_id=o.order_id "
 						+ "inner join patient_program prog on prog.patient_id=p.patient_id and (prog.program_id = 2 or prog.program_id = 1) and prog.voided = 0 and o.concept_id in("
 						+ Context.getAdministrationService()
-								.getGlobalPropertyObject("rwandasphstudyreports.arvConceptIdList").getPropertyValue()
+								.getGlobalPropertyObject(GlobalPropertyConstants.ARV_CONCEPT_IDS).getPropertyValue()
 						+ ")" + " where o.date_activated < '" + new SimpleDateFormat("yyyy-MM-dd").format(new Date())
 						+ "' and p.voided = 0 and o.voided = 0 and o.auto_expire_date is null and p.voided = 0 and o.voided = 0");
 		return adultPatientsOnARVS;

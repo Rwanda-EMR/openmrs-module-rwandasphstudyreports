@@ -8,10 +8,10 @@ import java.util.Properties;
 
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
-import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
@@ -30,7 +30,7 @@ import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.Helper;
 import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
 
-public class PatientsNotInitiatedOnART implements SetupReport {
+public class OutStandingBaselineVLReport implements SetupReport {
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 
 	private Program hivProgram;
@@ -60,11 +60,11 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 		setupProperties();
 
 		ReportDefinition rd = createReportDefinition();
-		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "PatientsNotInitiatedOnART.xls",
-				"PatientsNotInitiatedOnART", null);
+		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "OutStandingBaselineVL.xls",
+				"OutStandingBaselineVL", null);
 		Properties props = new Properties();
 
-		props.put("repeatingSections", "sheet:1,row:6,dataset:PatientsNotInitiatedOnART");
+		props.put("repeatingSections", "sheet:1,row:6,dataset:OutStandingBaselineVL");
 		props.put("sortWeight", "5000");
 		design.setProperties(props);
 
@@ -76,24 +76,26 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 		ReportService rs = Context.getService(ReportService.class);
 
 		for (ReportDesign rd : rs.getAllReportDesigns(false)) {
-			if ("PatientsNotInitiatedOnART".equals(rd.getName())) {
+			if ("OutStandingBaselineVL".equals(rd.getName())) {
 				rs.purgeReportDesign(rd);
 			}
 		}
-		Helper.purgeReportDefinition("PatientsNotInitiatedOnART");
+		Helper.purgeReportDefinition("OutStandingBaselineVL");
 	}
 
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 
-		reportDefinition.setName("PatientsNotInitiatedOnART");
+		reportDefinition.setName("OutStandingBaselineVL");
 		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-
-		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
-		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
-				ParameterizableUtil.createParameterMappings("location=${location}"));
-
+		/*
+		 * reportDefinition.addParameter(new Parameter("location",
+		 * "Health Center", Location.class));
+		 * reportDefinition.setBaseCohortDefinition(Cohorts.
+		 * createParameterizedLocationCohort("At Location"),
+		 * ParameterizableUtil.createParameterMappings("location=${location}"));
+		 */
 		createDataSetDefinition(reportDefinition);
 		Helper.saveReportDefinition(reportDefinition);
 
@@ -104,8 +106,8 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 		RowPerPatientDataSetDefinition dataSetDefinition = new RowPerPatientDataSetDefinition();
 		DateDiff monthSinceLastVisit = RowPerPatientColumns.getDifferenceSinceLastEncounter("MonthsSinceLastVisit",
 				encounterTypes, DateDiffType.MONTHS);
-		DateDiff monthSinceLastCD4 = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastCD4",
-				cd4Count, DateDiffType.MONTHS);
+		DateDiff monthSinceLastVL = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastViralLoad",
+				viralLoad, DateDiffType.MONTHS);
 		SortCriteria sortCriteria = new SortCriteria();
 		Map<String, Object> mappings = new HashMap<String, Object>();
 
@@ -122,7 +124,10 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 		dataSetDefinition.setName(reportDefinition.getName() + " Data Set");
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
 				ParameterizableUtil.createParameterMappings("onDate=${now}"));
-
+		dataSetDefinition.addColumn(RowPerPatientColumns.getDrugOrderForStartOfART("artInitiation", "dd/MMM/yyyy"),
+				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getAccompRelationship("accompagnateur"),
+				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getTracnetId("TRACNET_ID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getSystemId("patientID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFirstNameColumn("givenName"),
@@ -134,20 +139,14 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentReturnVisitDate("returnVisit", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentCD4("cD4Test", "dd/MMM/yyyy"),
-				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(
-				RowPerPatientColumns.getDrugRegimenInformationParameterized("regimen", false, false),
-				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
-
 		monthSinceLastVisit.addParameter(reportDefinition.getParameter("endDate"));
-		monthSinceLastCD4.addParameter(reportDefinition.getParameter("endDate"));
 		monthSinceLastVisit.addParameter(reportDefinition.getParameter("startDate"));
-		monthSinceLastCD4.addParameter(reportDefinition.getParameter("startDate"));
+		monthSinceLastVL.addParameter(reportDefinition.getParameter("endDate"));
+		monthSinceLastVL.addParameter(reportDefinition.getParameter("startDate"));
 
 		dataSetDefinition.addColumn(monthSinceLastVisit,
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
-		dataSetDefinition.addColumn(monthSinceLastCD4,
+		dataSetDefinition.addColumn(monthSinceLastVL,
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("nextRDV", scheduledVisit, "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
@@ -157,19 +156,27 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getPatientAddress("address", true, true, true, true),
 				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentViralLoad("viralLoad", "dd/MMM/yyyy"),
+				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(
+				RowPerPatientColumns.getRecentEncounterType("lastvisit", encounterTypes, "dd/MMM/yyyy", null),
+				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(
+				RowPerPatientColumns.getAllViralLoadsValues("viralLoads", "dd/MMM/yyyy", null, null),
+				new HashMap<String, Object>());
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		SqlCohortDefinition notOnART = Cohorts.getPatientsOnOrNotOnART(false);
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
-		SqlCohortDefinition patientsNotTransferredOut = Cohorts.createSQLCodedObsCohortDefinition(reasonForExitingCare,
-				transferOut, true);
+		SqlCohortDefinition onART = Cohorts.getPatientsOnOrNotOnART(true);
+		InverseCohortDefinition noBaselineVL8MonthsAfterArtInit = new InverseCohortDefinition(
+				Cohorts.createPatientsWithBaseLineObservationAfterNMonthsAfterArtInitiaion(viralLoad, 8));
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
-		dataSetDefinition.addFilter(notOnART, null);
 		dataSetDefinition.addFilter(hivPositive, null);
-		dataSetDefinition.addFilter(patientsNotTransferredOut, null);
+		dataSetDefinition.addFilter(onART, null);
+		dataSetDefinition.addFilter(noBaselineVL8MonthsAfterArtInit, null);
 
-		reportDefinition.addDataSetDefinition("PatientsNotInitiatedOnART", dataSetDefinition, mappings);
+		reportDefinition.addDataSetDefinition("OutStandingBaselineVL", dataSetDefinition, mappings);
 	}
 
 	private void setupProperties() {

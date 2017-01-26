@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.ModuleActivator;
 import org.openmrs.module.rwandasphstudyreports.reports.EMRReportAlertsReport;
 import org.openmrs.module.rwandasphstudyreports.reports.HIVPositivePatientsDelayInLinkageToCareReport;
+import org.openmrs.module.rwandasphstudyreports.reports.OutStandingBaselineVLReport;
 import org.openmrs.module.rwandasphstudyreports.reports.PatientsNotInitiatedOnART;
 import org.openmrs.module.rwandasphstudyreports.reports.PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport;
 import org.openmrs.module.rwandasphstudyreports.reports.SetupAdultHIVConsultationSheet;
@@ -65,6 +66,7 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 			new HIVPositivePatientsDelayInLinkageToCareReport().setup();
 			new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().setup();
 			new PatientsNotInitiatedOnART().setup();
+			new OutStandingBaselineVLReport().setup();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
