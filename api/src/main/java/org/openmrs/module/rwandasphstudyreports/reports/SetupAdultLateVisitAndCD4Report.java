@@ -342,7 +342,7 @@ public class SetupAdultLateVisitAndCD4Report {
 		// CD4 after ART initiation
 		// ==================================================================
 		SqlCohortDefinition cd4declineOfMoreThan50Percent = Cohorts.createPatientsWithDeclineFromBaseline("cd4decline",
-				cd4, null);
+				cd4);
 		dataSetDefinition9.addFilter(cd4declineOfMoreThan50Percent,
 				ParameterizableUtil.createParameterMappings("beforeDate=${endDate}"));
 

@@ -16,6 +16,7 @@ package org.openmrs.module.rwandasphstudyreports;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.ModuleActivator;
+import org.openmrs.module.rwandasphstudyreports.reports.CD4BasedTreatmentFailureReport;
 import org.openmrs.module.rwandasphstudyreports.reports.EMRReportAlertsReport;
 import org.openmrs.module.rwandasphstudyreports.reports.HIVPositivePatientsDelayInLinkageToCareReport;
 import org.openmrs.module.rwandasphstudyreports.reports.OutStandingBaselineVLReport;
@@ -69,6 +70,7 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 			new PatientsNotInitiatedOnART().setup();
 			new OutStandingBaselineVLReport().setup();
 			new VLBasedTreatmentFailureReport().setup();
+			new CD4BasedTreatmentFailureReport().setup();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

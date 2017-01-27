@@ -70,6 +70,7 @@ public class Cohorts {
 				TimeModifier.LAST);
 	}
 
+	// TODO orders joining could count similar drug orders
 	public static SqlCohortDefinition getPatientsOnART(Integer onArtForMoreThanNMonths) {
 		Concept arvDrugs = gp.getConcept(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
 		String sql = "select distinct p.patient_id from patient p "
@@ -89,6 +90,12 @@ public class Cohorts {
 		return new SqlCohortDefinition(
 				"select distinct patient_id from encounter where encounter_datetime > DATE_SUB(now(), INTERVAL "
 						+ numberOfMonths + " MONTH)");
+	}
+
+	public static SqlCohortDefinition patientsWithVLAbove1000() {
+		return new SqlCohortDefinition("select distinct person_id from obs where concept_id = "
+				+ gp.getConcept(GlobalPropertiesManagement.VIRAL_LOAD_TEST)
+				+ " and value_numeric > 1000 and obs_datetime > :startDate and obs_datetime <= :endDate order by obs_datetime desc");
 	}
 
 	public static SqlCohortDefinition patientsWithNoClinicalVisitforMoreThanNMonths(Integer numberOfMonths) {
@@ -163,8 +170,7 @@ public class Cohorts {
 	/*
 	 * SQL was modified to support or un-activate the states restriction
 	 */
-	public static SqlCohortDefinition createPatientsWithDeclineFromBaseline(String name, Concept concept,
-			ProgramWorkflowState state) {
+	public static SqlCohortDefinition createPatientsWithDeclineFromBaseline(String name, Concept concept) {
 		SqlCohortDefinition patientsWithBaseLineObservation = new SqlCohortDefinition(
 				"select p.patient_id from patient p, person_attribute pa, person_attribute_type pat, obs o1, obs o2, patient_program pp where p.voided = 0 and "
 						+ "p.patient_id = pa.person_id and pat.name = 'Health Center' and pat.person_attribute_type_id = pa.person_attribute_type_id and pa.voided = 0 and pa.value = :location and "
@@ -175,9 +181,10 @@ public class Cohorts {
 						+ "order by value_numeric desc LIMIT 1) and o2.obs_id = (select obs_id from obs where voided = "
 						+ "0 and p.patient_id = person_id and concept_id = " + concept.getId()
 						+ " and value_numeric is not null and "
-						+ "obs_datetime <= :beforeDate order by obs_datetime desc LIMIT 1) and ((o2.value_numeric/o1.value_numeric)*100) < 50");
+						+ "obs_datetime <= :endDate order by obs_datetime desc LIMIT 1) and ((o2.value_numeric/o1.value_numeric)*100) < 50");
 		patientsWithBaseLineObservation.setName(name);
-		patientsWithBaseLineObservation.addParameter(new Parameter("beforeDate", "beforeDate", Date.class));
+		patientsWithBaseLineObservation.addParameter(new Parameter("startDate", "startDate", Date.class));
+		patientsWithBaseLineObservation.addParameter(new Parameter("endDate", "endDate", Date.class));
 		patientsWithBaseLineObservation.addParameter(new Parameter("location", "location", Location.class));
 		return patientsWithBaseLineObservation;
 	}
@@ -188,14 +195,14 @@ public class Cohorts {
 						+ "and p.patient_id = pa.person_id and pat.name = 'Health Center' and pat.person_attribute_type_id = pa.person_attribute_type_id and pa.voided = 0 and pa.value = :location "
 						+ "and o1.concept_id = " + concept.getId() + " and o1.obs_id = (select obs_id from obs where "
 						+ "voided = 0 and p.patient_id = person_id and concept_id = " + concept.getId()
-						+ " and value_numeric is not null and obs_datetime <= :beforeDate"
+						+ " and value_numeric is not null and obs_datetime <= :endDate"
 						+ " order by value_numeric desc LIMIT 1) and o2.obs_id = (select obs_id from obs where voided = "
 						+ "0 and p.patient_id = person_id and concept_id = " + concept.getId()
 						+ " and value_numeric is not null and obs_datetime < o1.obs_datetime "
 						+ " order by obs_datetime desc LIMIT 1) and ((o1.value_numeric - o2.value_numeric) > -"
 						+ decline + ")");
 		patientsWithBaseLineObservation.setName(name);
-		patientsWithBaseLineObservation.addParameter(new Parameter("beforeDate", "beforeDate", Date.class));
+		patientsWithBaseLineObservation.addParameter(new Parameter("endDate", "endDate", Date.class));
 		patientsWithBaseLineObservation.addParameter(new Parameter("location", "location", Location.class));
 		return patientsWithBaseLineObservation;
 	}

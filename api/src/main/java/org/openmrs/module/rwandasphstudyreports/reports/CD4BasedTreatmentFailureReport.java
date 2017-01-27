@@ -30,7 +30,7 @@ import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.Helper;
 import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
 
-public class VLBasedTreatmentFailureReport implements SetupReport {
+public class CD4BasedTreatmentFailureReport implements SetupReport {
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 
 	private Program hivProgram;
@@ -60,11 +60,11 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 		setupProperties();
 
 		ReportDefinition rd = createReportDefinition();
-		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "VLBasedTreatmentFailure.xls",
-				"VLBasedTreatmentFailure", null);
+		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "CD4BasedTreatmentFailure.xls",
+				"CD4BasedTreatmentFailure", null);
 		Properties props = new Properties();
 
-		props.put("repeatingSections", "sheet:1,row:6,dataset:VLBasedTreatmentFailure");
+		props.put("repeatingSections", "sheet:1,row:6,dataset:CD4BasedTreatmentFailure");
 		props.put("sortWeight", "5000");
 		design.setProperties(props);
 
@@ -76,17 +76,17 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 		ReportService rs = Context.getService(ReportService.class);
 
 		for (ReportDesign rd : rs.getAllReportDesigns(false)) {
-			if ("VLBasedTreatmentFailure".equals(rd.getName())) {
+			if ("CD4BasedTreatmentFailure".equals(rd.getName())) {
 				rs.purgeReportDesign(rd);
 			}
 		}
-		Helper.purgeReportDefinition("VLBasedTreatmentFailure");
+		Helper.purgeReportDefinition("CD4BasedTreatmentFailure");
 	}
 
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 
-		reportDefinition.setName("VLBasedTreatmentFailure");
+		reportDefinition.setName("CD4BasedTreatmentFailure");
 		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
@@ -167,14 +167,15 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(12);
-		SqlCohortDefinition vlAbove100 = Cohorts.patientsWithVLAbove1000();
+		SqlCohortDefinition cd4declineOfMoreThan50Percent = Cohorts.createPatientsWithDeclineFromBaseline("cd4decline",
+				cd4Count);
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(onART, null);
-		dataSetDefinition.addFilter(vlAbove100, mappings);
+		dataSetDefinition.addFilter(cd4declineOfMoreThan50Percent, mappings);
 
-		reportDefinition.addDataSetDefinition("VLBasedTreatmentFailure", dataSetDefinition, mappings);
+		reportDefinition.addDataSetDefinition("CD4BasedTreatmentFailure", dataSetDefinition, mappings);
 	}
 
 	private void setupProperties() {
