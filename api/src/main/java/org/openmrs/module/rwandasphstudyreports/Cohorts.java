@@ -93,9 +93,14 @@ public class Cohorts {
 	}
 
 	public static SqlCohortDefinition patientsWithVLAbove1000() {
-		return new SqlCohortDefinition("select distinct person_id from obs where concept_id = "
+		SqlCohortDefinition c = new SqlCohortDefinition("select distinct person_id from obs where concept_id = "
 				+ gp.getConcept(GlobalPropertiesManagement.VIRAL_LOAD_TEST)
 				+ " and value_numeric > 1000 and obs_datetime > :startDate and obs_datetime <= :endDate order by obs_datetime desc");
+		c.addParameter(new Parameter("startDate", "startDate", Date.class));
+		c.addParameter(new Parameter("endDate", "endDate", Date.class));
+		c.addParameter(new Parameter("location", "location", Location.class));
+
+		return c;
 	}
 
 	public static SqlCohortDefinition patientsWithNoClinicalVisitforMoreThanNMonths(Integer numberOfMonths) {

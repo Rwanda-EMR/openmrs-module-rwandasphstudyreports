@@ -163,6 +163,9 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentCD4("cD4Test", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(
+				RowPerPatientColumns.getDrugRegimenInformationParameterized("regimen", false, false),
+				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();

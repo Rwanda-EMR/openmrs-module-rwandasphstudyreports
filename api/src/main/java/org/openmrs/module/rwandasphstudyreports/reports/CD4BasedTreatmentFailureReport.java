@@ -23,6 +23,7 @@ import org.openmrs.module.reporting.report.service.ReportService;
 import org.openmrs.module.rowperpatientreports.dataset.definition.RowPerPatientDataSetDefinition;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff.DateDiffType;
+import org.openmrs.module.rowperpatientreports.patientdata.definition.DateOfFirstDrugOrderStartedRestrictedByConceptSet;
 import org.openmrs.module.rwandareports.reporting.SetupReport;
 import org.openmrs.module.rwandasphstudyreports.Cohorts;
 import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
@@ -107,6 +108,8 @@ public class CD4BasedTreatmentFailureReport implements SetupReport {
 				viralLoad, DateDiffType.MONTHS);
 		SortCriteria sortCriteria = new SortCriteria();
 		Map<String, Object> mappings = new HashMap<String, Object>();
+		DateOfFirstDrugOrderStartedRestrictedByConceptSet artStart = RowPerPatientColumns
+				.getDateOfDrugOrderForStartOfARTBeforeDate("artStart", "dd/MMM/yyyy");
 
 		mappings.put("endDate", "${endDate}");
 		mappings.put("startDate", "${startDate}");
@@ -163,12 +166,22 @@ public class CD4BasedTreatmentFailureReport implements SetupReport {
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentCD4("cD4Test", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(
+				RowPerPatientColumns.getDrugRegimenInformationParameterized("regimen", false, false),
+				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
+		dataSetDefinition.addColumn(
+				RowPerPatientColumns.getDrugRegimenInformationParameterized("regimen", false, false),
+				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(12);
 		SqlCohortDefinition cd4declineOfMoreThan50Percent = Cohorts.createPatientsWithDeclineFromBaseline("cd4decline",
 				cd4Count);
+		dataSetDefinition.addColumn(
+				RowPerPatientColumns.getBaselineObservationAtMonthBeforeEndDate("cd4AtArtInitiation", cd4Count, 30, 30,
+						0, artStart, ParameterizableUtil.createParameterMappings("endDate=${endDate}"), "dd/MMM/yyyy"),
+				null);
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(hivPositive, null);

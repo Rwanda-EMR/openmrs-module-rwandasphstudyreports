@@ -943,6 +943,7 @@ public class RowPerPatientColumns {
 		BaselineObservation baseline = getBaselineObservationAtMonth(name, concept, before, after, offset, patientData,
 				dateFormat);
 		baseline.addParameter(new Parameter("endDate", "endDate", Date.class));
+		baseline.addParameter(new Parameter("startDate", "startDate", Date.class));
 		baseline.setDateOfPatientData(patientData, parameters);
 
 		return baseline;
