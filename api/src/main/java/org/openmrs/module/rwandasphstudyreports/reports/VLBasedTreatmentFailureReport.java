@@ -1,25 +1,18 @@
 package org.openmrs.module.rwandasphstudyreports.reports;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
-import org.openmrs.Location;
 import org.openmrs.Program;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
-import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
-import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
-import org.openmrs.module.reporting.report.service.ReportService;
 import org.openmrs.module.rowperpatientreports.dataset.definition.RowPerPatientDataSetDefinition;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff.DateDiffType;
@@ -54,45 +47,24 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 	private Concept reasonForExitingCare;
 
 	private Concept transferOut;
+	BaseSPHReportConfig config = new BaseSPHReportConfig();
 
 	@Override
 	public void setup() throws Exception {
 		setupProperties();
+		setupProperties();
 
 		ReportDefinition rd = createReportDefinition();
-		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "VLBasedTreatmentFailure.xls",
-				"VLBasedTreatmentFailure", null);
-		Properties props = new Properties();
-
-		props.put("repeatingSections", "sheet:1,row:6,dataset:VLBasedTreatmentFailure");
-		props.put("sortWeight", "5000");
-		design.setProperties(props);
-
-		Helper.saveReportDesign(design);
+		config.setupReport(rd, "VLBasedTreatmentFailure", "VLBasedTreatmentFailure.xls");
 	}
 
 	@Override
 	public void delete() {
-		ReportService rs = Context.getService(ReportService.class);
-
-		for (ReportDesign rd : rs.getAllReportDesigns(false)) {
-			if ("VLBasedTreatmentFailure".equals(rd.getName())) {
-				rs.purgeReportDesign(rd);
-			}
-		}
-		Helper.purgeReportDefinition("VLBasedTreatmentFailure");
+		config.deleteReportDefinition("VLBasedTreatmentFailure");
 	}
 
 	private ReportDefinition createReportDefinition() {
-		ReportDefinition reportDefinition = new ReportDefinition();
-
-		reportDefinition.setName("VLBasedTreatmentFailure");
-		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
-		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
-				ParameterizableUtil.createParameterMappings("location=${location}"));
-
+		ReportDefinition reportDefinition = config.createReportDefinition("VLBasedTreatmentFailure");
 		createDataSetDefinition(reportDefinition);
 		Helper.saveReportDefinition(reportDefinition);
 
