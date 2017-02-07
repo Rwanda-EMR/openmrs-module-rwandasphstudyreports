@@ -37,14 +37,12 @@ public class CDCRulesAlgorithm {
 			Date vLDate = vLObs.get(vLObs.size() - 1).getObsDatetime();
 			Calendar vLCalendar = Calendar.getInstance(Context.getLocale());
 			Calendar activeVisitLastYearEndsAt = Calendar.getInstance(Context.getLocale());
-			Calendar activeVisitLast6MonthsEndsAt = Calendar.getInstance(Context.getLocale());
 
 			if (vLDate != null) {
 				vLCalendar.setTime(vLDate);
 				activeVisitLastYearEndsAt.setTime(getCurrentVisitEndDate(patient));
 
-				activeVisitLastYearEndsAt.add(Calendar.YEAR, -1);
-				activeVisitLast6MonthsEndsAt.add(Calendar.MONTH, -6);
+				activeVisitLastYearEndsAt.add(Calendar.MONTH, -12);
 				if (vLCalendar.before(activeVisitLastYearEndsAt)) {
 					alerts.add(
 							Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.orderRepeatVL"));

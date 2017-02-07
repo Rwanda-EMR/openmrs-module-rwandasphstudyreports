@@ -6,9 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.openmrs.Concept;
+import org.openmrs.EncounterType;
 import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
@@ -25,6 +28,7 @@ import org.openmrs.module.rwandareports.filter.ObservationFilter;
 import org.openmrs.module.rwandareports.util.GlobalPropertiesManagement;
 import org.openmrs.module.rwandareports.util.RowPerPatientColumns;
 import org.openmrs.module.rwandasphstudyreports.Cohorts;
+import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.Helper;
 
 public class SetupLostToFollowupPatients {
@@ -35,6 +39,8 @@ public class SetupLostToFollowupPatients {
 	private SimpleDateFormat defaultDateFormat;
 	private MostRecentObservation mostRecentHeight;
 	private AllObservationValues weight;
+	private Concept scheduledVisit;
+	private EncounterType adultFollowUpEncounterType;
 
 	public void setup() throws Exception {
 		setupProperties();
@@ -45,7 +51,7 @@ public class SetupLostToFollowupPatients {
 				"LostToFollowupPatients", null);
 
 		Properties props = new Properties();
-		props.put("repeatingSections", "sheet:1,row:12,dataset:LostToFollowupPatients");
+		props.put("repeatingSections", "sheet:1,row:6,dataset:LostToFollowupPatients");
 		props.put("sortWeight", "5000");
 		design.setProperties(props);
 
@@ -63,7 +69,6 @@ public class SetupLostToFollowupPatients {
 	}
 
 	private ReportDefinition createReportDefinition() {
-
 		ReportDefinition reportDefinition = new ReportDefinition();
 		reportDefinition.setName("LostToFollowupPatients");
 
@@ -89,6 +94,10 @@ public class SetupLostToFollowupPatients {
 		hIVLostToFollowup.setName(reportDefinition.getName() + " Data Set");
 
 		hIVLostToFollowup.addFilter(adultPatientsCohort, null);
+		hIVLostToFollowup.addFilter(
+				new InverseCohortDefinition(
+						Cohorts.getPatientsWithEncountersInLastNMonths(adultFollowUpEncounterType, scheduledVisit, 12)),
+				mappings);
 
 		hIVLostToFollowup.addParameter(new Parameter("location", "Location", Location.class));
 		hIVLostToFollowup.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -124,6 +133,8 @@ public class SetupLostToFollowupPatients {
 		mostRecentHeight = RowPerPatientColumns.getMostRecentHeight("RecentHeight", null);
 		weight = RowPerPatientColumns.getAllWeightValues("weightObs", "ddMMMyy", new LastThreeObsFilter(),
 				new ObservationFilter());
+		scheduledVisit = gp.getConcept(GlobalPropertyConstants.RETURN_VISIT_CONCEPTID);
+		adultFollowUpEncounterType = gp.getEncounterType(GlobalPropertyConstants.ADULT_FOLLOWUP_ENCOUNTER_TYPEID);
 
 	}
 }

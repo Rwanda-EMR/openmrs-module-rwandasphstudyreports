@@ -21,6 +21,9 @@ import org.openmrs.module.rwandasphstudyreports.reports.HIVPositivePatientsDelay
 import org.openmrs.module.rwandasphstudyreports.reports.OutStandingBaselineVLReport;
 import org.openmrs.module.rwandasphstudyreports.reports.PatientsNotInitiatedOnART;
 import org.openmrs.module.rwandasphstudyreports.reports.PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport;
+import org.openmrs.module.rwandasphstudyreports.reports.SetupAdultHIVConsultationSheet;
+import org.openmrs.module.rwandasphstudyreports.reports.SetupAdultLateVisitAndCD4Report;
+import org.openmrs.module.rwandasphstudyreports.reports.SetupLostToFollowupPatients;
 import org.openmrs.module.rwandasphstudyreports.reports.VLBasedTreatmentFailureReport;
 
 /**
@@ -58,10 +61,11 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 	public void started() {
 		log.info("Rwanda Reports For CDC Module started");
 		try {
-			// new SetupAdultHIVConsultationSheet().setup();
-			// new SetupAdultLateVisitAndCD4Report().setup();
+			new SetupAdultHIVConsultationSheet().setup();
+			new SetupAdultLateVisitAndCD4Report().setup();
 			// new SetupDataQualityIndicatorReport().setup();
 			// new EMRReportAlertsReport().setup();
+			new SetupLostToFollowupPatients().setup();
 			new HIVPositivePatientsDelayInLinkageToCareReport().setup();
 			new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().setup();
 			new PatientsNotInitiatedOnART().setup();
