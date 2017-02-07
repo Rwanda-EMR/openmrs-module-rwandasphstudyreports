@@ -4,7 +4,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>rwandasphstudyreports</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
 	<packaging>pom</packaging>
 	<name>Rwanda SPH Study Reports Module</name>
 	<description>Brings together three (HIV Adult Consult Sheet, Lost to Follow-up, Patient Summary) PIH Rwanda reports for the Rwanda SPH Study</description>
