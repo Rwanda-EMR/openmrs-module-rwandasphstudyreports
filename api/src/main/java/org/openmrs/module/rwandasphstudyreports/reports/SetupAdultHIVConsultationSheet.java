@@ -69,13 +69,13 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		ReportDefinition reportDefinition = new ReportDefinition();
 		reportDefinition.setName("HIV-Adult Consultation Sheet");
 
-		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
+		//reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
 
 		Properties stateProperties = new Properties();
 		stateProperties.setProperty("Program", hivProgram.getName());
-		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
+		/*reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
 				ParameterizableUtil.createParameterMappings("location=${location}"));
-
+*/
 		createDataSetDefinition(reportDefinition);
 
 		Helper.saveReportDefinition(reportDefinition);

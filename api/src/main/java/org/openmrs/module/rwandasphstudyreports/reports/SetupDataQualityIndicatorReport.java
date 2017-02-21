@@ -86,15 +86,15 @@ public class SetupDataQualityIndicatorReport {
 		rd.removeParameter(ReportingConstants.START_DATE_PARAMETER);
 		rd.removeParameter(ReportingConstants.END_DATE_PARAMETER);
 		rd.removeParameter(ReportingConstants.LOCATION_PARAMETER);
-		rd.addParameter(new Parameter("location", "Location", Location.class));
+		//rd.addParameter(new Parameter("location", "Location", Location.class));
 
 		rd.setName("DQ-Data Quality HIV/TB Report By Site");
 
 		rd.setupDataSetDefinition();
 
-		rd.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
+		/*rd.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
 				ParameterizableUtil.createParameterMappings("location=${location}"));
-
+*/
 		rd.addDataSetDefinition(createIndicatorsForReports(), null);
 		// h.saveReportDefinition(rd);
 		rd.addDataSetDefinition(createObsDataSet(),
@@ -133,15 +133,15 @@ public class SetupDataQualityIndicatorReport {
 		rd.removeParameter(ReportingConstants.START_DATE_PARAMETER);
 		rd.removeParameter(ReportingConstants.END_DATE_PARAMETER);
 		rd.removeParameter(ReportingConstants.LOCATION_PARAMETER);
-		rd.addParameter(new Parameter("location", "Location", Location.class));
+		//rd.addParameter(new Parameter("location", "Location", Location.class));
 
 		rd.setName("DQ-Data Quality NCD/ONCOLOGY Report By Site");
 
 		rd.setupDataSetDefinition();
 
-		rd.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
+		/*rd.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
 				ParameterizableUtil.createParameterMappings("location=${location}"));
-
+*/
 		// rd.addDataSetDefinition(createreportForNCDreport(), null);
 		Helper.saveReportDefinition(rd);
 		// createCustomWebRendererForNCDorOncology(rd, "DataWebRendererNCD");
