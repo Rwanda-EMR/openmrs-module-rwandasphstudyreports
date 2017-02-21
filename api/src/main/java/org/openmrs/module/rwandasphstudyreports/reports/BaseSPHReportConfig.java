@@ -51,10 +51,10 @@ public class BaseSPHReportConfig {
 		reportDefinition.setName(name);
 		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
+		/*reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
 		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
 				ParameterizableUtil.createParameterMappings("location=${location}"));
-
+*/
 		return reportDefinition;
 	}
 
