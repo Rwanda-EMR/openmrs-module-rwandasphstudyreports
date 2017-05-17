@@ -755,6 +755,7 @@ public class Cohorts {
 		return programEnrollmentCohortDefinition;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static CompositionCohortDefinition createEnrolledInProgramDuringPeriod(String name, Program program) {
 		ProgramEnrollmentCohortDefinition enrolledBefore = createProgramEnrollment(name, program);
 		enrolledBefore.addParameter(new Parameter("enrolledOnOrBefore", "enrolledOnOrBefore", Date.class));
@@ -1352,15 +1353,8 @@ public class Cohorts {
 		queryStr.append(form.getFormId());
 		queryStr.append(
 				" and o.voided=0 and e.voided=0 and o.obs_datetime>= :startDate and o.obs_datetime<= :endDate and (o.value_numeric is NOT NULL or o.value_coded is NOT NULL or o.value_datetime is NOT NULL or o.value_boolean is NOT NULL)");
-
 		queryStr.append(" and o.concept_id =" + concept2.getConceptId() + ") as secondSelect");
-
 		queryStr.append(" where firstSelect.encounter_id = secondSelect.encounter_id");
-
-		// queryStr.append(" and o.voided=0 and e.voided=0 and o.obs_datetime>=
-		// :startDate and o.obs_datetime<= :endDate and (o.value_numeric is NOT
-		// NULL or o.value_coded is NOT NULL or o.value_datetime is NOT NULL or
-		// o.value_boolean is NOT NULL)");
 		query.setQuery(queryStr.toString());
 		query.setName(name);
 		query.addParameter(new Parameter("startDate", "startDate", Date.class));
@@ -1790,19 +1784,6 @@ public class Cohorts {
 			}
 			i++;
 		}
-		// cohortquery.setQuery("select o.person_id from obs o,(select * from
-		// (select * from encounter where (form_id="+asthmaDDBFormId+" or
-		// encounter_type="+flowsheetAsthmas.getEncounterTypeId()+") order by
-		// encounter_datetime desc) as ordred_enc group by
-		// ordred_enc.patient_id) as last_enc where
-		// o.encounter_id=last_enc.encounter_id and last_enc.voided=0 and
-		// o.voided=0 and o.concept_id="+returnVisitDate.getConceptId()+" and
-		// o.value_datetime>=(select DATE_FORMAT(CURDATE()+(- (select
-		// IF(DAYOFWEEK(CURDATE())=1,6,DAYOFWEEK(CURDATE())-2) as
-		// sun)),'%Y-%m-%d')) and o.value_datetime<=(select
-		// DATE_FORMAT(CURDATE()+(- (select
-		// IF(DAYOFWEEK(CURDATE())=1,6,DAYOFWEEK(CURDATE())-2) as
-		// sun)+6),'%Y-%m-%d')) order by o.value_datetime");
 		cohortquery.setQuery("select o.person_id from obs o,(select * from (select * from encounter where form_id in ("
 				+ formIds.toString()
 				+ ")order by encounter_datetime desc) as ordred_enc group by ordred_enc.patient_id) as last_enc where o.encounter_id=last_enc.encounter_id and last_enc.voided=0 and o.voided=0 and o.concept_id="
@@ -1834,21 +1815,6 @@ public class Cohorts {
 			i++;
 
 		}
-
-		// cohortquery.setQuery("select o.person_id from obs o,(select * from
-		// (select * from encounter where (form_id="+asthmaDDBFormId+" or
-		// encounter_type="+flowsheetAsthmas.getEncounterTypeId()+") order by
-		// encounter_datetime desc) as ordred_enc group by
-		// ordred_enc.patient_id) as last_enc where
-		// o.encounter_id=last_enc.encounter_id and last_enc.voided=0 and
-		// o.voided=0 and o.concept_id="+returnVisitDate.getConceptId()+" and
-		// o.value_datetime>=(select DATE_FORMAT(CURDATE()+(- (select
-		// IF(DAYOFWEEK(CURDATE())=1,6,DAYOFWEEK(CURDATE())-2) as
-		// sun)),'%Y-%m-%d')) and o.value_datetime<=(select
-		// DATE_FORMAT(CURDATE()+(- (select
-		// IF(DAYOFWEEK(CURDATE())=1,6,DAYOFWEEK(CURDATE())-2) as
-		// sun)+6),'%Y-%m-%d')) order by o.value_datetime");
-
 		cohortquery.setQuery("select o.person_id from obs o,(select * from (select * from encounter where form_id in ("
 
 				+ formIds.toString()
@@ -1870,10 +1836,9 @@ public class Cohorts {
 	public static SqlCohortDefinition getMondayToSundayPatientReturnVisit(List<Form> forms, Concept visitDate) {
 
 		SqlCohortDefinition cohortquery = new SqlCohortDefinition();
-		// Concept returnVisitDate =
-		// gp.getConcept(GlobalPropertiesManagement.RETURN_VISIT_DATE);
 		StringBuilder formIds = new StringBuilder();
 		int i = 0;
+		
 		for (Form form : forms) {
 			if (i == 0) {
 				formIds.append(form.getFormId());
@@ -1883,19 +1848,6 @@ public class Cohorts {
 			}
 			i++;
 		}
-		// cohortquery.setQuery("select o.person_id from obs o,(select * from
-		// (select * from encounter where (form_id="+asthmaDDBFormId+" or
-		// encounter_type="+flowsheetAsthmas.getEncounterTypeId()+") order by
-		// encounter_datetime desc) as ordred_enc group by
-		// ordred_enc.patient_id) as last_enc where
-		// o.encounter_id=last_enc.encounter_id and last_enc.voided=0 and
-		// o.voided=0 and o.concept_id="+returnVisitDate.getConceptId()+" and
-		// o.value_datetime>=(select DATE_FORMAT(CURDATE()+(- (select
-		// IF(DAYOFWEEK(CURDATE())=1,6,DAYOFWEEK(CURDATE())-2) as
-		// sun)),'%Y-%m-%d')) and o.value_datetime<=(select
-		// DATE_FORMAT(CURDATE()+(- (select
-		// IF(DAYOFWEEK(CURDATE())=1,6,DAYOFWEEK(CURDATE())-2) as
-		// sun)+6),'%Y-%m-%d')) order by o.value_datetime");
 		cohortquery.setQuery("select o.person_id from obs o,(select * from (select * from encounter where form_id in ("
 				+ formIds.toString()
 				+ ")order by encounter_datetime desc) as ordred_enc group by ordred_enc.patient_id) as last_enc where o.encounter_id=last_enc.encounter_id and last_enc.voided=0 and o.voided=0 and o.concept_id="
@@ -1934,19 +1886,6 @@ public class Cohorts {
 			}
 			j++;
 		}
-		// cohortquery.setQuery("select o.person_id from obs o,(select * from
-		// (select * from encounter where (form_id="+asthmaDDBFormId+" or
-		// encounter_type="+flowsheetAsthmas.getEncounterTypeId()+") order by
-		// encounter_datetime desc) as ordred_enc group by
-		// ordred_enc.patient_id) as last_enc where
-		// o.encounter_id=last_enc.encounter_id and last_enc.voided=0 and
-		// o.voided=0 and o.concept_id="+returnVisitDate.getConceptId()+" and
-		// o.value_datetime>=(select DATE_FORMAT(CURDATE()+(- (select
-		// IF(DAYOFWEEK(CURDATE())=1,6,DAYOFWEEK(CURDATE())-2) as
-		// sun)),'%Y-%m-%d')) and o.value_datetime<=(select
-		// DATE_FORMAT(CURDATE()+(- (select
-		// IF(DAYOFWEEK(CURDATE())=1,6,DAYOFWEEK(CURDATE())-2) as
-		// sun)+6),'%Y-%m-%d')) order by o.value_datetime");
 		cohortquery.setQuery("select o.person_id from obs o,(select * from (select * from encounter where form_id in ("
 				+ formIds.toString()
 				+ ")order by encounter_datetime desc) as ordred_enc group by ordred_enc.patient_id) as last_enc where o.encounter_id=last_enc.encounter_id and last_enc.voided=0 and o.voided=0 and o.concept_id in ("
@@ -2436,13 +2375,6 @@ public class Cohorts {
 			EncounterType encType, int times) {
 		SqlCohortDefinition nTimesEncounter = new SqlCohortDefinition();
 		nTimesEncounter.setName(name);
-		/*
-		 * nTimesEncounter .setQuery(
-		 * "select patient_id from (select patient_id,count(patient_id) as times from encounter where encounter_type="
-		 * + encType.getEncounterTypeId() +
-		 * " and encounter_datetime>= :startDate and encounter_datetime<= :endDate and voided=0 group by patient_id) as moreenc where times>="
-		 * + times + "");
-		 */
 		nTimesEncounter.setQuery("select patient_id from encounter where encounter_type=" + encType.getEncounterTypeId()
 				+ " and encounter_datetime>= :startDate and encounter_datetime<= :endDate and voided=0  group by patient_id");
 		nTimesEncounter.addParameter(new Parameter("startDate", "startDate", Date.class));
@@ -2497,5 +2429,30 @@ public class Cohorts {
 
 		return regimenAtLastVist;
 	}
-
+	
+	public static SqlCohortDefinition inProgramForNMonthsFromEnrollment(Program program, Integer nMonths) {
+		if (program != null && nMonths !=null) {
+			SqlCohortDefinition sql = new SqlCohortDefinition();
+			String query = "select distinct patient_id from patient_program where program_id = " + program.getProgramId() + " and date_enrolled >= (CURRENT_DATE() - INTERVAL " + nMonths+ " MONTH)";
+			
+			sql.setQuery(query);
+			return sql;
+		}
+		return null;
+	}
+	
+	public static SqlCohortDefinition withObsInStartEndDateRange(Concept obsQuestion) {
+		if(obsQuestion != null) {
+				SqlCohortDefinition sql = new SqlCohortDefinition();
+				
+				sql.addParameter(new Parameter("startDate", "startDate", Date.class));
+				sql.addParameter(new Parameter("endDate", "endDate", Date.class));
+				
+				String query = "select distinct person_id as patient_id from obs where concept_id = " + obsQuestion.getConceptId() + " and obs_datetime between :startDate and :endDate";
+				
+				sql.setQuery(query);
+				return sql;
+		}
+		return null;
+	}
 }

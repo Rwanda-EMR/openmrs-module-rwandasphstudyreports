@@ -143,12 +143,16 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(12);
 		SqlCohortDefinition vlAbove100 = Cohorts.patientsWithVLAbove1000();
-
+		SqlCohortDefinition inProgramFor12MonthsFromEnrollment = Cohorts.inProgramForNMonthsFromEnrollment(hivProgram, 12);
+		SqlCohortDefinition withVLBetweenStartAndEndDate = Cohorts.withObsInStartEndDateRange(viralLoad);
+		
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(hivPositive, null);
-		dataSetDefinition.addFilter(onART, null);
+		//dataSetDefinition.addFilter(onART, null);
 		dataSetDefinition.addFilter(vlAbove100, mappings);
-
+		dataSetDefinition.addFilter(inProgramFor12MonthsFromEnrollment, null);
+		dataSetDefinition.addFilter(withVLBetweenStartAndEndDate, mappings);
+		
 		reportDefinition.addDataSetDefinition("VLBasedTreatmentFailure", dataSetDefinition, mappings);
 	}
 
