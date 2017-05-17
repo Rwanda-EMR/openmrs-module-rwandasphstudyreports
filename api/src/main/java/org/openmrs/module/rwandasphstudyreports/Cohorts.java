@@ -999,8 +999,9 @@ public class Cohorts {
 			obsCohortDefinition.setTimeModifier(timeModifier);
 		}
 
-		List<Concept> valueList = new ArrayList<Concept>();
 		if (value != null) {
+			List<Concept> valueList = new ArrayList<Concept>();
+			
 			valueList.add(value);
 			obsCohortDefinition.setValueList(valueList);
 		}

@@ -1,5 +1,6 @@
 package org.openmrs.module.rwandasphstudyreports.reports;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,11 +8,14 @@ import java.util.Map;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
+import org.openmrs.api.PatientSetService.TimeModifier;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
+import org.openmrs.module.reporting.common.SetComparator;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
+import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.rowperpatientreports.dataset.definition.RowPerPatientDataSetDefinition;
@@ -66,7 +70,10 @@ public class OutStandingBaselineVLReport implements SetupReport {
 	}
 
 	private ReportDefinition createReportDefinition() {
-		ReportDefinition reportDefinition = config.createReportDefinition("OutStandingBaselineVL");
+		ReportDefinition reportDefinition = new ReportDefinition();
+
+		reportDefinition.setName("OutStandingBaselineVL");
+		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		createDataSetDefinition(reportDefinition);
 		Helper.saveReportDefinition(reportDefinition);
 
@@ -83,14 +90,12 @@ public class OutStandingBaselineVLReport implements SetupReport {
 		Map<String, Object> mappings = new HashMap<String, Object>();
 
 		mappings.put("endDate", "${endDate}");
-		mappings.put("startDate", "${startDate}");
 
 		sortCriteria.addSortElement("nextRDV", SortDirection.ASC);
 		sortCriteria.addSortElement("familyName", SortDirection.ASC);
 		sortCriteria.addSortElement("LastVisit Date", SortDirection.DESC);
 		dataSetDefinition.setSortCriteria(sortCriteria);
 
-		dataSetDefinition.addParameter(reportDefinition.getParameter("startDate"));
 		dataSetDefinition.addParameter(reportDefinition.getParameter("endDate"));
 		dataSetDefinition.setName(reportDefinition.getName() + " Data Set");
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
@@ -111,14 +116,12 @@ public class OutStandingBaselineVLReport implements SetupReport {
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentReturnVisitDate("returnVisit", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
 		monthSinceLastVisit.addParameter(reportDefinition.getParameter("endDate"));
-		monthSinceLastVisit.addParameter(reportDefinition.getParameter("startDate"));
 		monthSinceLastVL.addParameter(reportDefinition.getParameter("endDate"));
-		monthSinceLastVL.addParameter(reportDefinition.getParameter("startDate"));
 
 		dataSetDefinition.addColumn(monthSinceLastVisit,
-				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
+				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addColumn(monthSinceLastVL,
-				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
+				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("nextRDV", scheduledVisit, "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("telephone", telephone, null),
@@ -141,11 +144,14 @@ public class OutStandingBaselineVLReport implements SetupReport {
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(null);
 		InverseCohortDefinition noBaselineVL8MonthsAfterArtInit = new InverseCohortDefinition(
 				Cohorts.createPatientsWithBaseLineObservationAfterNMonthsAfterArtInitiaion(viralLoad, 8));
+		InverseCohortDefinition noVL = new InverseCohortDefinition(Cohorts.createCodedObsCohortDefinition("noVL", viralLoad, null,
+				SetComparator.IN, TimeModifier.LAST));
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(onART, null);
 		dataSetDefinition.addFilter(noBaselineVL8MonthsAfterArtInit, null);
+		dataSetDefinition.addFilter(noVL, null);
 
 		reportDefinition.addDataSetDefinition("OutStandingBaselineVL", dataSetDefinition, mappings);
 	}

@@ -4,14 +4,11 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 
-import org.openmrs.Location;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
-import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.reporting.report.service.ReportService;
-import org.openmrs.module.rwandasphstudyreports.Cohorts;
 import org.openmrs.module.rwandasphstudyreports.Helper;
 
 public class BaseSPHReportConfig {
