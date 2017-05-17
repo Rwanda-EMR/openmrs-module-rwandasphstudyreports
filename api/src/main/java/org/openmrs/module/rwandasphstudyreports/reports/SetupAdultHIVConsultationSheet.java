@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
@@ -87,9 +86,7 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		// Create new dataset definition
 		RowPerPatientDataSetDefinition dataSetDefinition = new RowPerPatientDataSetDefinition();
 		dataSetDefinition.setName(reportDefinition.getName() + " Data Set");
-		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onDate=${now}"));
-
+		
 		// Add Columns
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFirstNameColumn("givenName"),
 				new HashMap<String, Object>());
@@ -163,6 +160,8 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		// filter all dataset definitions by adult age
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
+		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
+				ParameterizableUtil.createParameterMappings("onDate=${now}"));
 
 		reportDefinition.addDataSetDefinition("dataSet", dataSetDefinition, mappings);
 	}

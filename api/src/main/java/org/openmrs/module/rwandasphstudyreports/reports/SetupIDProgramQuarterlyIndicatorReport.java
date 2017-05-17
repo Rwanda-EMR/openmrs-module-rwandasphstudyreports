@@ -196,12 +196,6 @@ public class SetupIDProgramQuarterlyIndicatorReport {
 						+ weightConcept.getConceptId() + " and e.encounter_type in ("
 						+ pediHIVEncounterType.getEncounterTypeId() + "," + adultHIVEncounterType.getEncounterTypeId()
 						+ ") and e.encounter_datetime >= :startDate and e.encounter_datetime <= :endDate and p.person_id = e.patient_id and DATEDIFF(:endDate , p.birthdate) >=5475 and e.voided=0 and p.voided=0 and o.voided=0");
-		// adultHivVisitsWithWeight.setQuery("select e.encounter_id from
-		// encounter e,obs o, person p where e.encounter_id=o.encounter_id and
-		// o.concept_id=5089 and e.encounter_type in (24,25) and
-		// e.encounter_datetime >= '2013-02-01' and e.encounter_datetime <=
-		// '2013-02-12' and p.person_id = e.patient_id and DATEDIFF('2013-02-12'
-		// , p.birthdate) >=5475 and e.voided=0 and p.voided=0 and o.voided=0");
 		adultHivVisitsWithWeight.addParameter(new Parameter("startDate", "startDate", Date.class));
 		adultHivVisitsWithWeight.addParameter(new Parameter("endDate", "endDate", Date.class));
 

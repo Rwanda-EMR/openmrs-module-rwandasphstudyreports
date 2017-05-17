@@ -93,9 +93,7 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 		dataSetDefinition.addParameter(reportDefinition.getParameter("startDate"));
 		dataSetDefinition.addParameter(reportDefinition.getParameter("endDate"));
 		dataSetDefinition.setName(reportDefinition.getName() + " Data Set");
-		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onDate=${now}"));
-
+		
 		dataSetDefinition.addColumn(RowPerPatientColumns.getTracnetId("TRACNET_ID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getSystemId("patientID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFirstNameColumn("givenName"),
@@ -137,6 +135,8 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 		SqlCohortDefinition patientsNotTransferredOut = Cohorts.createSQLCodedObsCohortDefinition(reasonForExitingCare,
 				transferOut, true);
 
+		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
+				ParameterizableUtil.createParameterMappings("onDate=${now}"));
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(notOnART, null);
 		dataSetDefinition.addFilter(hivPositive, null);

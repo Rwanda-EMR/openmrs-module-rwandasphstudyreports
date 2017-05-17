@@ -95,8 +95,7 @@ public class CD4BasedTreatmentFailureReport implements SetupReport {
 		dataSetDefinition.addParameter(reportDefinition.getParameter("startDate"));
 		dataSetDefinition.addParameter(reportDefinition.getParameter("endDate"));
 		dataSetDefinition.setName(reportDefinition.getName() + " Data Set");
-		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onDate=${now}"));
+		
 		dataSetDefinition.addColumn(RowPerPatientColumns.getDrugOrderForStartOfART("artInitiation", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getAccompRelationship("accompagnateur"),

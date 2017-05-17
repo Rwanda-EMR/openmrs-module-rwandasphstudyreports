@@ -16,6 +16,7 @@ import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.rowperpatientreports.dataset.definition.RowPerPatientDataSetDefinition;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff;
+import org.openmrs.module.rowperpatientreports.patientdata.definition.PatientAttribute;
 import org.openmrs.module.rowperpatientreports.patientdata.definition.DateDiff.DateDiffType;
 import org.openmrs.module.rwandareports.reporting.SetupReport;
 import org.openmrs.module.rwandasphstudyreports.Cohorts;
@@ -80,7 +81,10 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 
 		SortCriteria sortCriteria = new SortCriteria();
 		Map<String, Object> mappings = new HashMap<String, Object>();
-
+		PatientAttribute phone = RowPerPatientColumns.patientAttribute("Phone Number", "privatePhone");
+		PatientAttribute peerEducatorName = RowPerPatientColumns.patientAttribute("Peer Educator's Name", "peerEducator");
+		PatientAttribute peerEducatorPhoneNumber = RowPerPatientColumns.patientAttribute("Peer Educator's Phone Number", "peerEducatorPhone");
+		
 		mappings.put("endDate", "${endDate}");
 		mappings.put("startDate", "${startDate}");
 
@@ -92,9 +96,7 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 		dataSetDefinition.addParameter(reportDefinition.getParameter("startDate"));
 		dataSetDefinition.addParameter(reportDefinition.getParameter("endDate"));
 		dataSetDefinition.setName(reportDefinition.getName() + " Data Set");
-		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onDate=${now}"));
-
+		
 		dataSetDefinition.addColumn(RowPerPatientColumns.getTracnetId("TRACNET_ID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getSystemId("patientID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFirstNameColumn("givenName"),
@@ -115,6 +117,7 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 				ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("nextRDV", scheduledVisit, "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
+		//TODO non observational data should be captured through person attributes instead of as observations
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("telephone", telephone, null),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("telephone2", telephone2, null),
@@ -127,14 +130,18 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("guardianTel", guardianTelephone, null),
 				new HashMap<String, Object>());
-
+		dataSetDefinition.addColumn(peerEducatorName, new HashMap<String, Object>());
+		dataSetDefinition.addColumn(peerEducatorPhoneNumber, new HashMap<String, Object>());
+		dataSetDefinition.addColumn(phone, new HashMap<String, Object>());
+		
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		InverseCohortDefinition notInART = new InverseCohortDefinition(Cohorts.getPatientsOnART(null));
-
+		InverseCohortDefinition notInHIVProgram = new InverseCohortDefinition(Cohorts.createInProgram("inHIVProgram", hivProgram));
+		
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(hivPositive, null);
-		dataSetDefinition.addFilter(notInART, null);
+		dataSetDefinition.addFilter(notInHIVProgram, null);
 
 		reportDefinition.addDataSetDefinition("HIVPositivePatientsDelayInLinkageToCare", dataSetDefinition, mappings);
 	}

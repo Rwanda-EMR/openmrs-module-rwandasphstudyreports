@@ -89,9 +89,7 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		dataSetDefinition.addParameter(reportDefinition.getParameter("startDate"));
 		dataSetDefinition.addParameter(reportDefinition.getParameter("endDate"));
 		dataSetDefinition.setName(reportDefinition.getName() + " Data Set");
-		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onDate=${now}"));
-
+		
 		dataSetDefinition.addColumn(RowPerPatientColumns.getTracnetId("TRACNET_ID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getSystemId("patientID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFirstNameColumn("givenName"),
@@ -131,6 +129,8 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(null);
 		SqlCohortDefinition withNoVisits = Cohorts.patientsWithNoClinicalVisitforMoreThanNMonths(4);
 
+		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
+				ParameterizableUtil.createParameterMappings("onDate=${now}"));
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(onART, null);
 		dataSetDefinition.addFilter(withNoVisits, null);

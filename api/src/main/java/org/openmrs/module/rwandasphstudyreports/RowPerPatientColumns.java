@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
@@ -353,6 +354,15 @@ public class RowPerPatientColumns {
 		healthCenter.setAttribute("Health Center");
 		healthCenter.setName(name);
 		return healthCenter;
+	}
+	
+	public static PatientAttribute patientAttribute(String attributeName, String name) {
+		PatientAttribute attr = new PatientAttribute();
+		
+		attr.setAttribute(attributeName);
+		attr.setName(StringUtils.isNotBlank(name) ? name : attributeName);
+		
+		return attr;
 	}
 
 	public static PatientHash getPatientHash(String name) {
