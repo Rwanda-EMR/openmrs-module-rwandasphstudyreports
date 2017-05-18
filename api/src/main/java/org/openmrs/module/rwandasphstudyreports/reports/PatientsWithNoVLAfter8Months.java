@@ -28,7 +28,7 @@ import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.Helper;
 import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
 
-public class OutStandingBaselineVLReport implements SetupReport {
+public class PatientsWithNoVLAfter8Months implements SetupReport {
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 
 	private Program hivProgram;
@@ -61,18 +61,18 @@ public class OutStandingBaselineVLReport implements SetupReport {
 		setupProperties();
 
 		ReportDefinition rd = createReportDefinition();
-		config.setupReport(rd, "OutStandingBaselineVL", "OutStandingBaselineVL.xls");
+		config.setupReport(rd, "PatientsWithNoVLAfter8Months", "PatientsWithNoVLAfter8Months.xls");
 	}
 
 	@Override
 	public void delete() {
-		config.deleteReportDefinition("OutStandingBaselineVL");
+		config.deleteReportDefinition("PatientsWithNoVLAfter8Months");
 	}
 
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 
-		reportDefinition.setName("OutStandingBaselineVL");
+		reportDefinition.setName("PatientsWithNoVLAfter8Months");
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		createDataSetDefinition(reportDefinition);
 		Helper.saveReportDefinition(reportDefinition);
@@ -140,14 +140,14 @@ public class OutStandingBaselineVLReport implements SetupReport {
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
-		SqlCohortDefinition onART = Cohorts.getPatientsOnART(null);
-		//TODO ART init not prog init
 		SqlCohortDefinition noVL8MonthsAfterArtInit = Cohorts.withNoObsInLastNMonthsAfterProgramInit(viralLoad, 8, hivProgram);
-		
+		InverseCohortDefinition noVL = new InverseCohortDefinition(Cohorts.createCodedObsCohortDefinition("noVL", viralLoad, null,
+				SetComparator.IN, TimeModifier.LAST));
+
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
-		dataSetDefinition.addFilter(hivPositive, null);
-		dataSetDefinition.addFilter(onART, null);
+		//dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(noVL8MonthsAfterArtInit, null);
+		dataSetDefinition.addFilter(noVL, null);
 
 		reportDefinition.addDataSetDefinition("OutStandingBaselineVL", dataSetDefinition, mappings);
 	}

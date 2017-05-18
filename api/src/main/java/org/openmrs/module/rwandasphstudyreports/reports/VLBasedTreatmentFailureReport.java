@@ -143,7 +143,7 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(12);
 		SqlCohortDefinition vlAbove100 = Cohorts.patientsWithVLAbove1000();
 		SqlCohortDefinition inProgramFor12MonthsFromEnrollment = Cohorts.inProgramForNMonthsFromEnrollment(hivProgram, 12);
-		SqlCohortDefinition withVLBetweenStartAndEndDate = Cohorts.withObsInStartEndDateRange(viralLoad);
+		SqlCohortDefinition withVLDateBetweenStartAndEndDate = Cohorts.withObsInStartEndDateRange(viralLoad);
 		
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
 				ParameterizableUtil.createParameterMappings("onDate=${now}"));
@@ -152,7 +152,7 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 		//dataSetDefinition.addFilter(onART, null);
 		dataSetDefinition.addFilter(vlAbove100, mappings);
 		dataSetDefinition.addFilter(inProgramFor12MonthsFromEnrollment, null);
-		dataSetDefinition.addFilter(withVLBetweenStartAndEndDate, mappings);
+		dataSetDefinition.addFilter(withVLDateBetweenStartAndEndDate, mappings);
 		
 		reportDefinition.addDataSetDefinition("VLBasedTreatmentFailure", dataSetDefinition, mappings);
 	}
