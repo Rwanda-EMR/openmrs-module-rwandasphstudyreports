@@ -65,10 +65,16 @@ public class RwandaReportsForCDCManageController {
 		}
 	}
 
-	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToAdultFollowupReport", method = RequestMethod.GET)
-	public String reDirectToAdultFollowupReport() {
+	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToVLBasedTreatmentFailureReport", method = RequestMethod.GET)
+	public String reDirectToVLBasedTreatmentFailureReport() {
 		return "redirect:/module/reporting/reports/viewReport.form?uuid="
-				+ Context.getService(CDCReportsService.class).executeAndGetAdultFollowUpReportRequestUuid() + "#tabs-2";
+				+ Context.getService(CDCReportsService.class).executeAndGetVLBasedTreatmentFailureReportRequest() + "#tabs-2";
+	}
+	
+	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToPatientsWithNoVLAfter8MonthsReport", method = RequestMethod.GET)
+	public String reDirectToPatientsWithNoVLAfter8MonthsReport() {
+		return "redirect:/module/reporting/reports/viewReport.form?uuid="
+				+ Context.getService(CDCReportsService.class).executeAndGetPatientsWithNoVLAfter8MonthsReportRequest() + "#tabs-2";
 	}
 
 	@RequestMapping(value = "/module/rwandasphstudyreports/portlets/quickDataEntry", method = RequestMethod.GET)

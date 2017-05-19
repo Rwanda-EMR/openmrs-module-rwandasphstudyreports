@@ -24,7 +24,6 @@ import org.openmrs.Patient;
 import org.openmrs.Program;
 import org.openmrs.Visit;
 import org.openmrs.api.OpenmrsService;
-import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,9 +47,7 @@ public interface CDCReportsService extends OpenmrsService {
 	 */
 	public Cohort getAllRwandaAdultsPatients();
 
-	ReportRequest executeAndGetAdultFollowUpReportRequest();
-
-	String executeAndGetAdultFollowUpReportRequestUuid();
+	String executeAndGetPatientsWithNoVLAfter8MonthsReportRequest();
 
 	Obs saveQuickDataEntry(QuickDataEntry entry, Patient patient, Encounter encounter);
 
@@ -76,4 +73,7 @@ public interface CDCReportsService extends OpenmrsService {
 
 	boolean checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(Concept obsQuestion, Integer nMonths, Program program,
 			Patient patient);
+	String executeAndGetVLBasedTreatmentFailureReportRequest();
+
+	boolean checkIfPatientListedAsBeingAViralLoadTreatmentFailureCase(Patient patient);
 }

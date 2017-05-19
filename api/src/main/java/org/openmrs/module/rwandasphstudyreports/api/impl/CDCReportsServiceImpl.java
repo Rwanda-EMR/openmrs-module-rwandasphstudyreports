@@ -84,31 +84,49 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	}
 
 	@Override
-	public ReportRequest executeAndGetAdultFollowUpReportRequest() {
-		DefinitionSummary lostToFollowUp = null;
-		ReportRequest reportRequest = getTodayAdultLostToFollowUpReport();
-
+	public String executeAndGetPatientsWithNoVLAfter8MonthsReportRequest() {
+		ReportRequest repReq = executeAndGetReportRequest(BaseSPHReportConfig.PATIENTSWITHNOVLAFTER8MONTHS);
+		
+		return repReq != null ? repReq.getUuid() : "";
+	}
+	
+	@Override
+	public String executeAndGetVLBasedTreatmentFailureReportRequest() {
+		ReportRequest repReq = executeAndGetReportRequest(BaseSPHReportConfig.VLBASEDTREATMENTFAILUREREPORT);
+		
+		return repReq != null ? repReq.getUuid() : "";
+	}
+	
+	private ReportRequest executeAndGetReportRequest(String uuid) {
+		DefinitionSummary repDefSum = null;
+		ReportRequest reportRequest = getTodayReportRequest(uuid);
+		Calendar startDate = Calendar.getInstance();
+		
 		if (reportRequest == null) {
 			List<DefinitionSummary> defs = Context.getService(ReportDefinitionService.class)
 					.getAllDefinitionSummaries(false);
 			for (DefinitionSummary ds : defs) {
-				if (BaseSPHReportConfig.PATIENTSWITHNOVLAFTER8MONTHS.equals(ds.getUuid())) {
-					lostToFollowUp = ds;
+				if (uuid.equals(ds.getUuid())) {
+					repDefSum = ds;
 					break;
 				}
 			}
-			if (lostToFollowUp != null) {
+			if (repDefSum != null) {
 				ReportRequest rr = Context.getService(ReportService.class)
-						.getReportRequestByUuid(lostToFollowUp.getUuid());
+						.getReportRequestByUuid(repDefSum.getUuid());
 				ReportDefinition def = Context.getService(ReportDefinitionService.class)
-						.getDefinitionByUuid(lostToFollowUp.getUuid());
+						.getDefinitionByUuid(repDefSum.getUuid());
 
 				if (rr == null) {
 					rr = new ReportRequest(new Mapped<ReportDefinition>(def, null), null,
 							new RenderingMode(new DefaultWebRenderer(), "Web", null, 100), Priority.NORMAL, null);
 
+					startDate.setTime(todayMidNight().getTime());
+					startDate.add(Calendar.YEAR, -1);
 					rr.setStatus(ReportRequest.Status.REQUESTED);
 					rr.setPriority(ReportRequest.Priority.NORMAL);
+					//TODO fix for PatientsWithNoVLAfter8Months report
+					rr.getReportDefinition().addParameterMapping("startDate", startDate.getTime());
 					rr.getReportDefinition().addParameterMapping("endDate", todayMidNight().getTime());
 					rr = Context.getService(ReportService.class).saveReportRequest(rr);
 				}
@@ -119,15 +137,15 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		return reportRequest;
 	}
 
-	private ReportRequest getTodayAdultLostToFollowUpReport() {
-		List<ReportDefinition> defs = Context.getService(ReportDefinitionService.class)
-				.getDefinitions("PatientsWithNoVLAfter8Months", true);
+	private ReportRequest getTodayReportRequest(String uuid) {
+		ReportDefinition def = Context.getService(ReportDefinitionService.class)
+				.getDefinitionByUuid(uuid);
 		List<ReportRequest> rrs = null;
 		ReportRequest req = null;
 		Calendar today = todayMidNight();
 
-		if (defs != null && defs.size() > 0) {
-			rrs = Context.getService(ReportService.class).getReportRequests(defs.get(0), today.getTime(), null,
+		if (def != null) {
+			rrs = Context.getService(ReportService.class).getReportRequests(def, today.getTime(), null,
 					Status.COMPLETED, Status.REQUESTED, Status.PROCESSING);
 			if (rrs != null && rrs.size() > 0)
 				req = rrs.get(0);
@@ -145,14 +163,6 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		today.clear(Calendar.MILLISECOND);
 		return today;
 	}
-
-	@Override
-	public String executeAndGetAdultFollowUpReportRequestUuid() {
-		ReportRequest req = executeAndGetAdultFollowUpReportRequest();
-
-		return req != null ? req.getUuid() : "";
-	}
-
 	@Override
 	public Obs saveQuickDataEntry(QuickDataEntry entry, Patient patient, Encounter encounter) {
 		Obs obs = new Obs(patient, entry.getTest(), entry.getDateOfExam(), entry.getLocation());
@@ -348,27 +358,60 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 				obsQuestion = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);	
 		
 			List<Obs> os = Context.getObsService().getObservationsByPersonAndConcept(patient, obsQuestion);
+			List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, null, null, null, false));
 			
-			if(os.isEmpty()) {
+			if(os.isEmpty() && !pp.isEmpty())
 				return true;
-			} else {
-				List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, null, null, null, false));
-				
-				Collections.sort(pp, new Comparator<PatientProgram>() {
-					public int compare(PatientProgram o1, PatientProgram o2) {
-						return o1.getDateEnrolled().compareTo(o2.getDateEnrolled());
-					}
-				});
+
+			if(!os.isEmpty() && !pp.isEmpty()) {
+				sortPatientProgramListByEnrollmentDate(pp);
 				sortObsListByObsDateTime(os);
-				if(!pp.isEmpty()) {
-					enD.setTime(pp.get(0).getDateEnrolled());
-					enD.add(Calendar.MONTH, nMonths);
-					
-					if(os.get(0).getObsDatetime().after(enD.getTime()))
-						return false;
-				}
+				enD.setTime(pp.get(0).getDateEnrolled());
+				enD.add(Calendar.MONTH, nMonths);
+						
+				if(os.get(0).getObsDatetime().before(enD.getTime()))
+					return true;
 			}
 		}
-		return true;
+		return false;
+	}
+	
+	private void sortPatientProgramListByEnrollmentDate(List<PatientProgram> pp) {
+		Collections.sort(pp, new Comparator<PatientProgram>() {
+			public int compare(PatientProgram o1, PatientProgram o2) {
+				return o1.getDateEnrolled().compareTo(o2.getDateEnrolled());
+			}
+		});
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public boolean checkIfPatientListedAsBeingAViralLoadTreatmentFailureCase(Patient patient) {
+		//TODO withVLDateBetweenStartAndEndDate
+		Calendar enD = Calendar.getInstance();
+		GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
+		Program program = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
+		Concept vl = Context.getConceptService().getConcept(Integer.parseInt(
+				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID)));
+		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, vl);
+		List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, null, null, null, false));
+		
+		if(!vLObs.isEmpty() && !pp.isEmpty()) {
+			sortPatientProgramListByEnrollmentDate(pp);
+			sortObsListByObsDateTime(vLObs);
+			
+			Obs o = vLObs.get(0);
+			PatientProgram p = pp.get(0);
+			
+			if(p.getDateEnrolled() != null && o.getValueNumeric() != null && o.getValueNumeric() > 1000) {
+				enD.setTime(p.getDateEnrolled());
+				enD.add(Calendar.MONTH, 12);
+				
+				if(p.getActive(enD.getTime()))
+					return true;
+			}
+		}
+		
+		return false;
 	}
 }

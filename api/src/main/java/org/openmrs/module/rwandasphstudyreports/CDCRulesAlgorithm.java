@@ -97,7 +97,10 @@ public class CDCRulesAlgorithm {
 		if(!patientsWithNoVLAfter8Months && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient) && Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, 6, null, patient))
 			alerts.add(Context.getMessageSourceService()
 					.getMessage("rwandasphstudyreports.alerts.patientsWithNoVLAfter6Months"));
-				
+		if(Context.getService(CDCReportsService.class).checkIfPatientListedAsBeingAViralLoadTreatmentFailureCase(patient))
+			alerts.add(Context.getMessageSourceService()
+					.getMessage("rwandasphstudyreports.alerts.patientsPartOfVLTreatmentFailureList"));
+		
 		return alerts;
 	}
 
