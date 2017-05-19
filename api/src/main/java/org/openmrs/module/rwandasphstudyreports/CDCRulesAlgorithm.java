@@ -21,7 +21,6 @@ public class CDCRulesAlgorithm {
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID)));
 		Concept cd4 = Context.getConceptService().getConcept(Integer.parseInt(
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.CD4_COUNT_CONCEPTID)));
-
 		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, vl);
 		List<Visit> visits = Context.getVisitService().getVisitsByPatient(patient);
 		Date lastVisitDate = null;
@@ -29,10 +28,10 @@ public class CDCRulesAlgorithm {
 		List<Obs> cd4Obs = getOnlyObsWithDatetimeMoreThanNMonthsAfterStartingDate(
 				Context.getObsService().getObservationsByPersonAndConcept(patient, cd4),
 				artInitDrug != null ? artInitDrug.getEffectiveStartDate() : null, 2);
-
+		boolean patientsWithNoVLAfter8Months = false;
+		
 		visits = Context.getService(CDCReportsService.class).sortVisitsListByCreationDate(visits);
 		Context.getService(CDCReportsService.class).sortObsListByObsDateTime(vLObs);
-
 		if (!vLObs.isEmpty()) {
 			Date vLDate = vLObs.get(vLObs.size() - 1).getObsDatetime();
 			Calendar vLCalendar = Calendar.getInstance(Context.getLocale());
@@ -90,10 +89,12 @@ public class CDCRulesAlgorithm {
 					.getMessage("rwandasphstudyreports.alerts.cd4BasedTreatmentFailure"));
 		}
 		
-		if(Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient) && Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, null, null, patient))
+		if(Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient) && Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, null, null, patient)) {
 			alerts.add(Context.getMessageSourceService()
 					.getMessage("rwandasphstudyreports.alerts.patientsWithNoVLAfter8Months"));
-		if(Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient) && Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, 6, null, patient))
+			patientsWithNoVLAfter8Months = true;
+		}
+		if(!patientsWithNoVLAfter8Months && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient) && Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, 6, null, patient))
 			alerts.add(Context.getMessageSourceService()
 					.getMessage("rwandasphstudyreports.alerts.patientsWithNoVLAfter6Months"));
 				
