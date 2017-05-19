@@ -7,6 +7,7 @@ import java.util.Map;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
@@ -53,6 +54,8 @@ public class CD4BasedTreatmentFailureReport implements SetupReport {
 
 	@Override
 	public void setup() throws Exception {
+		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATEREPORTSONACTIVATION)))
+			delete();
 		setupProperties();
 		setupProperties();
 
@@ -68,6 +71,8 @@ public class CD4BasedTreatmentFailureReport implements SetupReport {
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = config.createReportDefinition("CD4BasedTreatmentFailure");
 		createDataSetDefinition(reportDefinition);
+		reportDefinition.setDescription("CD4 Count Based Treatment Failure");
+		reportDefinition.setUuid(BaseSPHReportConfig.CD4BASEDTREATMENTFAILUREREPORT);
 		Helper.saveReportDefinition(reportDefinition);
 
 		return reportDefinition;

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
@@ -47,6 +48,8 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 
 	@Override
 	public void setup() throws Exception {
+		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATEREPORTSONACTIVATION)))
+			delete();
 		setupProperties();
 		setupProperties();
 
@@ -64,6 +67,8 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		ReportDefinition reportDefinition = config
 				.createReportDefinition("PatientsOnARTWithNoClinicalVisitsInLast4Months");
 		createDataSetDefinition(reportDefinition);
+		reportDefinition.setDescription("Patients on ART with no Clinical Visits in the last 4 months");
+		reportDefinition.setUuid(BaseSPHReportConfig.PATIENTSONARTWITHNOCLINICALVISITSINLAST4MONTHSREPORT);
 		Helper.saveReportDefinition(reportDefinition);
 
 		return reportDefinition;
@@ -130,7 +135,7 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 		SqlCohortDefinition withNoVisits = Cohorts.patientsWithNoClinicalVisitforMoreThanNMonths(4);
 
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onDate=${now}"));
+				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(onART, null);
 		dataSetDefinition.addFilter(withNoVisits, null);

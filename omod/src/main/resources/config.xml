@@ -467,5 +467,10 @@
 		<defaultValue>1744</defaultValue>
 		<description>Transfer out as reason for exiting care concept id</description>
 	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.reCreateReportsOnActivation</property>
+		<defaultValue>false</defaultValue>
+		<description>Set to true in development environment when interested to delete and re-setup reports on module activation</description>
+	</globalProperty>
 </module>
 

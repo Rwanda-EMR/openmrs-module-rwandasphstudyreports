@@ -103,24 +103,15 @@ public class SetupAdultLateVisitAndCD4Report {
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 		reportDefinition.setName("HIV-Adult ART Report-Monthly");
-		//reportDefinition.addParameter(new Parameter("location", "Location", Location.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-/*
-		reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
-				ParameterizableUtil.createParameterMappings("location=${location}"));
-*/
 		return reportDefinition;
 	}
 
 	private ReportDefinition createReportDefinitionPreArt() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 		reportDefinition.setName("HIV-Adult Pre ART Report-Monthly");
-		//reportDefinition.addParameter(new Parameter("location", "Location", Location.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-
-		/*reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
-				ParameterizableUtil.createParameterMappings("location=${location}"));
-*/
+		
 		return reportDefinition;
 	}
 

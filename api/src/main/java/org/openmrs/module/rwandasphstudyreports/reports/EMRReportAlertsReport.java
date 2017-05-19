@@ -87,13 +87,6 @@ public class EMRReportAlertsReport implements SetupReport {
 		reportDefinition.setName("EMRReportAlerts");
 		reportDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-		/*
-		 * reportDefinition.addParameter(new Parameter("location",
-		 * "Health Center", Location.class));
-		 * reportDefinition.setBaseCohortDefinition(Cohorts.
-		 * createParameterizedLocationCohort("At Location"),
-		 * ParameterizableUtil.createParameterMappings("location=${location}"));
-		 */
 		createDataSetDefinition(reportDefinition);
 		Helper.saveReportDefinition(reportDefinition);
 
@@ -124,7 +117,7 @@ public class EMRReportAlertsReport implements SetupReport {
 		dataSetDefinition.addParameter(reportDefinition.getParameter("endDate"));
 		dataSetDefinition.setName(reportDefinition.getName() + " Data Set");
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onDate=${now}"));
+				ParameterizableUtil.createParameterMappings("onOrBefore=${now}"));
 
 		dataSetDefinition.addColumn(RowPerPatientColumns.getTracnetId("TRACNET_ID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFirstNameColumn("givenName"),

@@ -70,18 +70,11 @@ public class SetupLostToFollowupPatients {
 
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
-		reportDefinition.setName("LostToFollowupPatients");
-
-		//reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
-
 		Properties stateProperties = new Properties();
+		
+		reportDefinition.setName("LostToFollowupPatients");
 		stateProperties.setProperty("Program", hivProgram.getName());
-
-		/*reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
-				ParameterizableUtil.createParameterMappings("location=${location}"));
-*/
 		createDataSetDefinition(reportDefinition);
-
 		Helper.saveReportDefinition(reportDefinition);
 
 		return reportDefinition;

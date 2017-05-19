@@ -7,6 +7,7 @@ import java.util.Map;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
@@ -53,6 +54,8 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 
 	@Override
 	public void setup() throws Exception {
+		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATEREPORTSONACTIVATION)))
+			delete();
 		setupProperties();
 		setupProperties();
 
@@ -68,6 +71,8 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = config.createReportDefinition("PatientsNotInitiatedOnART");
 		createDataSetDefinition(reportDefinition);
+		reportDefinition.setDescription("Patients Who aren't Initiateed On ART");
+		reportDefinition.setUuid(BaseSPHReportConfig.PATIENTSNOTINITIATEDONART);
 		Helper.saveReportDefinition(reportDefinition);
 
 		return reportDefinition;
@@ -136,7 +141,7 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 				transferOut, true);
 
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onDate=${now}"));
+				ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}"));
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(notOnART, null);
 		dataSetDefinition.addFilter(hivPositive, null);

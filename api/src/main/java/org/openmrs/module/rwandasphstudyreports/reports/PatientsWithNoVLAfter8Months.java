@@ -9,6 +9,7 @@ import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
 import org.openmrs.api.PatientSetService.TimeModifier;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
@@ -57,6 +58,8 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 
 	@Override
 	public void setup() throws Exception {
+		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATEREPORTSONACTIVATION)))
+			delete();
 		setupProperties();
 		setupProperties();
 
@@ -75,6 +78,8 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 		reportDefinition.setName("PatientsWithNoVLAfter8Months");
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		createDataSetDefinition(reportDefinition);
+		reportDefinition.setDescription("Patients who haven't done Viral Load Tests after 8 Months after Enrollment");
+		reportDefinition.setUuid(BaseSPHReportConfig.PATIENTSWITHNOVLAFTER8MONTHS);
 		Helper.saveReportDefinition(reportDefinition);
 
 		return reportDefinition;
@@ -127,9 +132,13 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("telephone2", telephone2, null),
 				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Phone Number", "tel"),
+				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getPatientAddress("address", true, true, true, true),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentViralLoad("viralLoad", "dd/MMM/yyyy"),
+				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentHIVTest("hivTest", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(
 				RowPerPatientColumns.getRecentEncounterType("lastvisit", encounterTypes, "dd/MMM/yyyy", null),
@@ -140,16 +149,16 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
-		SqlCohortDefinition noVL8MonthsAfterArtInit = Cohorts.withNoObsInLastNMonthsAfterProgramInit(viralLoad, 8, hivProgram);
+		SqlCohortDefinition noVL8MonthsAfterEnrollmentIntoHIV = Cohorts.withNoObsInLastNMonthsAfterProgramInit(viralLoad, 8, hivProgram);
 		InverseCohortDefinition noVL = new InverseCohortDefinition(Cohorts.createCodedObsCohortDefinition("noVL", viralLoad, null,
 				SetComparator.IN, TimeModifier.LAST));
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
-		//dataSetDefinition.addFilter(hivPositive, null);
-		dataSetDefinition.addFilter(noVL8MonthsAfterArtInit, null);
-		dataSetDefinition.addFilter(noVL, null);
+		dataSetDefinition.addFilter(hivPositive, null);
+		dataSetDefinition.addFilter(noVL8MonthsAfterEnrollmentIntoHIV, null);
+		//dataSetDefinition.addFilter(noVL, null);
 
-		reportDefinition.addDataSetDefinition("OutStandingBaselineVL", dataSetDefinition, mappings);
+		reportDefinition.addDataSetDefinition("PatientsWithNoVLAfter8Months", dataSetDefinition, mappings);
 	}
 
 	private void setupProperties() {

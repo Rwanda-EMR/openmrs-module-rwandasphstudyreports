@@ -86,15 +86,8 @@ public class SetupDataQualityIndicatorReport {
 		rd.removeParameter(ReportingConstants.START_DATE_PARAMETER);
 		rd.removeParameter(ReportingConstants.END_DATE_PARAMETER);
 		rd.removeParameter(ReportingConstants.LOCATION_PARAMETER);
-		//rd.addParameter(new Parameter("location", "Location", Location.class));
-
 		rd.setName("DQ-Data Quality HIV/TB Report By Site");
-
 		rd.setupDataSetDefinition();
-
-		/*rd.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
-				ParameterizableUtil.createParameterMappings("location=${location}"));
-*/
 		rd.addDataSetDefinition(createIndicatorsForReports(), null);
 		// h.saveReportDefinition(rd);
 		rd.addDataSetDefinition(createObsDataSet(),
@@ -133,15 +126,8 @@ public class SetupDataQualityIndicatorReport {
 		rd.removeParameter(ReportingConstants.START_DATE_PARAMETER);
 		rd.removeParameter(ReportingConstants.END_DATE_PARAMETER);
 		rd.removeParameter(ReportingConstants.LOCATION_PARAMETER);
-		//rd.addParameter(new Parameter("location", "Location", Location.class));
-
 		rd.setName("DQ-Data Quality NCD/ONCOLOGY Report By Site");
-
 		rd.setupDataSetDefinition();
-
-		/*rd.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
-				ParameterizableUtil.createParameterMappings("location=${location}"));
-*/
 		// rd.addDataSetDefinition(createreportForNCDreport(), null);
 		Helper.saveReportDefinition(rd);
 		// createCustomWebRendererForNCDorOncology(rd, "DataWebRendererNCD");
@@ -168,7 +154,7 @@ public class SetupDataQualityIndicatorReport {
 		CompositionCohortDefinition malesInPMTCTAndPMTCTCCM = new CompositionCohortDefinition();
 		malesInPMTCTAndPMTCTCCM.setName("DQ: Male in PMTCT and PMTCT-combined clinic mother");
 		malesInPMTCTAndPMTCTCCM.getSearches().put("1",
-				new Mapped(inPMTCTPrograms, ParameterizableUtil.createParameterMappings("onDate=${now}")));
+				new Mapped(inPMTCTPrograms, ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}")));
 		malesInPMTCTAndPMTCTCCM.getSearches().put("2", new Mapped(males, null));
 		malesInPMTCTAndPMTCTCCM.setCompositionString("1 AND 2");
 
@@ -256,7 +242,7 @@ public class SetupDataQualityIndicatorReport {
 		CompositionCohortDefinition patientTransferedOutinPrograms = new CompositionCohortDefinition();
 		patientTransferedOutinPrograms.setName("DQ: Transfered out in All Programs ");
 		patientTransferedOutinPrograms.getSearches().put("1",
-				new Mapped(enrolledInAllPrograms, ParameterizableUtil.createParameterMappings("onDate=${now}")));
+				new Mapped(enrolledInAllPrograms, ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}")));
 		patientTransferedOutinPrograms.getSearches().put("2",
 				new Mapped(patientsTransferredOut, ParameterizableUtil.createParameterMappings("onOrBefore=${now}")));
 		patientTransferedOutinPrograms.setCompositionString("1 AND 2");
@@ -484,7 +470,7 @@ public class SetupDataQualityIndicatorReport {
 		CompositionCohortDefinition patientTransferedOutinPrograms = new CompositionCohortDefinition();
 		patientTransferedOutinPrograms.setName("DQ: Transfered out in All Programs ");
 		patientTransferedOutinPrograms.getSearches().put("1",
-				new Mapped(enrolledInAllPrograms, ParameterizableUtil.createParameterMappings("onDate=${now}")));
+				new Mapped(enrolledInAllPrograms, ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}")));
 		patientTransferedOutinPrograms.getSearches().put("2",
 				new Mapped(patientsTransferredOut, ParameterizableUtil.createParameterMappings("onOrBefore=${now}")));
 		patientTransferedOutinPrograms.setCompositionString("1 AND 2");
@@ -520,7 +506,7 @@ public class SetupDataQualityIndicatorReport {
 		patientsWithNoEncounterInProgram.getSearches().put("1",
 				new Mapped(anyEncounter, ParameterizableUtil.createParameterMappings("onOrBefore=${now}")));
 		patientsWithNoEncounterInProgram.getSearches().put("2", new Mapped(enrolledInAllProgramsExceptTb,
-				ParameterizableUtil.createParameterMappings("onDate=${now}")));
+				ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}")));
 		patientsWithNoEncounterInProgram.setCompositionString("2 AND (NOT 1)");
 
 		CohortIndicator patientsWithNoEncounterInProgramIndicator = Indicators

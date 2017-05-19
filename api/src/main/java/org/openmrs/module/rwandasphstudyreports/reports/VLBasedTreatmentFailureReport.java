@@ -7,6 +7,7 @@ import java.util.Map;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
@@ -51,6 +52,8 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 
 	@Override
 	public void setup() throws Exception {
+		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATEREPORTSONACTIVATION)))
+			delete();
 		setupProperties();
 		setupProperties();
 
@@ -66,6 +69,8 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = config.createReportDefinition("VLBasedTreatmentFailure");
 		createDataSetDefinition(reportDefinition);
+		reportDefinition.setDescription("Viral Load Bases Treatment Failure");
+		reportDefinition.setUuid(BaseSPHReportConfig.VLBASEDTREATMENTFAILUREREPORT);
 		Helper.saveReportDefinition(reportDefinition);
 
 		return reportDefinition;
@@ -146,7 +151,7 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 		SqlCohortDefinition withVLDateBetweenStartAndEndDate = Cohorts.withObsInStartEndDateRange(viralLoad);
 		
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onDate=${now}"));
+				ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}"));
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(hivPositive, null);
 		//dataSetDefinition.addFilter(onART, null);

@@ -9,6 +9,7 @@ import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
 import org.openmrs.api.PatientSetService.TimeModifier;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
@@ -57,6 +58,8 @@ public class OutStandingBaselineVLReport implements SetupReport {
 
 	@Override
 	public void setup() throws Exception {
+		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATEREPORTSONACTIVATION)))
+			delete();
 		setupProperties();
 		setupProperties();
 
@@ -72,8 +75,10 @@ public class OutStandingBaselineVLReport implements SetupReport {
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 
-		reportDefinition.setName("OutStandingBaselineVL");
+		reportDefinition.setDescription("OutStanding Baseline Viral Load Tests");
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		reportDefinition.setName("OutStandingBaselineVL");
+		reportDefinition.setUuid(BaseSPHReportConfig.OUTSTANDINGBASELINEVLREPORT);
 		createDataSetDefinition(reportDefinition);
 		Helper.saveReportDefinition(reportDefinition);
 
@@ -142,7 +147,7 @@ public class OutStandingBaselineVLReport implements SetupReport {
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(null);
 		//TODO ART init not prog init
-		SqlCohortDefinition noVL8MonthsAfterArtInit = Cohorts.withNoObsInLastNMonthsAfterProgramInit(viralLoad, 8, hivProgram);
+		SqlCohortDefinition noVL8MonthsAfterArtInit = Cohorts.withNoVLObsInLastNMonthsAfterARTInit(8);
 		
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(hivPositive, null);

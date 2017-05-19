@@ -37,11 +37,11 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 	private Program hivProgram;
 
 	public void setup() throws Exception {
-
+		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATEREPORTSONACTIVATION)))
+			delete();
 		setupProperties();
-
+		
 		ReportDefinition rd = createReportDefinition();
-
 		ReportDesign design = Helper.createRowPerPatientXlsOverviewReportDesign(rd, "AdultHIVConsultationSheetV2.xls",
 				"AdultHIVConsultationSheet", null);
 
@@ -66,15 +66,11 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 	private ReportDefinition createReportDefinition() {
 
 		ReportDefinition reportDefinition = new ReportDefinition();
-		reportDefinition.setName("HIV-Adult Consultation Sheet");
-
-		//reportDefinition.addParameter(new Parameter("location", "Health Center", Location.class));
-
 		Properties stateProperties = new Properties();
+		
+		reportDefinition.setUuid(BaseSPHReportConfig.SETUPADULTHIVCONSULTATIONSHEET);
+		reportDefinition.setName("HIV-Adult Consultation Sheet");
 		stateProperties.setProperty("Program", hivProgram.getName());
-		/*reportDefinition.setBaseCohortDefinition(Cohorts.createParameterizedLocationCohort("At Location"),
-				ParameterizableUtil.createParameterMappings("location=${location}"));
-*/
 		createDataSetDefinition(reportDefinition);
 
 		Helper.saveReportDefinition(reportDefinition);
@@ -161,7 +157,7 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onDate=${now}"));
+				ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}"));
 
 		reportDefinition.addDataSetDefinition("dataSet", dataSetDefinition, mappings);
 	}

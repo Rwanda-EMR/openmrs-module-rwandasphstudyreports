@@ -7,6 +7,7 @@ import java.util.Map;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
@@ -53,6 +54,8 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 
 	@Override
 	public void setup() throws Exception {
+		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATEREPORTSONACTIVATION)))
+			delete();
 		setupProperties();
 		setupProperties();
 
@@ -69,8 +72,10 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = config.createReportDefinition("HIVPositivePatientsDelayInLinkageToCare");
 		createDataSetDefinition(reportDefinition);
+		reportDefinition.setUuid(BaseSPHReportConfig.HIVPOSITIVEPATIENTSDELAYINLINKAGETOCAREREPORT);
+		reportDefinition.setDescription("HIV Positive Patients Delayed In LinkageToCare");
 		Helper.saveReportDefinition(reportDefinition);
-
+		
 		return reportDefinition;
 	}
 
