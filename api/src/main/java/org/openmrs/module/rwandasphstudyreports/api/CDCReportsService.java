@@ -21,6 +21,7 @@ import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.Program;
 import org.openmrs.Visit;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.reporting.report.ReportRequest;
@@ -72,4 +73,7 @@ public interface CDCReportsService extends OpenmrsService {
 	boolean checkIfPatientIsOnARVMoreThanNMonths(Patient patient, Integer numberOfMonths);
 
 	boolean checkForAtleast50PercentDecreaseInCD4(Patient patient);
+
+	boolean checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(Concept obsQuestion, Integer nMonths, Program program,
+			Patient patient);
 }

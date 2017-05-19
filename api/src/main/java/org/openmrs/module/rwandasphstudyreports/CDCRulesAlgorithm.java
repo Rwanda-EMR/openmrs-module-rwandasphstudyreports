@@ -89,7 +89,14 @@ public class CDCRulesAlgorithm {
 			alerts.add(Context.getMessageSourceService()
 					.getMessage("rwandasphstudyreports.alerts.cd4BasedTreatmentFailure"));
 		}
-
+		
+		if(Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient) && Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, null, null, patient))
+			alerts.add(Context.getMessageSourceService()
+					.getMessage("rwandasphstudyreports.alerts.patientsWithNoVLAfter8Months"));
+		if(Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient) && Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, 6, null, patient))
+			alerts.add(Context.getMessageSourceService()
+					.getMessage("rwandasphstudyreports.alerts.patientsWithNoVLAfter6Months"));
+				
 		return alerts;
 	}
 

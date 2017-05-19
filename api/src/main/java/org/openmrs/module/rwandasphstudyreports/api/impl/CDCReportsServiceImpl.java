@@ -32,6 +32,8 @@ import org.openmrs.Encounter;
 import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.PatientProgram;
+import org.openmrs.Program;
 import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
@@ -46,10 +48,12 @@ import org.openmrs.module.reporting.report.definition.service.ReportDefinitionSe
 import org.openmrs.module.reporting.report.renderer.RenderingMode;
 import org.openmrs.module.reporting.report.service.ReportService;
 import org.openmrs.module.reporting.web.renderers.DefaultWebRenderer;
+import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
 import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.openmrs.module.rwandasphstudyreports.api.db.CDCReportsDAO;
+import org.openmrs.module.rwandasphstudyreports.reports.BaseSPHReportConfig;
 
 /**
  * It is a default implementation of {@link CDCReportsService}.
@@ -88,7 +92,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 			List<DefinitionSummary> defs = Context.getService(ReportDefinitionService.class)
 					.getAllDefinitionSummaries(false);
 			for (DefinitionSummary ds : defs) {
-				if ("HIV-Adult ART Report-Monthly".equals(ds.getName())) {
+				if (BaseSPHReportConfig.PATIENTSWITHNOVLAFTER8MONTHS.equals(ds.getUuid())) {
 					lostToFollowUp = ds;
 					break;
 				}
@@ -106,9 +110,6 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 					rr.setStatus(ReportRequest.Status.REQUESTED);
 					rr.setPriority(ReportRequest.Priority.NORMAL);
 					rr.getReportDefinition().addParameterMapping("endDate", todayMidNight().getTime());
-					rr.getReportDefinition().addParameterMapping("location",
-							Context.getLocationService().getLocation(Integer.parseInt(Context.getAdministrationService()
-									.getGlobalProperty("mohtracportal.defaultLocationId"))));
 					rr = Context.getService(ReportService.class).saveReportRequest(rr);
 				}
 				reportRequest = rr;
@@ -120,7 +121,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 
 	private ReportRequest getTodayAdultLostToFollowUpReport() {
 		List<ReportDefinition> defs = Context.getService(ReportDefinitionService.class)
-				.getDefinitions("HIV-Adult ART Report-Monthly", true);
+				.getDefinitions("PatientsWithNoVLAfter8Months", true);
 		List<ReportRequest> rrs = null;
 		ReportRequest req = null;
 		Calendar today = todayMidNight();
@@ -149,7 +150,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	public String executeAndGetAdultFollowUpReportRequestUuid() {
 		ReportRequest req = executeAndGetAdultFollowUpReportRequest();
 
-		return req != null ? executeAndGetAdultFollowUpReportRequest().getUuid() : "";
+		return req != null ? req.getUuid() : "";
 	}
 
 	@Override
@@ -322,5 +323,52 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		}
 
 		return false;
+	}
+	
+	/**
+	 * 
+	 * @param obsQuestion, defaults to Viral load concept if null
+	 * @param nMonths, defaults to 8 if not set
+	 * @param program, defaults to HIV program if not set
+	 * @param patient, must be set
+	 * @return
+	 */
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public boolean checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(Concept obsQuestion, Integer nMonths, Program program, Patient patient) {
+		if(patient != null) {
+			Calendar enD = Calendar.getInstance();
+			GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
+			
+			if(nMonths == null)
+				nMonths = 8;
+			if(program == null)
+				program = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
+			if(obsQuestion == null)
+				obsQuestion = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);	
+		
+			List<Obs> os = Context.getObsService().getObservationsByPersonAndConcept(patient, obsQuestion);
+			
+			if(os.isEmpty()) {
+				return true;
+			} else {
+				List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, null, null, null, false));
+				
+				Collections.sort(pp, new Comparator<PatientProgram>() {
+					public int compare(PatientProgram o1, PatientProgram o2) {
+						return o1.getDateEnrolled().compareTo(o2.getDateEnrolled());
+					}
+				});
+				sortObsListByObsDateTime(os);
+				if(!pp.isEmpty()) {
+					enD.setTime(pp.get(0).getDateEnrolled());
+					enD.add(Calendar.MONTH, nMonths);
+					
+					if(os.get(0).getObsDatetime().after(enD.getTime()))
+						return false;
+				}
+			}
+		}
+		return true;
 	}
 }

@@ -14,7 +14,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
-import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.reporting.report.service.ReportService;

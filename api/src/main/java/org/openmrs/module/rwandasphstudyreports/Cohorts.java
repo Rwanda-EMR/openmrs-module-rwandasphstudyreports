@@ -106,7 +106,6 @@ public class Cohorts {
 				+ " and value_numeric > 1000 and obs_datetime > :startDate and obs_datetime <= :endDate order by obs_datetime desc");
 		c.addParameter(new Parameter("startDate", "startDate", Date.class));
 		c.addParameter(new Parameter("endDate", "endDate", Date.class));
-		c.addParameter(new Parameter("location", "location", Location.class));
 
 		return c;
 	}
@@ -154,12 +153,17 @@ public class Cohorts {
 	// the point this functionality is being added
 	public static SqlCohortDefinition getPatientsWithEncountersInLastNMonths(EncounterType adultFollowUpEncounterType,
 			Concept scheduledVisit, Integer numberOfMonths) {
-		return new SqlCohortDefinition(
-				"select distinct o.person_id from obs o, (select * from (select * from encounter where encounter_type="
+		SqlCohortDefinition sql = new SqlCohortDefinition();
+		String q = "select distinct o.person_id from obs o, (select * from (select * from encounter where encounter_type="
 						+ adultFollowUpEncounterType.getEncounterTypeId()
 						+ " and voided=0 order by encounter_datetime desc) as e group by patient_id) as last_encounters where last_encounters.encounter_id=o.encounter_id and last_encounters.encounter_datetime < o.value_datetime and o.voided = 0 and o.concept_id ="
 						+ scheduledVisit.getConceptId() + " and o.value_datetime > DATE_SUB(:endDate, INTERVAL "
-						+ numberOfMonths + " MONTH)");
+						+ numberOfMonths + " MONTH)";
+		
+		sql.addParameter(new Parameter("endDate", "endDate", Date.class));
+		sql.setQuery(q);
+		
+		return sql;
 
 	}
 

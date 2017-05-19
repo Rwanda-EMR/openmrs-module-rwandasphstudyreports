@@ -71,6 +71,7 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		reportDefinition.setUuid(BaseSPHReportConfig.SETUPADULTHIVCONSULTATIONSHEET);
 		reportDefinition.setName("HIV-Adult Consultation Sheet");
 		stateProperties.setProperty("Program", hivProgram.getName());
+		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
 		createDataSetDefinition(reportDefinition);
 
 		Helper.saveReportDefinition(reportDefinition);
@@ -116,7 +117,7 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 				new HashMap<String, Object>());
 
 		dataSetDefinition.addColumn(
-				RowPerPatientColumns.getCurrentTBOrders("TB Treatment", "@ddMMMyy", new DrugNameFilter()),
+				RowPerPatientColumns.getCurrentTBOrders("TBTreatment", "@ddMMMyy", new DrugNameFilter()),
 				new HashMap<String, Object>());
 
 		// Calculation definitions
@@ -130,8 +131,9 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		AllObservationValues viralLoadTest = RowPerPatientColumns.getAllViralLoadsValues("viralLoadTest", "ddMMMyy",
 				new LastThreeObsFilter(), new ObservationFilter());
 
+		//TODO add PatientsWithNoVLAfter8Months alert
 		CustomCalculationBasedOnMultiplePatientDataDefinitions alert = new CustomCalculationBasedOnMultiplePatientDataDefinitions();
-		alert.setName("alert");
+		alert.setName("alerts");
 		alert.addPatientDataToBeEvaluated(cd4Test, new HashMap<String, Object>());
 		alert.addPatientDataToBeEvaluated(weight, new HashMap<String, Object>());
 		alert.addPatientDataToBeEvaluated(mostRecentHeight, new HashMap<String, Object>());
@@ -148,18 +150,18 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		dataSetDefinition.addColumn(bmi, new HashMap<String, Object>());
 
 		Map<String, Object> mappings = new HashMap<String, Object>();
-		// mappings.put("state", "${state}");
-
+		
 		System.out.println("\nDATASETDEFINITION:\n" + ReflectionToStringBuilder.toString(dataSetDefinition) + "\n\n");
 		System.out.println("\nMAPPINGS:\n" + ReflectionToStringBuilder.toString(mappings) + "\n\n");
 
+		mappings.put("endDate", "${endDate}");
 		// filter all dataset definitions by adult age
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
 				ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}"));
 
-		reportDefinition.addDataSetDefinition("dataSet", dataSetDefinition, mappings);
+		reportDefinition.addDataSetDefinition("AdultHIVConsultationSheet", dataSetDefinition, mappings);
 	}
 
 	private void setupProperties() {
