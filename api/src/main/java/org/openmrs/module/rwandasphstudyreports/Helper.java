@@ -2,8 +2,12 @@ package org.openmrs.module.rwandasphstudyreports;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+
+import javax.sql.rowset.serial.SerialBlob;
+import javax.sql.rowset.serial.SerialException;
 
 import org.apache.poi.util.IOUtils;
 import org.openmrs.api.context.Context;
@@ -74,7 +78,13 @@ public class Helper {
 		resource.setName(resourceName);
 		resource.setExtension("xls");
 		InputStream is = OpenmrsClassLoader.getInstance().getResourceAsStream(resourceName);
-		resource.setContents(IOUtils.toByteArray(is));
+		try {
+			resource.setContents(new SerialBlob(IOUtils.toByteArray(is)));
+		} catch (SerialException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		final ReportDesign design = new ReportDesign();
 		design.setName(name);
 		design.setReportDefinition(rd);

@@ -27,8 +27,8 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.LocationService;
-import org.openmrs.api.PatientSetService.TimeModifier;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.reporting.cohort.definition.BaseObsCohortDefinition.TimeModifier;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.EncounterCohortDefinition;
@@ -370,9 +370,9 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		SimpleDataSet adultARTLAteVisitDataSet = (SimpleDataSet) Context.getService(DataSetDefinitionService.class)
 				.evaluate(adultARTLateVisit, ec);
 		System.out.println("adultARTLAteVisitDataSet_DATA:"
-				+ ReflectionToStringBuilder.toString(adultARTLAteVisitDataSet.getRowMap()));
+				+ ReflectionToStringBuilder.toString(adultARTLAteVisitDataSet.getRows()));
 		System.out.println();
-		System.out.println("::::::::> adultARTLateVisit: " + adultARTLAteVisitDataSet.getRowMap().size());
+		System.out.println("::::::::> adultARTLateVisit: " + adultARTLAteVisitDataSet.getRows().size());
 		System.out.println();
 	}
 
@@ -427,9 +427,9 @@ public class SetupAdultLateVisitAndCD4ReportTest extends StandaloneContextSensit
 		SimpleDataSet datasetSimpleDataset = (SimpleDataSet) Context.getService(DataSetDefinitionService.class)
 				.evaluate(datasetDef, ec);
 		System.out.println(
-				message + "DataSet_DATA:" + ReflectionToStringBuilder.toString(datasetSimpleDataset.getRowMap()));
+				message + "DataSet_DATA:" + ReflectionToStringBuilder.toString(datasetSimpleDataset.getRows()));
 		System.out.println();
-		System.out.println("::::::::> " + message + ": " + datasetSimpleDataset.getRowMap().size());
+		System.out.println("::::::::> " + message + ": " + datasetSimpleDataset.getRows().size());
 		System.out.println();
 	}
 

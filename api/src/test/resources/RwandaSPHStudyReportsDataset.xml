@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+
+    This Source Code Form is subject to the terms of the Mozilla Public License,
+    v. 2.0. If a copy of the MPL was not distributed with this file, You can
+    obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+    the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+
+    Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+    graphic logo is a trademark of OpenMRS Inc.
+
+-->
+<dataset>
+ 	<concept concept_id="1085" retired="false" datatype_id="4" class_id="9" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609aa"/>
+ 	<concept concept_id="796" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ab"/>
+ 	<concept concept_id="797" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ac"/>
+ 	<concept concept_id="633" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ad"/>
+ 	<concept concept_id="628" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609af"/>
+ 	<concept concept_id="794" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ag"/>
+ 	<concept concept_id="635" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ah"/>
+ 	<concept concept_id="631" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609aj"/>
+ 	<concept concept_id="625" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ak"/>
+ 	<concept concept_id="802" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609al"/>
+ 	<concept concept_id="2203" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609am"/>
+ 	<concept concept_id="1613" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609an"/>
+ 	<concept concept_id="749" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ao"/>
+ 	<concept concept_id="795" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ap"/>
+ 	<concept concept_id="814" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609aq"/>
+ 	<concept concept_id="5424" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ar"/>
+ 	<concept concept_id="792" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609as"/>
+ 	<concept concept_id="5811" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609at"/>
+ 	<concept concept_id="630" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609au"/>
+ 	<concept concept_id="2833" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609av"/>
+	<concept concept_id="6194" retired="false" datatype_id="3" class_id="7" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ax"/>
+	<concept concept_id="6330" retired="false" datatype_id="3" class_id="7" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ay"/>
+	<concept concept_id="703" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609az"/>
+	<concept concept_id="8130" retired="false" datatype_id="2" class_id="7" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ba"/>
+	<concept concept_id="856" retired="false" datatype_id="1" class_id="1" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609bc"/>
+	
+	<concept_name concept_name_id="856" concept_id="856" name="CD4 COUNT" locale="en_GB" creator="1" date_created="2017-08-12 00:00:00.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="9bc5693a-f558-40c9-8177-200a4b119z01"/>
+	<concept_name concept_name_id="8130" concept_id="8130" name="NEXT REASON FOR VISIT" locale="en_GB" creator="1" date_created="2017-08-12 00:00:00.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="9bc5693a-f558-40c9-8177-200a4b119z02"/>
+	
+	<concept_set concept_set_id="796" concept_id="796" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a01"/>
+	<concept_set concept_set_id="797" concept_id="797" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a02"/>
+	<concept_set concept_set_id="633" concept_id="633" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a03"/>
+	<concept_set concept_set_id="628" concept_id="628" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a04"/>
+	<concept_set concept_set_id="794" concept_id="794" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a05"/>
+	<concept_set concept_set_id="635" concept_id="635" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a06"/>
+	<concept_set concept_set_id="631" concept_id="631" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a07"/>
+	<concept_set concept_set_id="625" concept_id="625" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a08"/>
+	<concept_set concept_set_id="802" concept_id="802" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a09"/>
+	<concept_set concept_set_id="2203" concept_id="2203" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a11"/>
+	<concept_set concept_set_id="1613" concept_id="1613" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a12"/>
+	<concept_set concept_set_id="749" concept_id="749" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a13"/>
+	<concept_set concept_set_id="795" concept_id="795" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a14"/>
+	<concept_set concept_set_id="814" concept_id="814" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a15"/>
+	<concept_set concept_set_id="5424" concept_id="5424" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a16"/>
+	<concept_set concept_set_id="5811" concept_id="5811" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a17"/>
+	<concept_set concept_set_id="630" concept_id="630" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a18"/>
+	<concept_set concept_set_id="2833" concept_id="2833" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a19"/>
+	
+	<global_property property="rwandasphstudyreports.adultInitialAndReturnEncounterTypes" property_value="1,2" uuid="4f55827e-26fe-102b-80cb-0017a47801ab"/>
+	<global_property property="rwandasphstudyreports.adultReturnEncounterTypeId" property_value="2" uuid="4f55827e-26fe-102b-80cb-0017a47801aa"/>
+	<global_property property="rwandasphstudyreports.arvConceptIdList" property_value="796,797,633,628,794,635,631,625,802,2203,1613,749,795,814,5424,792,5811,630,2833" uuid="4f55827e-26fe-102b-80cb-0017a47801ac"/>
+	<global_property property="rwandasphstudyreports.arvDrugsConceptSetId" property_value="1085" uuid="4f55827e-26fe-102b-80cb-0017a47801ad"/>
+	<global_property property="rwandasphstudyreports.contactTelephoneNumberConceptId" property_value="6194" uuid="4f55827e-26fe-102b-80cb-0017a47801ae"/>
+	<global_property property="rwandasphstudyreports.guardianTelephoneNumberConceptId" property_value="6330" uuid="4f55827e-26fe-102b-80cb-0017a47801af"/>
+	<global_property property="rwandasphstudyreports.hivPositiveConceptId" property_value="703" uuid="4f55827e-26fe-102b-80cb-0017a47801ah"/>
+	<global_property property="rwandasphstudyreports.returnVisitConceptId" property_value="8130" uuid="4f55827e-26fe-102b-80cb-0017a47801ag"/>
+	<global_property property="reports.adulthivprogramname" property_value="HIV PROGRAM" uuid="4f55827e-26fe-102b-80cb-0017a47801am"/>
+	<global_property property="reports.accompagnatuerRelationship" property_value="1" uuid="4f55827e-26fe-102b-80cb-0017a47801ai"/>
+	<global_property property="reports.accompagnatuerRelationship" property_value="1" uuid="4f55827e-26fe-102b-80cb-0017a47801al"/>
+	<global_property property="reports.adultStartingAge" property_value="16" uuid="4f55827e-26fe-102b-80cb-0017a47801aj"/>
+	<global_property property="reports.cd4Concept" property_value="5497" uuid="4f55827e-26fe-102b-80cb-0017a47801ak"/>
+	<global_property property="reports.accompagnatuerRelationship" property_value="1" uuid="4f55827e-26fe-102b-80cb-0017a47801an"/>
+</dataset>

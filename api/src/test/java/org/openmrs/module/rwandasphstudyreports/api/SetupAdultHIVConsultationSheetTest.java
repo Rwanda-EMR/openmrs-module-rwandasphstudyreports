@@ -144,9 +144,9 @@ public class SetupAdultHIVConsultationSheetTest extends StandaloneContextSensiti
 		SimpleDataSet datasetSimpleDataset = (SimpleDataSet) Context.getService(DataSetDefinitionService.class)
 				.evaluate(datasetDef, ec);
 		System.out.println(
-				message + "DataSet_DATA:" + ReflectionToStringBuilder.toString(datasetSimpleDataset.getRowMap()));
+				message + "DataSet_DATA:" + ReflectionToStringBuilder.toString(datasetSimpleDataset.getRows()));
 		System.out.println();
-		System.out.println("::::::::> " + message + ": " + datasetSimpleDataset.getRowMap().size());
+		System.out.println("::::::::> " + message + ": " + datasetSimpleDataset.getRows().size());
 		System.out.println();
 	}
 }

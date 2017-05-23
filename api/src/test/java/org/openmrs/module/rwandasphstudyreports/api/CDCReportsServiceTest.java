@@ -13,19 +13,46 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api;
 
-import static org.junit.Assert.assertNotNull;
-
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.reporting.report.definition.ReportDefinition;
+import org.openmrs.module.reporting.report.definition.service.ReportDefinitionService;
+import org.openmrs.module.rwandasphstudyreports.reports.BaseSPHReportConfig;
+import org.openmrs.module.rwandasphstudyreports.reports.PatientsWithNoVLAfter8Months;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
+
 
 /**
  * Tests {@link ${CDCReportsService}}.
  */
 public class CDCReportsServiceTest extends BaseModuleContextSensitiveTest {
+	
+	CDCReportsService service;
+
+	@Before
+	public void setup() {
+		try {
+			service = Context.getService(CDCReportsService.class);
+			executeDataSet("RwandaSPHStudyReportsDataset.xml");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Test
-	public void shouldSetupContext() {
-		assertNotNull(Context.getService(CDCReportsService.class));
+	public void patientsWithNoVLAfter8Months_Report_Test() {
+		Assert.assertNotNull(Context.getService(ReportDefinitionService.class));
+		
+		PatientsWithNoVLAfter8Months report = new PatientsWithNoVLAfter8Months();
+		try {
+			report.setup();
+			ReportDefinition rep1 = Context.getService(ReportDefinitionService.class).getDefinitionByUuid(BaseSPHReportConfig.PATIENTSWITHNOVLAFTER8MONTHS);
+			
+			Assert.assertNotNull(rep1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

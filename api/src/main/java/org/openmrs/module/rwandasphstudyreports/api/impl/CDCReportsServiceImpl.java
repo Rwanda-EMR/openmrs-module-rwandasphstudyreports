@@ -126,7 +126,8 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 					rr.setStatus(ReportRequest.Status.REQUESTED);
 					rr.setPriority(ReportRequest.Priority.NORMAL);
 					//TODO fix for PatientsWithNoVLAfter8Months report
-					rr.getReportDefinition().addParameterMapping("startDate", startDate.getTime());
+					if(!uuid.equals(BaseSPHReportConfig.PATIENTSWITHNOVLAFTER8MONTHS))
+						rr.getReportDefinition().addParameterMapping("startDate", startDate.getTime());
 					rr.getReportDefinition().addParameterMapping("endDate", todayMidNight().getTime());
 					rr = Context.getService(ReportService.class).saveReportRequest(rr);
 				}
