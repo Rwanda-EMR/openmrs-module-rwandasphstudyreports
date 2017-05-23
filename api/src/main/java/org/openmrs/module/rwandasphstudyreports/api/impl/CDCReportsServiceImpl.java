@@ -27,12 +27,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Cohort;
 import org.openmrs.Concept;
+import org.openmrs.ConceptDatatype;
+import org.openmrs.ConceptName;
+import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
+import org.openmrs.Person;
 import org.openmrs.Program;
 import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
@@ -40,6 +44,7 @@ import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.mohorderentrybridge.api.MoHOrderEntryBridgeService;
 import org.openmrs.module.reporting.definition.DefinitionSummary;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
+import org.openmrs.module.reporting.report.Report;
 import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.reporting.report.ReportRequest.Priority;
 import org.openmrs.module.reporting.report.ReportRequest.Status;
@@ -414,5 +419,89 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
+		Obs obs = new Obs();
+		obs.setConcept(concept);
+		ConceptDatatype dt = obs.getConcept().getDatatype();
+		if (dt.isNumeric()) {
+			obs.setValueNumeric(Double.parseDouble(value.toString()));
+		} else if (dt.isText()) {
+			if (value instanceof Location) {
+				Location location = (Location) value;
+				obs.setValueText(location.getId().toString() + " - " + location.getName());
+			} else if (value instanceof Person) {
+				Person person = (Person) value;
+				obs.setValueText(person.getId().toString() + " - " + person.getPersonName().toString());
+			} else {
+				obs.setValueText(value.toString());
+			}
+		} else if (dt.isCoded()) {
+			if (value instanceof Drug) {
+				obs.setValueDrug((Drug) value);
+				obs.setValueCoded(((Drug) value).getConcept());
+			} else if (value instanceof ConceptName) {
+				obs.setValueCodedName((ConceptName) value);
+				obs.setValueCoded(obs.getValueCodedName().getConcept());
+			} else if (value instanceof Concept) {
+				obs.setValueCoded((Concept) value);
+			}
+		} else if (dt.isBoolean()) {
+			if (value != null) {
+				try {
+					obs.setValueAsString(value.toString());
+				} catch (ParseException e) {
+					throw new IllegalArgumentException("Unable to convert " + value + " to a Boolean Obs value", e);
+				}
+			}
+		} else if (ConceptDatatype.DATE.equals(dt.getHl7Abbreviation())
+				|| ConceptDatatype.TIME.equals(dt.getHl7Abbreviation())
+				|| ConceptDatatype.DATETIME.equals(dt.getHl7Abbreviation())) {
+			Date date = (Date) value;
+			obs.setValueDatetime(date);
+		} else if ("ZZ".equals(dt.getHl7Abbreviation())) {
+			// don't set a value
+		} else {
+			throw new IllegalArgumentException("concept datatype not yet implemented: " + dt.getName()
+					+ " with Hl7 Abbreviation: " + dt.getHl7Abbreviation());
+		}
+		if (datetime != null)
+			obs.setObsDatetime(datetime);
+		if (accessionNumber != null)
+			obs.setAccessionNumber(accessionNumber);
+		return obs;
+	}
+	
+	@Override
+	public void enrollPatientInProgram(Patient patient, Program program, Date enrollmentDate, Date completionDate) {
+		PatientProgram p = new PatientProgram();
+
+		p.setPatient(patient);
+		p.setProgram(program);
+		p.setDateEnrolled(enrollmentDate);
+		p.setDateCompleted(completionDate);
+		p.setCreator(Context.getAuthenticatedUser());
+		
+		Context.getProgramWorkflowService().savePatientProgram(p);
+	}
+	
+	@Override
+	public Report runReport(ReportDefinition reportDef, Date startDate, Date endDate,
+			Location location) {
+		ReportRequest request = new ReportRequest(new Mapped<ReportDefinition>(reportDef, null), null,
+				new RenderingMode(new DefaultWebRenderer(), "Web", null, 100), Priority.HIGHEST, null);
+
+		if(startDate != null)
+			request.getReportDefinition().addParameterMapping("startDate", startDate);
+		if(endDate != null)
+			request.getReportDefinition().addParameterMapping("endDate", endDate);
+		if(location != null)
+			request.getReportDefinition().addParameterMapping("location", location);
+		request.setStatus(Status.PROCESSING);
+		request = Context.getService(ReportService.class).saveReportRequest(request);
+
+		return Context.getService(ReportService.class).runReport(request);
 	}
 }

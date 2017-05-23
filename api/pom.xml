@@ -23,6 +23,13 @@
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
+			<artifactId>reporting-api-tests</artifactId>
+			<version>${reportingVersion}</version>
+			<scope>test</scope>
+			<type>test-jar</type>
+		</dependency>
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
 			<artifactId>reporting-api-1.9</artifactId>
 			<scope>test</scope>
 		</dependency>

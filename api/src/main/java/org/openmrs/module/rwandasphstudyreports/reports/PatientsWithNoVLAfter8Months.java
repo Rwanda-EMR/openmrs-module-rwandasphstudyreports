@@ -11,6 +11,7 @@ import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.BaseObsCohortDefinition.TimeModifier;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.InProgramCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SetComparator;
@@ -152,10 +153,12 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 		SqlCohortDefinition noVL8MonthsAfterEnrollmentIntoHIV = Cohorts.withNoObsInLastNMonthsAfterProgramInit(viralLoad, 8, hivProgram);
 		InverseCohortDefinition noVL = new InverseCohortDefinition(Cohorts.createCodedObsCohortDefinition("noVL", viralLoad, null,
 				SetComparator.IN, TimeModifier.LAST));
+		InProgramCohortDefinition inHIV = Cohorts.createInProgram("inHIVProgram", hivProgram);
 
 		dataSetDefinition.addFilter(adultPatientsCohort, null);
 		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(noVL8MonthsAfterEnrollmentIntoHIV, null);
+		dataSetDefinition.addFilter(inHIV, null);
 		//dataSetDefinition.addFilter(noVL, null);
 
 		reportDefinition.addDataSetDefinition("PatientsWithNoVLAfter8Months", dataSetDefinition, mappings);

@@ -15,6 +15,5 @@
 
 <hibernate-configuration>
     <session-factory>
-        <mapping resource="ReportDesign.hbm.xml" />
     </session-factory>
 </hibernate-configuration>

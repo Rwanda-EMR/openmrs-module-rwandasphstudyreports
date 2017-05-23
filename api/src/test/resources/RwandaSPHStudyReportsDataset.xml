@@ -59,6 +59,8 @@
 	<concept_set concept_set_id="630" concept_id="630" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a18"/>
 	<concept_set concept_set_id="2833" concept_id="2833" concept_set="1085" sort_weight="0.0" creator="1" date_created="2017-08-18 12:38:58.0" uuid="1a111827-639f-4cb4-961f-1e025bf88a19"/>
 	
+	<drug drug_id="628" concept_id="628" name="LAMIVUDINE" combination="true" strength="1.0tab(s)" creator="1" date_created="2017-02-24 00:00:00.0" retired="false" uuid="3cfcf118-931c-46f7-8ff6-7b876f0d7000"/>
+  
 	<global_property property="rwandasphstudyreports.adultInitialAndReturnEncounterTypes" property_value="1,2" uuid="4f55827e-26fe-102b-80cb-0017a47801ab"/>
 	<global_property property="rwandasphstudyreports.adultReturnEncounterTypeId" property_value="2" uuid="4f55827e-26fe-102b-80cb-0017a47801aa"/>
 	<global_property property="rwandasphstudyreports.arvConceptIdList" property_value="796,797,633,628,794,635,631,625,802,2203,1613,749,795,814,5424,792,5811,630,2833" uuid="4f55827e-26fe-102b-80cb-0017a47801ac"/>

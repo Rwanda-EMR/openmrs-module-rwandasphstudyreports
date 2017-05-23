@@ -13,17 +13,21 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api;
 
+import java.util.Date;
 import java.util.List;
 
 import org.openmrs.Cohort;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
+import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.Program;
 import org.openmrs.Visit;
 import org.openmrs.api.OpenmrsService;
+import org.openmrs.module.reporting.report.Report;
+import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,4 +80,10 @@ public interface CDCReportsService extends OpenmrsService {
 	String executeAndGetVLBasedTreatmentFailureReportRequest();
 
 	boolean checkIfPatientListedAsBeingAViralLoadTreatmentFailureCase(Patient patient);
+
+	Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber);
+
+	void enrollPatientInProgram(Patient patient, Program program, Date enrollmentDate, Date completionDate);
+
+	Report runReport(ReportDefinition reportDef, Date startDate, Date endDate, Location location);
 }
