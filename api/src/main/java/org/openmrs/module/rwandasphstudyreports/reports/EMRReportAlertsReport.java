@@ -184,7 +184,7 @@ public class EMRReportAlertsReport implements SetupReport {
 		SqlCohortDefinition withNoEncountersInLast3Months = Cohorts
 				.getPatientsWithEncountersInLastNMonths(adultFollowUpEncounterType, scheduledVisit, 3);
 
-		dataSetDefinition.addFilter(adultPatientsCohort, null);
+		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		/*
 		 * dataSetDefinition2 = dataSetDefinition;
 		 * dataSetDefinition2.addFilter(withNoEncountersInLast3Months, null);

@@ -129,14 +129,17 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getPatientAddress("address", true, true, true, true),
 				new HashMap<String, Object>());
-
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Name", "peerEducator"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Phone Number", "peerEducatorPhone"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Phone Number", "privatePhone"), new HashMap<String, Object>());
+		
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(null);
 		SqlCohortDefinition withNoVisits = Cohorts.patientsWithNoClinicalVisitforMoreThanNMonths(4);
 
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
 				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
-		dataSetDefinition.addFilter(adultPatientsCohort, null);
+		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(onART, null);
 		dataSetDefinition.addFilter(withNoVisits, null);
 

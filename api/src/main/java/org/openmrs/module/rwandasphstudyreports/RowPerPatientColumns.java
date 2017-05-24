@@ -92,6 +92,12 @@ public class RowPerPatientColumns {
 		givenName.setName(name);
 		return givenName;
 	}
+	
+	public static PatientProperty getDateCreatedColumn(String name) {
+		PatientProperty givenName = new PatientProperty("personDateCreated");
+		givenName.setName(name);
+		return givenName;
+	}
 
 	public static PatientProperty getMiddleNameColumn(String name) {
 		PatientProperty givenName = new PatientProperty("middleName");

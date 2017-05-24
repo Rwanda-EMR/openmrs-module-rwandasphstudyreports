@@ -14,6 +14,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
+import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.reporting.report.service.ReportService;
@@ -85,7 +86,7 @@ public class SetupLostToFollowupPatients {
 
 		hIVLostToFollowup.setName(reportDefinition.getName() + " Data Set");
 
-		hIVLostToFollowup.addFilter(adultPatientsCohort, null);
+		hIVLostToFollowup.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		hIVLostToFollowup.addFilter(
 				new InverseCohortDefinition(
 						Cohorts.getPatientsWithEncountersInLastNMonths(adultFollowUpEncounterType, scheduledVisit, 12)),

@@ -153,11 +153,14 @@ public class SetupAdultHIVConsultationSheet implements SetupReport {
 		
 		System.out.println("\nDATASETDEFINITION:\n" + ReflectionToStringBuilder.toString(dataSetDefinition) + "\n\n");
 		System.out.println("\nMAPPINGS:\n" + ReflectionToStringBuilder.toString(mappings) + "\n\n");
-
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Name", "peerEducator"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Phone Number", "peerEducatorPhone"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Phone Number", "privatePhone"), new HashMap<String, Object>());
+		
 		mappings.put("endDate", "${endDate}");
 		// filter all dataset definitions by adult age
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		dataSetDefinition.addFilter(adultPatientsCohort, null);
+		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
 				ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}"));
 

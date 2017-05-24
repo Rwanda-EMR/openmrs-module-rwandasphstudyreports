@@ -86,9 +86,6 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 
 		SortCriteria sortCriteria = new SortCriteria();
 		Map<String, Object> mappings = new HashMap<String, Object>();
-		PatientAttribute phone = RowPerPatientColumns.patientAttribute("Phone Number", "privatePhone");
-		PatientAttribute peerEducatorName = RowPerPatientColumns.patientAttribute("Peer Educator's Name", "peerEducator");
-		PatientAttribute peerEducatorPhoneNumber = RowPerPatientColumns.patientAttribute("Peer Educator's Phone Number", "peerEducatorPhone");
 		
 		mappings.put("endDate", "${endDate}");
 		mappings.put("startDate", "${startDate}");
@@ -135,16 +132,16 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("guardianTel", guardianTelephone, null),
 				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(peerEducatorName, new HashMap<String, Object>());
-		dataSetDefinition.addColumn(peerEducatorPhoneNumber, new HashMap<String, Object>());
-		dataSetDefinition.addColumn(phone, new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Name", "peerEducator"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Phone Number", "peerEducatorPhone"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Phone Number", "privatePhone"), new HashMap<String, Object>());
 		
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		InverseCohortDefinition notInART = new InverseCohortDefinition(Cohorts.getPatientsOnART(null));
 		InverseCohortDefinition notInHIVProgram = new InverseCohortDefinition(Cohorts.createInProgram("inHIVProgram", hivProgram));
 		
-		dataSetDefinition.addFilter(adultPatientsCohort, null);
+		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(notInHIVProgram, null);
 

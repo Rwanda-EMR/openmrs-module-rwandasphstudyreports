@@ -142,14 +142,17 @@ public class OutStandingBaselineVLReport implements SetupReport {
 		dataSetDefinition.addColumn(
 				RowPerPatientColumns.getAllViralLoadsValues("viralLoads", "dd/MMM/yyyy", null, null),
 				new HashMap<String, Object>());
-
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Name", "peerEducator"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Phone Number", "peerEducatorPhone"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Phone Number", "privatePhone"), new HashMap<String, Object>());
+		
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(null);
 		//TODO ART init not prog init
 		SqlCohortDefinition noVL8MonthsAfterArtInit = Cohorts.withNoVLObsInLastNMonthsAfterARTInit(8);
 		
-		dataSetDefinition.addFilter(adultPatientsCohort, null);
+		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(onART, null);
 		dataSetDefinition.addFilter(noVL8MonthsAfterArtInit, null);

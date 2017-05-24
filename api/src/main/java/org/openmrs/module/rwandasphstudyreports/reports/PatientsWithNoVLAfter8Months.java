@@ -8,8 +8,8 @@ import java.util.Map;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
+import org.openmrs.api.PatientSetService.TimeModifier;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.reporting.cohort.definition.BaseObsCohortDefinition.TimeModifier;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InProgramCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
@@ -147,20 +147,27 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 		dataSetDefinition.addColumn(
 				RowPerPatientColumns.getAllViralLoadsValues("viralLoads", "dd/MMM/yyyy", null, null),
 				new HashMap<String, Object>());
-
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Name", "peerEducator"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Phone Number", "peerEducatorPhone"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Phone Number", "privatePhone"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getDateCreatedColumn("registrationDate"),
+				new HashMap<String, Object>());
+		
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition noVL8MonthsAfterEnrollmentIntoHIV = Cohorts.withNoObsInLastNMonthsAfterProgramInit(viralLoad, 8, hivProgram);
+		//TODO fix
 		InverseCohortDefinition noVL = new InverseCohortDefinition(Cohorts.createCodedObsCohortDefinition("noVL", viralLoad, null,
 				SetComparator.IN, TimeModifier.LAST));
 		InProgramCohortDefinition inHIV = Cohorts.createInProgram("inHIVProgram", hivProgram);
-
-		dataSetDefinition.addFilter(adultPatientsCohort, null);
+		InverseCohortDefinition withNoVLRecordedInLessThanNMonthsAgo = new InverseCohortDefinition(Cohorts.withVLRecordedInLessThanNMonthsAgo(8));
+		
+		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(hivPositive, null);
-		dataSetDefinition.addFilter(noVL8MonthsAfterEnrollmentIntoHIV, null);
+		dataSetDefinition.addFilter(noVL8MonthsAfterEnrollmentIntoHIV, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(inHIV, null);
-		//dataSetDefinition.addFilter(noVL, null);
-
+		dataSetDefinition.addFilter(withNoVLRecordedInLessThanNMonthsAgo, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		
 		reportDefinition.addDataSetDefinition("PatientsWithNoVLAfter8Months", dataSetDefinition, mappings);
 	}
 

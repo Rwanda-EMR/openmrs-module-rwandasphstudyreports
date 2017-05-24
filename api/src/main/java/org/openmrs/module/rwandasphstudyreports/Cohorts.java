@@ -16,9 +16,9 @@ import org.openmrs.Location;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflowState;
+import org.openmrs.api.PatientSetService.TimeModifier;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.AgeCohortDefinition;
-import org.openmrs.module.reporting.cohort.definition.BaseObsCohortDefinition.TimeModifier;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
@@ -81,7 +81,7 @@ public class Cohorts {
 						: " and :endDate > DATE_ADD(IFNULL(ord.date_activated, ord.scheduled_date), INTERVAL "
 								+ onArtForMoreThanNMonths + " MONTH )");
 		SqlCohortDefinition arv = new SqlCohortDefinition();
-		
+
 		arv.addParameter(new Parameter("endDate", "endDate", Date.class));
 		arv.setQuery(sql);
 
@@ -92,9 +92,9 @@ public class Cohorts {
 	// the point this functionality is being added
 	public static SqlCohortDefinition patientsWithLastClinicalVisitMoreThanNMonths(Integer numberOfMonths) {
 		String q = "select distinct patient_id from encounter where encounter_datetime > DATE_SUB(:endDate, INTERVAL "
-						+ numberOfMonths + " MONTH)";
+				+ numberOfMonths + " MONTH)";
 		SqlCohortDefinition sql = new SqlCohortDefinition();
-		
+
 		sql.setQuery(q);
 		sql.addParameter(new Parameter("endDate", "endDate", Date.class));
 		return sql;
@@ -112,16 +112,16 @@ public class Cohorts {
 
 	public static SqlCohortDefinition patientsWithNoClinicalVisitforMoreThanNMonths(Integer numberOfMonths) {
 		String q = "select distinct patient_id from patient where patient_id not in (select distinct patient_id from encounter where encounter_datetime > DATE_SUB(:endDate, INTERVAL "
-						+ numberOfMonths + " MONTH))";
+				+ numberOfMonths + " MONTH))";
 		SqlCohortDefinition sql = new SqlCohortDefinition();
-		
+
 		sql.addParameter(new Parameter("endDate", "endDate", Date.class));
 		sql.setQuery(q);
 		return sql;
 	}
 
-	public static SqlCohortDefinition createPatientsWithObservationAfterNMonthsAfterArtInitiaion(
-			Concept concept, Integer nMonths) {
+	public static SqlCohortDefinition createPatientsWithObservationAfterNMonthsAfterArtInitiaion(Concept concept,
+			Integer nMonths) {
 		return new SqlCohortDefinition(
 				"select distinct p.patient_id from patient p, obs o, orders ord  where p.voided = 0 and o.voided = 0 and p.patient_id"
 						+ "= o.person_id and ord.order_id = (select order_id from orders where voided = 0 and patient_id "
@@ -143,7 +143,7 @@ public class Cohorts {
 		String q = "select distinct p.patient_id from patient p inner join person pp on pp.person_id = p.patient_id where p.voided=0 and pp.voided=0 and (pp.birthdate is null or (select DATEDIFF(:endDate, pp.birthdate) / 365.25) >= "
 				+ Context.getAdministrationService().getGlobalProperty("reports.adultStartingAge") + ")";
 		SqlCohortDefinition adultPatients = new SqlCohortDefinition();
-		
+
 		adultPatients.addParameter(new Parameter("endDate", "endDate", Date.class));
 		adultPatients.setQuery(q);
 		return adultPatients;
@@ -155,14 +155,14 @@ public class Cohorts {
 			Concept scheduledVisit, Integer numberOfMonths) {
 		SqlCohortDefinition sql = new SqlCohortDefinition();
 		String q = "select distinct o.person_id from obs o, (select * from (select * from encounter where encounter_type="
-						+ adultFollowUpEncounterType.getEncounterTypeId()
-						+ " and voided=0 order by encounter_datetime desc) as e group by patient_id) as last_encounters where last_encounters.encounter_id=o.encounter_id and last_encounters.encounter_datetime < o.value_datetime and o.voided = 0 and o.concept_id ="
-						+ scheduledVisit.getConceptId() + " and o.value_datetime > DATE_SUB(:endDate, INTERVAL "
-						+ numberOfMonths + " MONTH)";
-		
+				+ adultFollowUpEncounterType.getEncounterTypeId()
+				+ " and voided=0 order by encounter_datetime desc) as e group by patient_id) as last_encounters where last_encounters.encounter_id=o.encounter_id and last_encounters.encounter_datetime < o.value_datetime and o.voided = 0 and o.concept_id ="
+				+ scheduledVisit.getConceptId() + " and o.value_datetime > DATE_SUB(:endDate, INTERVAL "
+				+ numberOfMonths + " MONTH)";
+
 		sql.addParameter(new Parameter("endDate", "endDate", Date.class));
 		sql.setQuery(q);
-		
+
 		return sql;
 
 	}
@@ -717,7 +717,7 @@ public class Cohorts {
 
 	public static InProgramCohortDefinition createInProgramParameterizableByDate(String name, Program program) {
 		InProgramCohortDefinition inProgram = createInProgram(name, program);
-		
+
 		inProgram.addParameter(new Parameter("onOrBefore", "On Or Before", Date.class));
 		return inProgram;
 	}
@@ -1022,7 +1022,7 @@ public class Cohorts {
 
 		if (value != null) {
 			List<Concept> valueList = new ArrayList<Concept>();
-			
+
 			valueList.add(value);
 			obsCohortDefinition.setValueList(valueList);
 		}
@@ -1858,7 +1858,7 @@ public class Cohorts {
 		SqlCohortDefinition cohortquery = new SqlCohortDefinition();
 		StringBuilder formIds = new StringBuilder();
 		int i = 0;
-		
+
 		for (Form form : forms) {
 			if (i == 0) {
 				formIds.append(form.getFormId());
@@ -2449,64 +2449,82 @@ public class Cohorts {
 
 		return regimenAtLastVist;
 	}
-	
+
 	public static SqlCohortDefinition inProgramForNMonthsFromEnrollment(Program program, Integer nMonths) {
-		if (program != null && nMonths !=null) {
+		if (program != null && nMonths != null) {
 			SqlCohortDefinition sql = new SqlCohortDefinition();
-			String query = "select distinct patient_id from patient_program where program_id = " + program.getProgramId() + " and date_enrolled >= (:endDate - INTERVAL " + nMonths+ " MONTH)";
-			
+			String query = "select distinct patient_id from patient_program where program_id = "
+					+ program.getProgramId() + " and date_enrolled >= (:endDate - INTERVAL " + nMonths + " MONTH)";
+
 			sql.addParameter(new Parameter("endDate", "endDate", Date.class));
 			sql.setQuery(query);
 			return sql;
 		}
 		return null;
 	}
-	
+
 	public static SqlCohortDefinition withObsInStartEndDateRange(Concept obsQuestion) {
-		if(obsQuestion != null) {
-				SqlCohortDefinition sql = new SqlCohortDefinition();
-				
-				sql.addParameter(new Parameter("startDate", "startDate", Date.class));
-				sql.addParameter(new Parameter("endDate", "endDate", Date.class));
-				
-				String query = "select distinct person_id as patient_id from obs where concept_id = " + obsQuestion.getConceptId() + " and obs_datetime between :startDate and :endDate";
-				
-				sql.setQuery(query);
-				return sql;
-		}
-		return null;
-	}
-	
-	public static SqlCohortDefinition withNoObsInLastNMonthsAfterProgramInit(Concept obsQuestion, Integer nMonths, Program program) {
-		if(obsQuestion != null && nMonths != null && program != null) {
+		if (obsQuestion != null) {
 			SqlCohortDefinition sql = new SqlCohortDefinition();
-			String query = "select count(distinct patient_id) from patient_program where program_id = " + program.getProgramId()
-					+ " and patient_id not in (select distinct person_id from obs where concept_id = " + obsQuestion.getConceptId()
-					+ ") and date_enrolled >= (:endDate - INTERVAL " + nMonths + " MONTH)";
-			
+
+			sql.addParameter(new Parameter("startDate", "startDate", Date.class));
 			sql.addParameter(new Parameter("endDate", "endDate", Date.class));
+
+			String query = "select distinct person_id as patient_id from obs where concept_id = "
+					+ obsQuestion.getConceptId() + " and obs_datetime between :startDate and :endDate";
+
 			sql.setQuery(query);
-			
 			return sql;
 		}
 		return null;
 	}
-	
+
+	public static SqlCohortDefinition withNoObsInLastNMonthsAfterProgramInit(Concept obsQuestion, Integer nMonths,
+			Program program) {
+		if (obsQuestion != null && nMonths != null && program != null) {
+			SqlCohortDefinition sql = new SqlCohortDefinition();
+			String query = "select distinct patient_id from patient_program where program_id = "
+					+ program.getProgramId()
+					+ " and patient_id not in (select distinct person_id from obs where concept_id = "
+					+ obsQuestion.getConceptId() + ") or IFNULL(date_enrolled, date_created) >= (:endDate - INTERVAL " + nMonths + " MONTH)";
+
+			sql.addParameter(new Parameter("endDate", "endDate", Date.class));
+			sql.setQuery(query);
+
+			return sql;
+		}
+		return null;
+	}
+
 	public static SqlCohortDefinition withNoVLObsInLastNMonthsAfterARTInit(Integer nMonths) {
-		if(nMonths != null) {
-			
+		if (nMonths != null) {
+
 			SqlCohortDefinition sql = new SqlCohortDefinition();
 			Concept arvDrugs = gp.getConcept(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
 			String query = "select distinct p.patient_id from patient p"
 					+ "left join obs o on o.person_id = p.patient_id"
-				+ "inner join orders ord on ord.patient_id = p.patient_id"
-				+ "where IFNULL(ord.date_activated, ord.scheduled_date) >= ("
-				+ "(select obs_datetime from obs o2 inner join concept_set cs on cs.concept_id = o2.concept_id where cs.concept_set = "
-				+ arvDrugs.getConceptId() + " or o2.concept_id = " + arvDrugs.getConceptId() + 
-				" order by obs_datetime DESC LIMIT 1) - INTERVAL " + nMonths + " MONTH)";
-			
+					+ "inner join orders ord on ord.patient_id = p.patient_id"
+					+ " where IFNULL(ord.date_activated, ord.scheduled_date) >= ("
+					+ "(select obs_datetime from obs o2 inner join concept_set cs on cs.concept_id = o2.concept_id where cs.concept_set = "
+					+ arvDrugs.getConceptId() + " or o2.concept_id = " + arvDrugs.getConceptId()
+					+ " order by obs_datetime DESC LIMIT 1) - INTERVAL " + nMonths + " MONTH)";
+
 			sql.setQuery(query);
-			
+
+			return sql;
+		}
+		return null;
+	}
+
+	public static SqlCohortDefinition withVLRecordedInLessThanNMonthsAgo(Integer nMonths) {
+		if (nMonths != null) {
+
+			SqlCohortDefinition sql = new SqlCohortDefinition();
+			String query = "select distinct person_id as patient_id from obs where IFNULL(obs_datetime, date_created) < (:endDate - INTERVAL " + nMonths + " MONTH)";
+
+			sql.addParameter(new Parameter("endDate", "endDate", Date.class));
+			sql.setQuery(query);
+
 			return sql;
 		}
 		return null;

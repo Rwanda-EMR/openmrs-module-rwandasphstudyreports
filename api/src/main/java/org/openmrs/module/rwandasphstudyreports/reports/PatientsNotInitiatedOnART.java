@@ -133,7 +133,10 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getPatientAddress("address", true, true, true, true),
 				new HashMap<String, Object>());
-
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Name", "peerEducator"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Phone Number", "peerEducatorPhone"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Phone Number", "privatePhone"), new HashMap<String, Object>());
+		
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		InverseCohortDefinition notOnART = new InverseCohortDefinition(Cohorts.getPatientsOnART(null));
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
@@ -142,7 +145,7 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
 				ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}"));
-		dataSetDefinition.addFilter(adultPatientsCohort, null);
+		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(notOnART, null);
 		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(patientsNotTransferredOut, null);

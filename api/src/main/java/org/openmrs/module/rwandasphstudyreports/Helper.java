@@ -78,13 +78,8 @@ public class Helper {
 		resource.setName(resourceName);
 		resource.setExtension("xls");
 		InputStream is = OpenmrsClassLoader.getInstance().getResourceAsStream(resourceName);
-		try {
-			resource.setContents(new SerialBlob(IOUtils.toByteArray(is)));
-		} catch (SerialException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		
+		resource.setContents(IOUtils.toByteArray(is));
 		final ReportDesign design = new ReportDesign();
 		design.setName(name);
 		design.setReportDefinition(rd);

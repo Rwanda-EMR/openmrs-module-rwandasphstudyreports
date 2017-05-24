@@ -35,7 +35,7 @@
 		<openMRSVersion>1.11.5</openMRSVersion>
 		<mohOrderEntryBridgeVersion>1.0.1</mohOrderEntryBridgeVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<reportingVersion>1.13.0-SNAPSHOT</reportingVersion>
+		<reportingVersion>0.9.9</reportingVersion>
 		<serializationVersion>0.2.7</serializationVersion>
 		<htmlwidgetsVersion>1.6.4</htmlwidgetsVersion>
 		<calculationVersion>1.1</calculationVersion>
