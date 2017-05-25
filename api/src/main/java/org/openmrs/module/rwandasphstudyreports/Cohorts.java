@@ -2486,7 +2486,7 @@ public class Cohorts {
 			String query = "select distinct patient_id from patient_program where program_id = "
 					+ program.getProgramId()
 					+ " and patient_id not in (select distinct person_id from obs where concept_id = "
-					+ obsQuestion.getConceptId() + ") or IFNULL(date_enrolled, date_created) >= (:endDate - INTERVAL " + nMonths + " MONTH)";
+					+ obsQuestion.getConceptId() + " and voided != 1) or IFNULL(date_enrolled, date_created) >= (:endDate - INTERVAL " + nMonths + " MONTH)";
 
 			sql.addParameter(new Parameter("endDate", "endDate", Date.class));
 			sql.setQuery(query);

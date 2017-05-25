@@ -147,6 +147,7 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 		dataSetDefinition.addColumn(
 				RowPerPatientColumns.getAllViralLoadsValues("viralLoads", "dd/MMM/yyyy", null, null),
 				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getDateOfEarliestProgramEnrolment("hivEnrolment", hivProgram, "dd/MMM/yyyy"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Name", "peerEducator"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Phone Number", "peerEducatorPhone"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Phone Number", "privatePhone"), new HashMap<String, Object>());
@@ -166,7 +167,7 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(noVL8MonthsAfterEnrollmentIntoHIV, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(inHIV, null);
-		dataSetDefinition.addFilter(withNoVLRecordedInLessThanNMonthsAgo, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		//dataSetDefinition.addFilter(withNoVLRecordedInLessThanNMonthsAgo, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		
 		reportDefinition.addDataSetDefinition("PatientsWithNoVLAfter8Months", dataSetDefinition, mappings);
 	}
