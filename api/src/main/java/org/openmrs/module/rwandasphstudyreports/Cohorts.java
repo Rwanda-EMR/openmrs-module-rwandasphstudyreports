@@ -74,7 +74,7 @@ public class Cohorts {
 	public static SqlCohortDefinition getPatientsOnART(Integer onArtForMoreThanNMonths) {
 		Concept arvDrugs = gp.getConcept(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
 		String sql = "select distinct p.patient_id from patient p "
-				+ "inner join orders ord on p.patient_id = ord.patient_id " + "where ord.concept_id "
+				+ "inner join orders ord on p.patient_id = ord.patient_id where ord.concept_id "
 				+ "in (select distinct concept_id from concept_set where concept_set =  " + arvDrugs.getConceptId()
 				+ ")"
 				+ (onArtForMoreThanNMonths == null ? ""
@@ -999,7 +999,7 @@ public class Cohorts {
 	public static InverseCohortDefinition createNoObservationDefintion(Concept concept) {
 
 		SqlCohortDefinition query = new SqlCohortDefinition(
-				"select person_id from obs where voided = 0 and concept_id = " + concept.getId());
+				"select distinct person_id from obs where voided = 0 and concept_id = " + concept.getId());
 
 		InverseCohortDefinition noObs = new InverseCohortDefinition(query);
 
@@ -2528,5 +2528,15 @@ public class Cohorts {
 			return sql;
 		}
 		return null;
+	}
+
+	public static SqlCohortDefinition getVCTInclusiveCohortDefinition() {
+		SqlCohortDefinition sql = new SqlCohortDefinition();
+		Concept arvDrugs = gp.getConcept(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
+		String query = "select distinct client_id as patient_id from trac_vct_client where client_id not in(select patient_id from patient) and archived IS FALSE AND voided IS FALSE AND client_decision=1";
+
+		sql.setQuery(query);
+
+		return sql;
 	}
 }

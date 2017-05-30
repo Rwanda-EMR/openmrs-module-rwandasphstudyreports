@@ -9,6 +9,7 @@ import org.openmrs.EncounterType;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
@@ -74,6 +75,7 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 		createDataSetDefinition(reportDefinition);
 		reportDefinition.setUuid(BaseSPHReportConfig.HIVPOSITIVEPATIENTSDELAYINLINKAGETOCAREREPORT);
 		reportDefinition.setDescription("HIV Positive Patients Delayed In LinkageToCare");
+		reportDefinition.setBaseCohortDefinition(Cohorts.getVCTInclusiveCohortDefinition(), null);
 		Helper.saveReportDefinition(reportDefinition);
 		
 		return reportDefinition;
@@ -99,7 +101,6 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 		dataSetDefinition.addParameter(reportDefinition.getParameter("endDate"));
 		dataSetDefinition.setName(reportDefinition.getName() + " Data Set");
 		
-		dataSetDefinition.addColumn(RowPerPatientColumns.getTracnetId("TRACNET_ID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getSystemId("patientID"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getFirstNameColumn("givenName"),
 				new HashMap<String, Object>());
@@ -138,12 +139,13 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 		
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		InverseCohortDefinition notInART = new InverseCohortDefinition(Cohorts.getPatientsOnART(null));
 		InverseCohortDefinition notInHIVProgram = new InverseCohortDefinition(Cohorts.createInProgram("inHIVProgram", hivProgram));
-		
+		SqlCohortDefinition includeVCTClients = Cohorts.getVCTInclusiveCohortDefinition();
+
 		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(notInHIVProgram, null);
+		//dataSetDefinition.addFilter(includeVCTClients, null);
 
 		reportDefinition.addDataSetDefinition("HIVPositivePatientsDelayInLinkageToCare", dataSetDefinition, mappings);
 	}

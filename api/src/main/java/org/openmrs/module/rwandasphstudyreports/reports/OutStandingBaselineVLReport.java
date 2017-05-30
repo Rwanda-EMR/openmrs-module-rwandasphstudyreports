@@ -149,13 +149,13 @@ public class OutStandingBaselineVLReport implements SetupReport {
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(null);
-		//TODO ART init not prog init
 		SqlCohortDefinition noVL8MonthsAfterArtInit = Cohorts.withNoVLObsInLastNMonthsAfterARTInit(8);
-		
+		InverseCohortDefinition noVL = Cohorts.createNoObservationDefintion(viralLoad);
+
 		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(onART, null);
-		dataSetDefinition.addFilter(noVL8MonthsAfterArtInit, null);
+		dataSetDefinition.addFilter(noVL, null);
 
 		reportDefinition.addDataSetDefinition("OutStandingBaselineVL", dataSetDefinition, mappings);
 	}

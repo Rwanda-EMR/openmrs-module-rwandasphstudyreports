@@ -30,6 +30,7 @@ import org.openmrs.Program;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProgramWorkflowService;
+import org.openmrs.api.UserService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.report.Report;
@@ -42,9 +43,8 @@ import org.openmrs.module.rwandasphstudyreports.reports.PatientsWithNoVLAfter8Mo
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
 /**
- * Tests {@link ${CDCReportsService}}.
+ * Tests {@link CDCReportsService}.
  */
-@Ignore
 public class CDCReportsServiceTest extends BaseModuleContextSensitiveTest {
 
 	CDCReportsService service;
@@ -75,15 +75,20 @@ public class CDCReportsServiceTest extends BaseModuleContextSensitiveTest {
 
 	ProgramWorkflowService programService;
 
+	UserService userService;
+
 	@Before
 	public void setup() {
 		try {
+			executeDataSet("RwandaSPHStudyReportsDataset.xml");
+
 			gp = new GlobalPropertiesManagement();
 			service = Context.getService(CDCReportsService.class);
 			reportDefinitionService = Context.getService(ReportDefinitionService.class);
 			patientService = Context.getPatientService();
 			obsService = Context.getObsService();
 			programService = Context.getProgramWorkflowService();
+			userService = Context.getUserService();
 			hivProgram = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 			cd4CountConcept = gp.getConcept(GlobalPropertyConstants.CD4_COUNT_CONCEPTID);
 			viralLoadConcept = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);
@@ -92,14 +97,12 @@ public class CDCReportsServiceTest extends BaseModuleContextSensitiveTest {
 			reasonForExitingCareConcept = gp.getConcept(GlobalPropertiesManagement.REASON_FOR_EXITING_CARE);
 			transferOutConcept = gp.getConcept(GlobalPropertiesManagement.TRASNFERED_OUT);
 			hivPositive = gp.getConcept(GlobalPropertyConstants.HIV_POSITIVE_CONCEPTID);
-
-			executeDataSet("RwandaSPHStudyReportsDataset.xml");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	@Test
+	@Ignore
 	public void patientsWithNoVLAfter8Months_Report_Test() {
 		/*
 		 * adultPatientsCohort, hivPositive, noVL8MonthsAfterEnrollmentIntoHIV
@@ -160,5 +163,48 @@ public class CDCReportsServiceTest extends BaseModuleContextSensitiveTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	public void test_checkIfPatientHasNoObsInLastNMonthsAfterProgramInit() {
+		Patient patient = patientService.getPatient(10432);
+
+		Assert.assertTrue(service.checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(viralLoadConcept, 8, hivProgram, patient));
+
+		Calendar age30 = Calendar.getInstance();
+		Calendar hivEnrollment = Calendar.getInstance();
+		Calendar hivPos = Calendar.getInstance();
+		Calendar eightMonthsAfterHivEnrollment = Calendar.getInstance();
+		Collection<Integer> hivPatients = programService.patientsInProgram(hivProgram, null, null);
+
+		for (Integer ip : hivPatients) {
+			for (PatientProgram pp : programService.getPatientPrograms(patientService.getPatient(ip)))
+				programService.purgePatientProgram(pp);
+		}
+
+		hivPos.add(Calendar.MONTH, -12);
+		hivEnrollment.add(Calendar.MONTH, -10);
+		eightMonthsAfterHivEnrollment.setTime(hivEnrollment.getTime());
+		eightMonthsAfterHivEnrollment.add(Calendar.MONTH, 8);
+		age30.add(Calendar.YEAR, -30);
+		patient.setBirthdate(age30.getTime());
+		for (Obs o : obsService.getObservationsByPerson(patient))
+			obsService.purgeObs(o);
+
+		Obs hivPositiveObs = service.createObs(hivStatusConcept, hivPositive, hivPos.getTime(), null);
+		Obs vlObs = service.createObs(viralLoadConcept, 900.0, eightMonthsAfterHivEnrollment.getTime(), null);
+
+		hivPositiveObs.setCreator(userService.getUser(1));
+		hivPositiveObs.setPerson(patient);
+		vlObs.setPerson(patient);
+		vlObs.setCreator(userService.getUser(1));
+		obsService.saveObs(hivPositiveObs, null);
+		obsService.saveObs(vlObs, null);
+		service.enrollPatientInProgram(patient, hivProgram, hivEnrollment.getTime(), null);
+
+		patientService.unvoidPatient(patient);
+		patientService.savePatient(patient);
+
+		Assert.assertFalse(service.checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(viralLoadConcept, 8, hivProgram, patient));
 	}
 }

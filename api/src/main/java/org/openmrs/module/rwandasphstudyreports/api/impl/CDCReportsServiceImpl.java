@@ -366,7 +366,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 			List<Obs> os = Context.getObsService().getObservationsByPersonAndConcept(patient, obsQuestion);
 			List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, null, null, null, false));
 			
-			if(os.isEmpty() && !pp.isEmpty())
+			if((os.isEmpty() && !pp.isEmpty() || (!os.isEmpty() && pp.isEmpty()) || (os.isEmpty() && pp.isEmpty())))
 				return true;
 
 			if(!os.isEmpty() && !pp.isEmpty()) {
@@ -423,54 +423,58 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	
 	@Override
 	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
-		Obs obs = new Obs();
-		obs.setConcept(concept);
-		ConceptDatatype dt = obs.getConcept().getDatatype();
-		if (dt.isNumeric()) {
-			obs.setValueNumeric(Double.parseDouble(value.toString()));
-		} else if (dt.isText()) {
-			if (value instanceof Location) {
-				Location location = (Location) value;
-				obs.setValueText(location.getId().toString() + " - " + location.getName());
-			} else if (value instanceof Person) {
-				Person person = (Person) value;
-				obs.setValueText(person.getId().toString() + " - " + person.getPersonName().toString());
-			} else {
-				obs.setValueText(value.toString());
-			}
-		} else if (dt.isCoded()) {
-			if (value instanceof Drug) {
-				obs.setValueDrug((Drug) value);
-				obs.setValueCoded(((Drug) value).getConcept());
-			} else if (value instanceof ConceptName) {
-				obs.setValueCodedName((ConceptName) value);
-				obs.setValueCoded(obs.getValueCodedName().getConcept());
-			} else if (value instanceof Concept) {
-				obs.setValueCoded((Concept) value);
-			}
-		} else if (dt.isBoolean()) {
-			if (value != null) {
-				try {
-					obs.setValueAsString(value.toString());
-				} catch (ParseException e) {
-					throw new IllegalArgumentException("Unable to convert " + value + " to a Boolean Obs value", e);
-				}
-			}
-		} else if (ConceptDatatype.DATE.equals(dt.getHl7Abbreviation())
-				|| ConceptDatatype.TIME.equals(dt.getHl7Abbreviation())
-				|| ConceptDatatype.DATETIME.equals(dt.getHl7Abbreviation())) {
-			Date date = (Date) value;
-			obs.setValueDatetime(date);
-		} else if ("ZZ".equals(dt.getHl7Abbreviation())) {
-			// don't set a value
-		} else {
-			throw new IllegalArgumentException("concept datatype not yet implemented: " + dt.getName()
-					+ " with Hl7 Abbreviation: " + dt.getHl7Abbreviation());
+		Obs obs = null;
+
+		if (concept != null) {
+			obs = new Obs();
+			obs.setConcept(concept);
+			ConceptDatatype dt = obs.getConcept().getDatatype();
+			if (dt.isNumeric()) {
+                obs.setValueNumeric(Double.parseDouble(value.toString()));
+            } else if (dt.isText()) {
+                if (value instanceof Location) {
+                    Location location = (Location) value;
+                    obs.setValueText(location.getId().toString() + " - " + location.getName());
+                } else if (value instanceof Person) {
+                    Person person = (Person) value;
+                    obs.setValueText(person.getId().toString() + " - " + person.getPersonName().toString());
+                } else {
+                    obs.setValueText(value.toString());
+                }
+            } else if (dt.isCoded()) {
+                if (value instanceof Drug) {
+                    obs.setValueDrug((Drug) value);
+                    obs.setValueCoded(((Drug) value).getConcept());
+                } else if (value instanceof ConceptName) {
+                    obs.setValueCodedName((ConceptName) value);
+                    obs.setValueCoded(obs.getValueCodedName().getConcept());
+                } else if (value instanceof Concept) {
+                    obs.setValueCoded((Concept) value);
+                }
+            } else if (dt.isBoolean()) {
+                if (value != null) {
+                    try {
+                        obs.setValueAsString(value.toString());
+                    } catch (ParseException e) {
+                        throw new IllegalArgumentException("Unable to convert " + value + " to a Boolean Obs value", e);
+                    }
+                }
+            } else if (ConceptDatatype.DATE.equals(dt.getHl7Abbreviation())
+                    || ConceptDatatype.TIME.equals(dt.getHl7Abbreviation())
+                    || ConceptDatatype.DATETIME.equals(dt.getHl7Abbreviation())) {
+                Date date = (Date) value;
+                obs.setValueDatetime(date);
+            } else if ("ZZ".equals(dt.getHl7Abbreviation())) {
+                // don't set a value
+            } else {
+                throw new IllegalArgumentException("concept datatype not yet implemented: " + dt.getName()
+                        + " with Hl7 Abbreviation: " + dt.getHl7Abbreviation());
+            }
+			if (datetime != null)
+                obs.setObsDatetime(datetime);
+			if (accessionNumber != null)
+                obs.setAccessionNumber(accessionNumber);
 		}
-		if (datetime != null)
-			obs.setObsDatetime(datetime);
-		if (accessionNumber != null)
-			obs.setAccessionNumber(accessionNumber);
 		return obs;
 	}
 	

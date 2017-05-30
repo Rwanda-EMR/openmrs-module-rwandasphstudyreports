@@ -11,3 +11,7 @@ omod/.project
 omod/.settings/
 omod/target/
 api/target/
+.idea/
+api/*.iml
+omod/*.iml
+*.iml
