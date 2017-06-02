@@ -22,6 +22,7 @@
 		<require_module>org.openmrs.module.mohorderentrybridge</require_module>
 		<require_module>org.openmrs.module.orderextension</require_module>
 		<require_module>org.openmrs.module.reportingcompatibility</require_module>
+		<require_module>org.openmrs.module.vcttrac</require_module>
 	</require_modules>
 	<!-- / Required Modules -->
 	

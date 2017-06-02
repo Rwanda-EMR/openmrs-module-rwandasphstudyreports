@@ -13,35 +13,11 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api.impl;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openmrs.Cohort;
-import org.openmrs.Concept;
-import org.openmrs.ConceptDatatype;
-import org.openmrs.ConceptName;
-import org.openmrs.Drug;
-import org.openmrs.DrugOrder;
-import org.openmrs.Encounter;
-import org.openmrs.Location;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.PatientProgram;
-import org.openmrs.Person;
-import org.openmrs.Program;
-import org.openmrs.Visit;
+import org.openmrs.*;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
-import org.openmrs.module.mohorderentrybridge.api.MoHOrderEntryBridgeService;
 import org.openmrs.module.reporting.definition.DefinitionSummary;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.report.Report;
@@ -56,9 +32,13 @@ import org.openmrs.module.reporting.web.renderers.DefaultWebRenderer;
 import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
 import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
+import org.openmrs.module.rwandasphstudyreports.SphClientOrPatient;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.openmrs.module.rwandasphstudyreports.api.db.CDCReportsDAO;
 import org.openmrs.module.rwandasphstudyreports.reports.BaseSPHReportConfig;
+
+import java.text.ParseException;
+import java.util.*;
 
 /**
  * It is a default implementation of {@link CDCReportsService}.
@@ -225,11 +205,19 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	public boolean checkIfPatientIsHIVPositive(Patient patient) {
 		Concept hiv = Context.getConceptService().getConcept(Integer.parseInt(
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.HIV_STATUS_CONCEPTID)));
+		Concept hivPositive = Context.getConceptService().getConcept(Integer.parseInt(
+				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.HIV_POSITIVE_CONCEPTID)));
+
+		if(hiv == null)
+			hiv = Context.getConceptService().getConcept(2169);
+		if(hivPositive == null)
+			hivPositive = Context.getConceptService().getConcept(703);
+
 		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, hiv);
 
 		sortObsListByObsDateTime(vLObs);
-		if (!vLObs.isEmpty()) {// check last status reported instead
-			if ("POSITIVE".equals(vLObs.get(0).getValueCoded().getFullySpecifiedName(Locale.ENGLISH).getName()))
+		if (hivPositive != null && vLObs != null && !vLObs.isEmpty()) {// check last status reported instead
+			if (hivPositive.getConceptId().equals(vLObs.get(0).getValueCoded() != null ? vLObs.get(0).getValueCoded().getConceptId() : null))
 				return true;
 		}
 		return false;
@@ -275,32 +263,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 
 	@Override
 	public DrugOrder getARTInitiationDrug(Patient patient) {
-		List<DrugOrder> arvDrugsOrders = new ArrayList<DrugOrder>();
-		List<DrugOrder> drugOrders = Context.getService(MoHOrderEntryBridgeService.class)
-				.getDrugOrdersByPatient(patient);
-
-		String otherARVDrugConceptsIds = Context.getAdministrationService()
-				.getGlobalProperty(GlobalPropertyConstants.OTHER_ARV_DRUGS_CONCEPTIDS);
-		String aRVDrugConceptSetIds = Context.getAdministrationService()
-				.getGlobalProperty(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
-		if (StringUtils.isNotBlank(otherARVDrugConceptsIds))
-			for (String s : otherARVDrugConceptsIds.split(",")) {
-				arvDrugsOrders.addAll(Context.getService(CDCReportsService.class).matchOnlyDrugConceptFromOrders(
-						drugOrders, Context.getConceptService().getConcept(Integer.parseInt(s.trim()))));
-			}
-		if (StringUtils.isNotBlank(aRVDrugConceptSetIds)
-				&& Context.getConceptService().getConcept(Integer.parseInt(aRVDrugConceptSetIds)).isSet())
-			for (Concept c : Context.getConceptService().getConcept(Integer.parseInt(aRVDrugConceptSetIds))
-					.getSetMembers()) {
-				arvDrugsOrders.addAll(
-						Context.getService(CDCReportsService.class).matchOnlyDrugConceptFromOrders(drugOrders, c));
-			}
-		Context.getService(CDCReportsService.class).sortOrderListByStartDate(arvDrugsOrders);
-
-		if (!arvDrugsOrders.isEmpty())
-			return arvDrugsOrders.get(0);
-
-		return null;
+		return getDao().getARTInitiationDrug(patient.getPerson());
 	}
 
 	@Override
@@ -507,5 +470,13 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		request = Context.getService(ReportService.class).saveReportRequest(request);
 
 		return Context.getService(ReportService.class).runReport(request);
+	}
+
+	public List<Patient> getHIVPositivePatientsOnARVTreatment() {
+		return getDao().getHIVPositivePatientsOnARVTreatment();
+	}
+
+	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet() {
+		return getDao().getHIVPositiveClientsOrPatientsForConsultationSheet();
 	}
 }

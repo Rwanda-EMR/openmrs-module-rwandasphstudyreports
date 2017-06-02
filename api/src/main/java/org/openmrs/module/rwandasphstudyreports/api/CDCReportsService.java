@@ -13,23 +13,16 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api;
 
-import java.util.Date;
-import java.util.List;
-
-import org.openmrs.Cohort;
-import org.openmrs.Concept;
-import org.openmrs.DrugOrder;
-import org.openmrs.Encounter;
-import org.openmrs.Location;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.Program;
-import org.openmrs.Visit;
+import org.openmrs.*;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.reporting.report.Report;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
+import org.openmrs.module.rwandasphstudyreports.SphClientOrPatient;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * This service exposes module's core functionality. It is a Spring managed bean
@@ -86,4 +79,8 @@ public interface CDCReportsService extends OpenmrsService {
 	void enrollPatientInProgram(Patient patient, Program program, Date enrollmentDate, Date completionDate);
 
 	Report runReport(ReportDefinition reportDef, Date startDate, Date endDate, Location location);
+
+	public List<Patient> getHIVPositivePatientsOnARVTreatment();
+
+	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet();
 }

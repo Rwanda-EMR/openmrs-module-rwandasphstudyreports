@@ -39,6 +39,7 @@
 		<serializationVersion>0.2.7</serializationVersion>
 		<htmlwidgetsVersion>1.6.4</htmlwidgetsVersion>
 		<calculationVersion>1.1</calculationVersion>
+		<vcttracVersion>0.2.5.2-SNAPSHOT</vcttracVersion>
 	</properties>
 
 	<dependencyManagement>

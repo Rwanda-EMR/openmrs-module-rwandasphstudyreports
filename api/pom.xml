@@ -60,6 +60,12 @@
 			<version>${mohOrderEntryBridgeVersion}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>vcttrac-api</artifactId>
+			<version>${vcttracVersion}</version>
+			<scope>provided</scope>
+		</dependency>
 		<!-- End OpenMRS modules -->
 
 		<!-- Begin OpenMRS core -->
