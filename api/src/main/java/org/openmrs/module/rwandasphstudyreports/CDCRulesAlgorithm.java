@@ -1,18 +1,13 @@
 package org.openmrs.module.rwandasphstudyreports;
 
+import org.openmrs.*;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import org.openmrs.Concept;
-import org.openmrs.DrugOrder;
-import org.openmrs.Encounter;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.Visit;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 
 public class CDCRulesAlgorithm {
 	public List<String> cdcDsRulesAlerts(Patient patient) {
@@ -109,7 +104,7 @@ public class CDCRulesAlgorithm {
 		List<Encounter> encs = Context.getEncounterService().getEncountersByPatient(patient);
 		encs = Context.getService(CDCReportsService.class).sortEncountersListByCreationDate(encs);
 
-		if (activeVisit != null && activeVisit.getStopDatetime().before(new Date())) {
+		if (activeVisit != null && activeVisit.getStopDatetime() != null && activeVisit.getStopDatetime().before(new Date())) {
 			return activeVisit.getStopDatetime();
 		} else {
 			if (!encs.isEmpty())

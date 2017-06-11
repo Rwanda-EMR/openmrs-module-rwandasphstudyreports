@@ -159,7 +159,7 @@
 	<c:if test="${not empty cdcAlerts}">
 		<c:forEach var="cdcAlert" items="${cdcAlerts}">
 			<tr>
-				<td class="alert">${cdcAlert}</td>
+				<td class="alert" style="color:red">${cdcAlert}</td>
 			</tr>
 		</c:forEach>
 	</c:if>

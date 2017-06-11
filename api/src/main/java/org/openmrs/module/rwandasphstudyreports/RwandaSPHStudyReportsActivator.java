@@ -16,14 +16,7 @@ package org.openmrs.module.rwandasphstudyreports;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.ModuleActivator;
-import org.openmrs.module.rwandasphstudyreports.reports.CD4BasedTreatmentFailureReport;
-import org.openmrs.module.rwandasphstudyreports.reports.HIVPositivePatientsDelayInLinkageToCareReport;
-import org.openmrs.module.rwandasphstudyreports.reports.OutStandingBaselineVLReport;
-import org.openmrs.module.rwandasphstudyreports.reports.PatientsNotInitiatedOnART;
-import org.openmrs.module.rwandasphstudyreports.reports.PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport;
-import org.openmrs.module.rwandasphstudyreports.reports.PatientsWithNoVLAfter8Months;
-import org.openmrs.module.rwandasphstudyreports.reports.SetupAdultHIVConsultationSheet;
-import org.openmrs.module.rwandasphstudyreports.reports.VLBasedTreatmentFailureReport;
+import org.openmrs.module.rwandasphstudyreports.reports.*;
 
 /**
  * This class contains the logic that is run every time this module is either
@@ -60,9 +53,6 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 	public void started() {
 		log.info("Rwanda Reports For CDC Module started");
 		try {
-			new SetupAdultHIVConsultationSheet().setup();
-			//new SetupAdultLateVisitAndCD4Report().setup();
-			//new SetupLostToFollowupPatients().setup();
 			new HIVPositivePatientsDelayInLinkageToCareReport().setup();
 			new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().setup();
 			new PatientsNotInitiatedOnART().setup();
