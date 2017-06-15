@@ -62,12 +62,7 @@ public class CDCRulesAlgorithm {
 			lastVisitDate = visits.get(0).getDateCreated();
 		}
 		if (lastVisitDate != null) {
-			Calendar lastRecordedVisit = Calendar.getInstance(Context.getLocale());
-
-			lastRecordedVisit.setTime(lastVisitDate);
-			lastRecordedVisit.add(Calendar.MONTH, 8);
-
-			if (getOnlyObsWithDatetimeMoreThanNMonthsAfterStartingDate(vLObs, lastRecordedVisit.getTime(), 8).isEmpty()
+			if (getOnlyObsWithDatetimeMoreThanNMonthsAfterStartingDate(vLObs, artInitDrug != null ? artInitDrug.getEffectiveStartDate() : null, 8).isEmpty()
 					&& Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)) {
 				alerts.add(
 						Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.orderBaselineVL"));
@@ -95,7 +90,7 @@ public class CDCRulesAlgorithm {
 		if(Context.getService(CDCReportsService.class).checkIfPatientListedAsBeingAViralLoadTreatmentFailureCase(patient))
 			alerts.add(Context.getMessageSourceService()
 					.getMessage("rwandasphstudyreports.alerts.patientsPartOfVLTreatmentFailureList"));
-		
+
 		return alerts;
 	}
 
