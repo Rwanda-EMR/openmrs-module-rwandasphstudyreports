@@ -20,7 +20,6 @@ public class SphClientOrPatient {
     private String peerEducatorTelephone;
     private String hivEnrollmentDate;
     private String registrationDate;
-    private String hivTestDate;
     private String artInitiationDate;
     private List<String> alerts;
 
@@ -136,14 +135,6 @@ public class SphClientOrPatient {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public String getHivTestDate() {
-        return hivTestDate;
-    }
-
-    public void setHivTestDate(String hivTestDate) {
-        this.hivTestDate = hivTestDate;
     }
 
     public String getArtInitiationDate() {

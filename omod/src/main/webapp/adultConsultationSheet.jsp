@@ -23,18 +23,18 @@
 <table id="printTable">
     <thead>
     <tr class="evenRow">
-        <th>Id</th>
+        <th>Person Id</th>
         <th>Name</th>
         <th>Sex</th>
         <th>BirthDate</th>
         <th>HIV Test Date</th>
         <th>Telephone</th>
+        <th>Type</th>
         <th>Address</th>
         <th>Peer Educator</th>
         <th>Peer Educator Telephone</th>
-        <th>HIH Enrollment Date</th>
+        <th>HIV Enrollment Date</th>
         <th>Registration Date</th>
-        <th>HIV Test Date</th>
         <th>ART Initiation Date</th>
         <th>Alerts</th>
     </tr>
@@ -48,12 +48,12 @@
             <td>${cOrP.birthDate}</td>
             <td>${cOrP.dateTestedForHIV}</td>
             <td>${cOrP.telephone}</td>
+            <td>${cOrP.type}</td>
             <td>${cOrP.address}</td>
             <td>${cOrP.peerEducator}</td>
             <td>${cOrP.peerEducatorTelephone}</td>
             <td>${cOrP.hivEnrollmentDate}</td>
             <td>${cOrP.registrationDate}</td>
-            <td>${cOrP.hivTestDate}</td>
             <td>${cOrP.artInitiationDate}</td>
             <td>
                 <c:forEach items="${cOrP.alerts}" var="alert">-&gt;${alert}<br /></c:forEach>

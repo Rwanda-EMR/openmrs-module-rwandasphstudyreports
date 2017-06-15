@@ -25,4 +25,6 @@ public class GlobalPropertyConstants {
 	public static final String GUARDIAN_TEL_CONCEPTID = "rwandasphstudyreports.guardianTelephoneNumberConceptId";
 
 	public static String ARV_CONCEPT_IDS = "rwandasphstudyreports.arvConceptIdList";
+
+	public static String MONTHS_ALLOWANCE_TOENROLLMENT =  "rwandasphstudyreports.monthsAllowanceBackwardsToEnrollmentDate";
 }

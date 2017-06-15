@@ -13,12 +13,6 @@
  */
 package org.openmrs.module.rwandasphstudyreports.web.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +21,7 @@ import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.openmrs.module.rwandasphstudyreports.reports.SetupAdultHIVConsultationSheet;
@@ -37,6 +32,11 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The main controller.
@@ -67,14 +67,18 @@ public class RwandaReportsForCDCManageController {
 
 	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToVLBasedTreatmentFailureReport", method = RequestMethod.GET)
 	public String reDirectToVLBasedTreatmentFailureReport() {
-		return "redirect:/module/reporting/reports/viewReport.form?uuid="
-				+ Context.getService(CDCReportsService.class).executeAndGetVLBasedTreatmentFailureReportRequest() + "#tabs-2";
+		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetVLBasedTreatmentFailureReportRequest();
+		String uuid = reportRequest != null ? reportRequest.getUuid() : "";
+
+		return "redirect:/module/reporting/reports/reportHistoryOpen.form?uuid=" + uuid;
 	}
-	
+
 	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToPatientsWithNoVLAfter8MonthsReport", method = RequestMethod.GET)
 	public String reDirectToPatientsWithNoVLAfter8MonthsReport() {
-		return "redirect:/module/reporting/reports/viewReport.form?uuid="
-				+ Context.getService(CDCReportsService.class).executeAndGetPatientsWithNoVLAfter8MonthsReportRequest() + "#tabs-2";
+		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetPatientsWithNoVLAfter8MonthsReportRequest();
+		String uuid = reportRequest != null ? reportRequest.getUuid() : "";
+
+		return "redirect:/module/reporting/reports/reportHistoryOpen.form?uuid=" + uuid;
 	}
 
 	@RequestMapping(value = "/module/rwandasphstudyreports/portlets/quickDataEntry", method = RequestMethod.GET)

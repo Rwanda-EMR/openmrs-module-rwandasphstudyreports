@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api.db.hibernate;
 
+import org.apache.commons.beanutils.converters.IntegerArrayConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,7 +25,9 @@ import org.hibernate.criterion.Restrictions;
 import org.openmrs.*;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.mohorderentrybridge.api.MoHOrderEntryBridgeService;
+import org.openmrs.module.rowperpatientreports.patientdata.definition.PatientProperty;
 import org.openmrs.module.rwandasphstudyreports.CDCRulesAlgorithm;
+import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
 import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.SphClientOrPatient;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
@@ -33,6 +36,8 @@ import org.openmrs.module.vcttrac.VCTClient;
 import org.openmrs.module.vcttrac.service.VCTModuleService;
 
 import java.util.*;
+
+import static org.openmrs.api.context.Context.getProgramWorkflowService;
 
 /**
  * It is a default implementation of {@link CDCReportsDAO}.
@@ -133,9 +138,25 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 	}
 
 	@Override
+	public List<Patient> getPatientsInHIVProgram(Program program) {
+		List<Patient> patients = new ArrayList<Patient>();
+		String m = Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.MONTHS_ALLOWANCE_TOENROLLMENT);
+		Integer monthsAllowance = StringUtils.isNotBlank(m) ? Integer.parseInt(m) : 6;
+		Calendar c = Calendar.getInstance();
+
+		c.add(Calendar.MONTH, -monthsAllowance);
+		for(PatientProgram p : Context.getProgramWorkflowService().getPatientPrograms(null, program, c.getTime(), null, null, null, false)) {
+			if(!patients.contains(p.getPatient()))
+				patients.add(p.getPatient());
+		}
+
+		return patients;
+	}
+
+	@Override
 	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet() {
 		List<VCTClient> clientList = Context.getService(VCTModuleService.class).getVCTClientsWaitingForHIVProgramEnrollment();
-		List<Patient> patientList = getHIVPositivePatientsOnARVTreatment();
+		List<Patient> patientList = getPatientsInHIVProgram(new GlobalPropertiesManagement().getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM));
 		List<SphClientOrPatient> uiClients = new ArrayList<SphClientOrPatient>();
 		String adultAge = Context.getAdministrationService().getGlobalProperty("reports.adultStartingAge");
 		String clientIds = "";
@@ -144,11 +165,13 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 			clientIds = convertAndAddClientOrPatient(uiClients, clientIds, c.getClient());
 		}
 		for(Patient p : patientList) {
-			clientIds = convertAndAddClientOrPatient(uiClients, clientIds, p);
+			clientIds = convertAndAddClientOrPatient(uiClients, clientIds, p.getPerson());
 		}
 
 		return uiClients;
 	}
+
+
 
 	private String convertAndAddClientOrPatient(List<SphClientOrPatient> uiClients, String clientIds, Person p) {
 		SphClientOrPatient client = convertPersonIntoSphClientOrPatient(p);
@@ -219,8 +242,8 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 
 	private Date checkIfPersonIsEnrolledInHIVProgram(Person person) {
 		String hivProg = Context.getAdministrationService().getGlobalProperty("reports.adulthivprogramname");
-		Program program = Context.getProgramWorkflowService().getProgramByName(StringUtils.isNotBlank(hivProg) ? hivProg : "HIV Program");
-		List<PatientProgram> pp = Context.getProgramWorkflowService().getPatientPrograms(new Patient(person), program, null, null, null, null, false);
+		Program program = getProgramWorkflowService().getProgramByName(StringUtils.isNotBlank(hivProg) ? hivProg : "HIV Program");
+		List<PatientProgram> pp = getProgramWorkflowService().getPatientPrograms(new Patient(person), program, null, null, null, null, false);
 
 		if(!pp.isEmpty())
 			return pp.get(0).getDateEnrolled();

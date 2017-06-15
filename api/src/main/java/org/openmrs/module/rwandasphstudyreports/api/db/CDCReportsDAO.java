@@ -13,10 +13,7 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api.db;
 
-import org.openmrs.Cohort;
-import org.openmrs.DrugOrder;
-import org.openmrs.Patient;
-import org.openmrs.Person;
+import org.openmrs.*;
 import org.openmrs.module.rwandasphstudyreports.SphClientOrPatient;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 
@@ -38,4 +35,6 @@ public interface CDCReportsDAO {
 	public List<Patient> getHIVPositivePatientsOnARVTreatment();
 
 	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet();
+
+	public List<Patient> getPatientsInHIVProgram(Program program);
 }

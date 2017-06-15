@@ -16,6 +16,7 @@ package org.openmrs.module.rwandasphstudyreports.api;
 import org.openmrs.*;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.reporting.report.Report;
+import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.openmrs.module.rwandasphstudyreports.SphClientOrPatient;
@@ -44,7 +45,7 @@ public interface CDCReportsService extends OpenmrsService {
 	 */
 	public Cohort getAllRwandaAdultsPatients();
 
-	String executeAndGetPatientsWithNoVLAfter8MonthsReportRequest();
+	ReportRequest executeAndGetPatientsWithNoVLAfter8MonthsReportRequest();
 
 	Obs saveQuickDataEntry(QuickDataEntry entry, Patient patient, Encounter encounter);
 
@@ -70,7 +71,7 @@ public interface CDCReportsService extends OpenmrsService {
 
 	boolean checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(Concept obsQuestion, Integer nMonths, Program program,
 			Patient patient);
-	String executeAndGetVLBasedTreatmentFailureReportRequest();
+	ReportRequest executeAndGetVLBasedTreatmentFailureReportRequest();
 
 	boolean checkIfPatientListedAsBeingAViralLoadTreatmentFailureCase(Patient patient);
 
@@ -83,4 +84,6 @@ public interface CDCReportsService extends OpenmrsService {
 	public List<Patient> getHIVPositivePatientsOnARVTreatment();
 
 	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet();
+
+	public Date getHIVEnrollmentDate(Patient patient);
 }

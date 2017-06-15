@@ -69,17 +69,17 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	}
 
 	@Override
-	public String executeAndGetPatientsWithNoVLAfter8MonthsReportRequest() {
+	public ReportRequest executeAndGetPatientsWithNoVLAfter8MonthsReportRequest() {
 		ReportRequest repReq = executeAndGetReportRequest(BaseSPHReportConfig.PATIENTSWITHNOVLAFTER8MONTHS);
 		
-		return repReq != null ? repReq.getUuid() : "";
+		return repReq != null ? repReq : null;
 	}
 	
 	@Override
-	public String executeAndGetVLBasedTreatmentFailureReportRequest() {
+	public ReportRequest executeAndGetVLBasedTreatmentFailureReportRequest() {
 		ReportRequest repReq = executeAndGetReportRequest(BaseSPHReportConfig.VLBASEDTREATMENTFAILUREREPORT);
 		
-		return repReq != null ? repReq.getUuid() : "";
+		return repReq != null ? repReq : null;
 	}
 	
 	private ReportRequest executeAndGetReportRequest(String uuid) {
@@ -284,6 +284,17 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		return false;
 	}
 
+	@Override
+	public Date getHIVEnrollmentDate(Patient patient) {
+		GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
+		Program program = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
+		List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, null, null, null, false));
+
+		if(!pp.isEmpty())
+			return pp.get(0).getDateEnrolled();
+		return null;
+	}
+
 	/**
 	 * decrease in CD4 of ≥50% from last recorded outcomes.
 	 */
@@ -478,5 +489,9 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 
 	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet() {
 		return getDao().getHIVPositiveClientsOrPatientsForConsultationSheet();
+	}
+
+	public List<Patient> getPatientsInHIVProgram(Program program) {
+		return getDao().getPatientsInHIVProgram(program);
 	}
 }

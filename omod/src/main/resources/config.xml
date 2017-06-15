@@ -474,5 +474,10 @@
 		<defaultValue>false</defaultValue>
 		<description>Set to true in development environment when interested to delete and re-setup reports on module activation</description>
 	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.monthsAllowanceBackwardsToEnrollmentDate</property>
+		<defaultValue>6</defaultValue>
+		<description>Number of months from the current date backwards to the date when program enrollment occurred</description>
+	</globalProperty>
 </module>
 
