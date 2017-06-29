@@ -62,36 +62,36 @@ public class CDCRulesAlgorithm {
 					.getMessage("rwandasphstudyreports.alerts.cd4BasedTreatmentFailure"));
 		}
 		
-		if(Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
+		if(artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 6) && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
 				&& vlAfter6MonthsFromEnrollment
 				&& Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, null, null, patient)) {
 			alerts.add(Context.getMessageSourceService()
 					.getMessage("rwandasphstudyreports.alerts.patientsWithNoVLAfter8Months"));
 			patientsWithNoVLAfter8Months = true;
 		}
-		if(!patientsWithNoVLAfter8Months && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
+		if(artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 6) && !patientsWithNoVLAfter8Months && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
 				&& Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, 6, null, patient))
 			alerts.add(Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.patientsWithNoVLAfter6Months"));
-		if(Context.getService(CDCReportsService.class).checkIfPatientListedAsBeingAViralLoadTreatmentFailureCase(patient))
+		if(artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 6) && Context.getService(CDCReportsService.class).checkIfPatientListedAsBeingAViralLoadTreatmentFailureCase(patient))
 			alerts.add(Context.getMessageSourceService()
 					.getMessage("rwandasphstudyreports.alerts.patientsPartOfVLTreatmentFailureList"));
 		if (!vLObs.isEmpty()) {
 			Date vLDate = vLObs.get(vLObs.size() - 1).getObsDatetime();
 			Calendar vLCalendar = Calendar.getInstance(Context.getLocale());
-			Calendar activeVisitLastYearEndsAt = Calendar.getInstance(Context.getLocale());
+			Calendar currentVisitDate = Calendar.getInstance(Context.getLocale());
 
 			if (vLDate != null) {
 				vLCalendar.setTime(vLDate);
-				activeVisitLastYearEndsAt.setTime(getCurrentVisitEndDate(patient));
+				currentVisitDate.setTime(getCurrentVisitEndDate(patient));
 
-				activeVisitLastYearEndsAt.add(Calendar.MONTH, -12);
-				if (vLCalendar.before(activeVisitLastYearEndsAt)) {
+				currentVisitDate.add(Calendar.MONTH, -12);
+				if (vLCalendar.before(currentVisitDate)) {
 					alerts.add(
 							Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.orderRepeatVL"));
 				}
 
 			}
-			if (Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
+			if (artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 6) && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
 					&& Context.getService(CDCReportsService.class).checkIfPatientIsOnARVMoreThanNMonths(patient, 6)
 					&& vLObs.get(vLObs.size() - 1).getValueNumeric() > 1000 && vlAfter6MonthsFromEnrollment) {
 				alerts.add(Context.getMessageSourceService()
@@ -120,6 +120,17 @@ public class CDCRulesAlgorithm {
 			}
 		}
 		return true;
+	}
+
+	private boolean checkIfDateIsNMonthsFromNow(Date date, Integer nMonths) {
+		if(date != null && nMonths != null) {
+			Calendar c = Calendar.getInstance();
+
+			c.setTime(date);
+			c.add(Calendar.MONTH, -nMonths);
+			return c.getTime().after(date);
+		}
+		return false;
 	}
 
 	private Date getCurrentVisitEndDate(Patient patient) {

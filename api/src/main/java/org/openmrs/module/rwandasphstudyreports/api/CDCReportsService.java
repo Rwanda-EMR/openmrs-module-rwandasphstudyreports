@@ -69,6 +69,14 @@ public interface CDCReportsService extends OpenmrsService {
 
 	boolean checkForAtleast50PercentDecreaseInCD4(Patient patient);
 
+	/**
+	 *
+	 * @param obsQuestion
+	 * @param nMonths, defaults to 8
+	 * @param program
+	 * @param patient
+	 * @return
+	 */
 	boolean checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(Concept obsQuestion, Integer nMonths, Program program,
 			Patient patient);
 	ReportRequest executeAndGetVLBasedTreatmentFailureReportRequest();
