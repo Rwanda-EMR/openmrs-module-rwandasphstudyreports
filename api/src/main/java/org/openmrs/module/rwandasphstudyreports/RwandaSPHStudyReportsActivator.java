@@ -15,6 +15,7 @@ package org.openmrs.module.rwandasphstudyreports;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.ModuleActivator;
 import org.openmrs.module.rwandasphstudyreports.reports.*;
 
@@ -53,13 +54,15 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 	public void started() {
 		log.info("Rwanda Reports For CDC Module started");
 		try {
-			new HIVPositivePatientsDelayInLinkageToCareReport().setup();
-			new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().setup();
-			new PatientsNotInitiatedOnART().setup();
-			new OutStandingBaselineVLReport().setup();
-			new VLBasedTreatmentFailureReport().setup();
-			new CD4BasedTreatmentFailureReport().setup();
-			new PatientsWithNoVLAfter8Months().setup();
+			if("true".equalsIgnoreCase(Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.DISABLE_REPORTS))) {
+				new HIVPositivePatientsDelayInLinkageToCareReport().setup();
+				new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().setup();
+				new PatientsNotInitiatedOnART().setup();
+				new OutStandingBaselineVLReport().setup();
+				new VLBasedTreatmentFailureReport().setup();
+				new CD4BasedTreatmentFailureReport().setup();
+				new PatientsWithNoVLAfter8Months().setup();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

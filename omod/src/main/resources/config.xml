@@ -479,5 +479,10 @@
 		<defaultValue>6</defaultValue>
 		<description>Number of months from the current date backwards to the date when program enrollment occurred</description>
 	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.disableReports</property>
+		<defaultValue>false</defaultValue>
+		<description>when set to true disables Rwanda specific reports</description>
+	</globalProperty>
 </module>
 
