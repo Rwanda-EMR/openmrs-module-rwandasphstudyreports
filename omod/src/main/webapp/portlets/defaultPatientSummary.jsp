@@ -24,9 +24,14 @@
 		jQuery("#DataEntryTabIdTab").insertAfter(jQuery("#patientOverviewTab"));
 		jQuery("#formEntryTab").insertAfter(jQuery("#DataEntryTabIdTab"));
 		jQuery("#defaultPatientSummaryTabIDTab").trigger("click");
-		jQuery("#patientHeaderRegimen").append(
-				"${not empty currentRegimen.drugOrder.drug ? currentRegimen.drugOrder.drug.name : currentRegimen.drugOrder.concept.name.name}"
-		);
+
+		//external fixes
+		jQuery("#patientHeaderRegimen").text("${currentRegimen}");
+		if(jQuery("#patientActions").text().toLowerCase().indexOf('resume care') > 0) {
+			jQuery(".boxHeader").css({"background-color": "#bbbbbb", "border" : "1px solid #555555"});
+			jQuery(".box").css({"border" : "1px solid #555555"})
+			jQuery("#patientHeader").css({"background-color": "#b82619"});
+		}
 	});
 </script>
 

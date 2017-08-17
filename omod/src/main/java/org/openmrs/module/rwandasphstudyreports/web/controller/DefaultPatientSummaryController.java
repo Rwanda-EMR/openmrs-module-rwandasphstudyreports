@@ -1,5 +1,6 @@
 package org.openmrs.module.rwandasphstudyreports.web.controller;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.*;
@@ -612,8 +613,8 @@ public class DefaultPatientSummaryController {
 				.toString();
 	}
 
-	private MoHDrugOrder getCurrentRegimen(List<MoHDrugOrder> orders) {
-		MoHDrugOrder o = null;
+	private String getCurrentRegimen(List<MoHDrugOrder> orders) {
+		List<String> o = new ArrayList<String>();
 		Date today = Calendar.getInstance(Context.getLocale()).getTime();
 
 		Collections.sort(orders, new Comparator<MoHDrugOrder>() {
@@ -623,9 +624,9 @@ public class DefaultPatientSummaryController {
 		});
 		for(MoHDrugOrder ord : orders) {
 			if(ord.getIsActive() && ord.getStartDate().before(today) && ((ord.getStopDate() != null && ord.getStopDate().after(today)) || ord.getStopDate() == null))
-				o = ord;
+				o.add(ord.getDrugOrder().getDrug().getDisplayName());
 		}
 
-		return o;
+		return StringUtils.join(o, ", ");
 	}
 }
