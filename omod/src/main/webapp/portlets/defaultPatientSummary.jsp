@@ -24,6 +24,9 @@
 		jQuery("#DataEntryTabIdTab").insertAfter(jQuery("#patientOverviewTab"));
 		jQuery("#formEntryTab").insertAfter(jQuery("#DataEntryTabIdTab"));
 		jQuery("#defaultPatientSummaryTabIDTab").trigger("click");
+		jQuery("#patientHeaderRegimen").append(
+				"${not empty currentRegimen.drugOrder.drug ? currentRegimen.drugOrder.drug.name : currentRegimen.drugOrder.concept.name.name}"
+		);
 	});
 </script>
 
@@ -55,17 +58,6 @@
 	<tr>
 		<td valign="top">
 		<table cellspacing="0" cellpadding="0" border="0">
-			<tr>
-				<c:forEach var="identifier" items="${patient.identifiers}">
-					<c:if
-						test="${identifier.identifierType.name == 'IMB ID' && not empty identifier.identifier}">
-						<c:set var="imbIdflag" value="true" />
-						<td class="nowrap" align="right"><spring:message code="rwandasphstudyreports.imbid" />
-						</td>
-						<td><b>${identifier.identifier}</b></td>
-					</c:if>
-				</c:forEach>
-			</tr>
 			<tr>
 				<td align="right"><spring:message code="Patient.gender" /></td>
 				<td><b> <c:if test="${patient.gender == 'M'}">
@@ -134,17 +126,6 @@
 		</table>
 		</td>
 		<td valign="top" align="right">
-		<table cellspacing="0" cellpadding="0" border="0">
-			<c:forEach var="identifier" items="${patient.identifiers}"
-				varStatus="status">
-				<c:if test="${identifier.identifierType.name != 'IMB ID'}">
-					<tr>
-						<td align="right" class="nowrap">${identifier.identifierType.name}:</td>
-						<td>${identifier.identifier}</td>
-					</tr>
-				</c:if>
-			</c:forEach>
-		</table>
 		</td>
 
 	</tr>
@@ -199,29 +180,15 @@
 			<td class="th"><spring:message code="rwandasphstudyreports.comments" /></td>
 		</tr>
 		<c:forEach items="${drugorders}" var="drug">
-			<c:if test="${drug.drugOrder.voided == false && drug.isActive == true}">
+			<c:if test="${drug.drugOrder.voided == false}">
 				<tr>
-					<td class="nowrap"><b>${not empty drug.drugOrder.drug ? drug.drugOrder.drug.name : drug.drugOrder.concept.name.name}</b></td>
+					<td class="nowrap">${not empty drug.drugOrder.drug ? drug.drugOrder.drug.name : drug.drugOrder.concept.name.name} <c:if test="${drug.isActive == false}"> (stopped)</c:if></td>
 					<td class="nowrap">${drug.drugOrder.dose} ${drug.doseUnitsName}</td>
 					<td class="nowrap">${drug.frequency}</td>
 					<td class="nowrap"><openmrs:formatDate
-						date="${drug.startDate}" type="medium" /></td>
+						date="${drug.startDate}" type="medium"/></td>
 					<td class="nowrap"><openmrs:formatDate
-						date="${drug.stopDate}" type="medium" /></td>
-					<td>${drug.drugOrder.instructions}</td>
-				</tr>
-			</c:if>
-		</c:forEach>
-		<c:forEach items="${drugorders}" var="drug">
-			<c:if test="${drug.drugOrder.voided == false && drug.isActive == false}">
-				<tr>
-					<td class="nowrap">${not empty drug.drugOrder.drug ? drug.drugOrder.drug.name : drug.drugOrder.concept.name.name} (stopped)</td>
-					<td class="nowrap">${drug.drugOrder.dose} ${drug.doseUnitsName}</td>
-					<td class="nowrap">${drug.frequency}</td>
-					<td class="nowrap"><openmrs:formatDate
-						date="${drug.startDate}" type="medium" /></td>
-					<td class="nowrap"><openmrs:formatDate
-						date="${drug.stopDate}" type="medium" /></td>
+						date="${drug.stopDate}" type="medium"/></td>
 					<td>${drug.drugOrder.orderReason}</td>
 				</tr>
 			</c:if>
@@ -236,10 +203,6 @@
 	</tr>
 	<tr>
 		<td>
-		<c:if test="${empty imbIdflag}">
-			<spring:message code="rwandasphstudyreports.noimbid" />
-			<br />
-		</c:if> 
 		<c:if test="${empty lastencounter.timeago}">
 			<spring:message code="rwandasphstudyreports.nolastvisit" />
 			<br />

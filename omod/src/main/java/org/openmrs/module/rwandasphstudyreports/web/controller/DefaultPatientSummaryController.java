@@ -1,27 +1,8 @@
 package org.openmrs.module.rwandasphstudyreports.web.controller;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openmrs.Concept;
-import org.openmrs.ConceptNumeric;
-import org.openmrs.Encounter;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.PatientProgram;
-import org.openmrs.Person;
-import org.openmrs.Relationship;
+import org.openmrs.*;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.mohorderentrybridge.MoHDrugOrder;
@@ -31,6 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.*;
 
 /**
  * This controller displays a patient summary
@@ -79,6 +62,7 @@ public class DefaultPatientSummaryController {
 		String vitalSignsConceptIds;
 		int maxChildAge;
 
+		//TODO instead of reverse, arrange by orderdate
 		Collections.reverse(drugorders);
 		// get child age
 		maxChildAge = Integer
@@ -169,6 +153,8 @@ public class DefaultPatientSummaryController {
 		model.addAttribute("prevdiags", prepareMostRecentObs(prevDiag));
 
 		model.addAttribute("drugorders", drugorders);
+
+		model.addAttribute("currentRegimen", getCurrentRegimen(drugorders));
 
 		model.addAttribute("labdata", prepareLabData(labTestsConcepts, p, conceptsIdsToGraph));
 
@@ -626,4 +612,20 @@ public class DefaultPatientSummaryController {
 				.toString();
 	}
 
+	private MoHDrugOrder getCurrentRegimen(List<MoHDrugOrder> orders) {
+		MoHDrugOrder o = null;
+		Date today = Calendar.getInstance(Context.getLocale()).getTime();
+
+		Collections.sort(orders, new Comparator<MoHDrugOrder>() {
+			public int compare(MoHDrugOrder o1, MoHDrugOrder o2) {
+				return o1.getDrugOrder().getDateCreated().compareTo(o2.getDrugOrder().getDateCreated());
+			}
+		});
+		for(MoHDrugOrder ord : orders) {
+			if(ord.getIsActive() && ord.getStartDate().before(today) && ((ord.getStopDate() != null && ord.getStopDate().after(today)) || ord.getStopDate() == null))
+				o = ord;
+		}
+
+		return o;
+	}
 }
