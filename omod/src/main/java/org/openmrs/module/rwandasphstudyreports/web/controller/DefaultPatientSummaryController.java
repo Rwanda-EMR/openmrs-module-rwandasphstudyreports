@@ -1,6 +1,5 @@
 package org.openmrs.module.rwandasphstudyreports.web.controller;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.*;
@@ -9,6 +8,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.mohorderentrybridge.MoHDrugOrder;
 import org.openmrs.module.mohorderentrybridge.api.MoHOrderEntryBridgeService;
 import org.openmrs.module.rwandasphstudyreports.CDCRulesAlgorithm;
+import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -138,10 +138,8 @@ public class DefaultPatientSummaryController {
 		CDCRulesAlgorithm cdcRulrsAlgorithm = new CDCRulesAlgorithm();
 
 		model.addAttribute("programs", patientPrograms);
-
 		model.addAttribute("notes", preparedNotes);
 		model.addAttribute("notesText", notesText);
-
 		model.addAttribute("locale", Context.getLocale());
 		model.addAttribute("agestring", getAgeString(p));
 		model.addAttribute("alerts", prepareAlerts(conceptsToWatch, p));
@@ -152,18 +150,12 @@ public class DefaultPatientSummaryController {
 		model.addAttribute("adverse", prepareMostRecentObs(adverseEffect));
 		model.addAttribute("symptoms", prepareMostRecentObs(symptomPresent));
 		model.addAttribute("prevdiags", prepareMostRecentObs(prevDiag));
-
 		model.addAttribute("drugorders", drugorders);
-
-		model.addAttribute("currentRegimen", getCurrentRegimen(drugorders));
-
+		model.addAttribute("currentRegimen", Context.getService(CDCReportsService.class).getCurrentRegimen(drugorders));
 		model.addAttribute("labdata", prepareLabData(labTestsConcepts, p, conceptsIdsToGraph));
-
 		model.addAttribute("graphdata", prepareGraphData(conceptsToGraph, p));
 		model.addAttribute("graphconcepts", conceptsIdsToGraph.split(","));
-
-		List<Relationship> relationships = Context.getPersonService().getRelationshipsByPerson(p);
-		model.addAttribute("relationships", relationships);
+		model.addAttribute("relationships", Context.getPersonService().getRelationshipsByPerson(p));
 	}
 
 	// for given set of concepts to watch, find null concepts or concepts not
@@ -613,20 +605,4 @@ public class DefaultPatientSummaryController {
 				.toString();
 	}
 
-	private String getCurrentRegimen(List<MoHDrugOrder> orders) {
-		List<String> o = new ArrayList<String>();
-		Date today = Calendar.getInstance(Context.getLocale()).getTime();
-
-		Collections.sort(orders, new Comparator<MoHDrugOrder>() {
-			public int compare(MoHDrugOrder o1, MoHDrugOrder o2) {
-				return o1.getDrugOrder().getDateCreated().compareTo(o2.getDrugOrder().getDateCreated());
-			}
-		});
-		for(MoHDrugOrder ord : orders) {
-			if(ord.getIsActive() && ord.getStartDate().before(today) && ((ord.getStopDate() != null && ord.getStopDate().after(today)) || ord.getStopDate() == null))
-				o.add(ord.getDrugOrder().getDrug().getDisplayName());
-		}
-
-		return StringUtils.join(o, ", ");
-	}
 }

@@ -15,6 +15,7 @@ package org.openmrs.module.rwandasphstudyreports.api;
 
 import org.openmrs.*;
 import org.openmrs.api.OpenmrsService;
+import org.openmrs.module.mohorderentrybridge.MoHDrugOrder;
 import org.openmrs.module.reporting.report.Report;
 import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
@@ -91,7 +92,11 @@ public interface CDCReportsService extends OpenmrsService {
 
 	public List<Patient> getHIVPositivePatientsOnARVTreatment();
 
-	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet();
+	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet(Date startDate, Date endDate, String[] datesToMatch);
 
 	public Date getHIVEnrollmentDate(Patient patient);
+
+	public boolean matchTestEnrollmentAndArtInitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate, String[] datesToMatch, Date startDate, Date endDate);
+
+	public String getCurrentRegimen(List<MoHDrugOrder> orders);
 }

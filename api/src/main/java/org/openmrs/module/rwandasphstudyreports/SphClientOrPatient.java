@@ -1,5 +1,7 @@
 package org.openmrs.module.rwandasphstudyreports;
 
+import org.openmrs.Patient;
+
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import java.util.List;
 public class SphClientOrPatient {
     public SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     private Integer id;
+    private String tracnetId;
     private String name;
     private String sex;
     private String birthDate;
@@ -18,12 +21,15 @@ public class SphClientOrPatient {
     private String address;
     private String peerEducator;
     private String peerEducatorTelephone;
+    private String contactPerson;
+    private String contactPersonTelephone;
     private String hivEnrollmentDate;
     private String registrationDate;
     private String artInitiationDate;
     private List<String> alerts;
-
     private String type;
+    private String currentOrLastRegimen;
+    private Patient patient;
 
     public Integer getId() {
         return id;
@@ -31,6 +37,14 @@ public class SphClientOrPatient {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getTracnetId() {
+        return tracnetId;
+    }
+
+    public void setTracnetId(String tracnetId) {
+        this.tracnetId = tracnetId;
     }
 
     public String getName() {
@@ -143,6 +157,37 @@ public class SphClientOrPatient {
 
     public void setArtInitiationDate(String artInitiationDate) {
         this.artInitiationDate = artInitiationDate;
+    }
+    public String getContactPerson() {
+        return contactPerson;
+    }
+
+    public void setContactPerson(String contactPerson) {
+        this.contactPerson = contactPerson;
+    }
+
+    public String getContactPersonTelephone() {
+        return contactPersonTelephone;
+    }
+
+    public void setContactPersonTelephone(String contactPersonTelephone) {
+        this.contactPersonTelephone = contactPersonTelephone;
+    }
+
+    public String getCurrentOrLastRegimen() {
+        return currentOrLastRegimen;
+    }
+
+    public void setCurrentOrLastRegimen(String currentOrLastRegimen) {
+        this.currentOrLastRegimen = currentOrLastRegimen;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
     }
 
     public enum SphClientOrPatientType {

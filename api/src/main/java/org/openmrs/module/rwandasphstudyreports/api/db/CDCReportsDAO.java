@@ -14,9 +14,11 @@
 package org.openmrs.module.rwandasphstudyreports.api.db;
 
 import org.openmrs.*;
+import org.openmrs.module.mohorderentrybridge.MoHDrugOrder;
 import org.openmrs.module.rwandasphstudyreports.SphClientOrPatient;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,7 +36,11 @@ public interface CDCReportsDAO {
 
 	public List<Patient> getHIVPositivePatientsOnARVTreatment();
 
-	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet();
+	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet(Date startDate, Date endDate, String[] datesToMatch);
 
-	public List<Patient> getPatientsInHIVProgram(Program program);
+	public List<Patient> getPatientsInHIVProgram(Program program, Date starDate, Date endDate);
+
+	public boolean matchTestEnrollmentAndArtInitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate, String[] datesToMatch, Date startDate, Date endDate);
+
+	public String getCurrentRegimen(List<MoHDrugOrder> orders);
 }

@@ -26,7 +26,7 @@ public class GlobalPropertyConstants {
 
 	public static String ARV_CONCEPT_IDS = "rwandasphstudyreports.arvConceptIdList";
 
-	public static String MONTHS_ALLOWANCE_TOENROLLMENT = "rwandasphstudyreports.monthsAllowanceBackwardsToEnrollmentDate";
+	public static String MONTHS_ALLOWANCE_FOR_CONSULTATIONSHEET = "rwandasphstudyreports.monthsAllowanceBackwardsForConsultationSheet";
 
 	public static String DISABLE_REPORTS = "rwandasphstudyreports.disableReports";
 }

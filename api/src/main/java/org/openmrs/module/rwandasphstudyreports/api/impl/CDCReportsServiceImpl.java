@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.*;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
+import org.openmrs.module.mohorderentrybridge.MoHDrugOrder;
 import org.openmrs.module.reporting.definition.DefinitionSummary;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.report.Report;
@@ -487,11 +488,20 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		return getDao().getHIVPositivePatientsOnARVTreatment();
 	}
 
-	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet() {
-		return getDao().getHIVPositiveClientsOrPatientsForConsultationSheet();
+	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet(Date startDate, Date endDate, String[] datesToMatch) {
+		return getDao().getHIVPositiveClientsOrPatientsForConsultationSheet(startDate, endDate, datesToMatch);
 	}
 
-	public List<Patient> getPatientsInHIVProgram(Program program) {
-		return getDao().getPatientsInHIVProgram(program);
+	public List<Patient> getPatientsInHIVProgram(Program program, Date starDate, Date endDate) {
+		return getDao().getPatientsInHIVProgram(program, starDate, endDate);
+	}
+
+	public boolean matchTestEnrollmentAndArtInitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate, String[] datesToMatch, Date startDate, Date endDate) {
+		return getDao().matchTestEnrollmentAndArtInitDates(testDate, hivEnrollmentDate, artInitDate, datesToMatch, startDate, endDate);
+	}
+
+	@Override
+	public String getCurrentRegimen(List<MoHDrugOrder> orders) {
+		return getDao().getCurrentRegimen(orders);
 	}
 }

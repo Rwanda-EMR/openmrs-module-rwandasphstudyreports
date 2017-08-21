@@ -13,20 +13,11 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openmrs.Concept;
-import org.openmrs.EncounterType;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.PatientProgram;
-import org.openmrs.Program;
+import org.openmrs.*;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProgramWorkflowService;
@@ -41,6 +32,10 @@ import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.reports.BaseSPHReportConfig;
 import org.openmrs.module.rwandasphstudyreports.reports.PatientsWithNoVLAfter8Months;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
+
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
 
 /**
  * Tests {@link CDCReportsService}.
@@ -206,5 +201,54 @@ public class CDCReportsServiceTest extends BaseModuleContextSensitiveTest {
 		patientService.savePatient(patient);
 
 		Assert.assertFalse(service.checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(viralLoadConcept, 8, hivProgram, patient));
+	}
+
+	@Test
+	public void testDatesMatch() {
+		Calendar c = Calendar.getInstance();
+		Calendar t = (Calendar) c.clone();
+		Calendar h = (Calendar) c.clone();
+		Calendar a = (Calendar) c.clone();
+		Calendar s = (Calendar) c.clone();
+		Calendar e = (Calendar) c.clone();
+		Calendar before = (Calendar) c.clone();
+
+		t.add(Calendar.MONTH, -3);
+		h.add(Calendar.MONTH, -2);
+		a.add(Calendar.MONTH, -1);
+		s.add(Calendar.MONTH, -4);
+		e.add(Calendar.MONTH, 0);
+		before.add(Calendar.MONTH, -5);
+
+		boolean match = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"test", "enrollment", "initiation"}, s.getTime(), e.getTime());
+		boolean match1 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"test", "initiation"}, s.getTime(), e.getTime());
+		boolean match2 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"enrollment", "initiation"}, s.getTime(), e.getTime());
+		boolean match3 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"test", "enrollment"}, s.getTime(), e.getTime());
+		boolean match4 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), null, s.getTime(), e.getTime());
+		boolean match5 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), null, s.getTime(), e.getTime());
+		boolean match6 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), null, s.getTime(), e.getTime());
+		boolean match7 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[0], s.getTime(), e.getTime());
+		boolean match8 = service.matchTestEnrollmentAndArtInitDates(null, h.getTime(), a.getTime(), new String[] {"test", "enrollment", "initiation"}, s.getTime(), e.getTime());
+		boolean match9 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), null, null, new String[] {"test"}, s.getTime(), e.getTime());
+		boolean match10 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"test", "enrollment", "initiation"}, null, e.getTime());
+		boolean match11 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), null, null, new String[] {"test", "enrollment", "initiation"}, s.getTime(), e.getTime());
+		boolean match12 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"test", "enrollment", "initiation"}, new Date(), e.getTime());
+		boolean match13 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"test", "enrollment", "initiation"}, s.getTime(), before.getTime());
+
+		Assert.assertTrue(match);
+		Assert.assertTrue(match1);
+		Assert.assertTrue(match2);
+		Assert.assertTrue(match3);
+		Assert.assertTrue(match4);
+		Assert.assertTrue(match5);
+		Assert.assertTrue(match6);
+		Assert.assertTrue(match7);
+		Assert.assertTrue(match8);
+		Assert.assertTrue(match9);
+		Assert.assertTrue(match10);
+		Assert.assertFalse(match11);
+		Assert.assertFalse(match11);
+		Assert.assertFalse(match12);
+		Assert.assertFalse(match13);
 	}
 }
