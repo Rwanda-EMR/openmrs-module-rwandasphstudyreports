@@ -1,7 +1,5 @@
 package org.openmrs.module.rwandasphstudyreports;
 
-import org.openmrs.Patient;
-
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -29,7 +27,6 @@ public class SphClientOrPatient {
     private List<String> alerts;
     private String type;
     private String currentOrLastRegimen;
-    private Patient patient;
 
     public Integer getId() {
         return id;
@@ -180,14 +177,6 @@ public class SphClientOrPatient {
 
     public void setCurrentOrLastRegimen(String currentOrLastRegimen) {
         this.currentOrLastRegimen = currentOrLastRegimen;
-    }
-
-    public Patient getPatient() {
-        return patient;
-    }
-
-    public void setPatient(Patient patient) {
-        this.patient = patient;
     }
 
     public enum SphClientOrPatientType {

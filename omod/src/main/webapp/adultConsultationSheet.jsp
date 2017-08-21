@@ -10,13 +10,13 @@
     <spring:message code="rwandasphstudyreports.startdate"/> <input type="text" id="startDate" size="11" value="${startDate}" name="startDate" onclick="showCalendar(this)" />
     <spring:message code="rwandasphstudyreports.enddate"/> <input type="text" id="endDate" size="11" value="${endDate}" name="endDate" onclick="showCalendar(this)" />
     <spring:message code="rwandasphstudyreports.datesToMatch"/>
-    <select id="dates-to-match" multiple name="datesToMatch">
+    <select multiple name="datesToMatch">
         <option value="test" <c:if test="${testDateMatch}"> selected</c:if>>HIV Test</option>
         <option value="enrollment" <c:if test="${enrollmentDateMatch}"> selected</c:if>>HIV Enrollment</option>
         <option value="initiation" <c:if test="${initiationDateMatch}"> selected</c:if>>ART Initiation</option>
     </select>
     <input type="submit" value="<spring:message code='general.submit'/>"/>
-    <input type="button" id="dates-to-match-reset" onclick="" value="<spring:message code='rwandasphstudyreports.reset'/>"/>
+    <input type="button" onclick="window.location.href = 'adultConsultationSheet.form'" value="<spring:message code='rwandasphstudyreports.reset'/>"/>
 </form>
 <br/>
 <br/>
@@ -32,10 +32,6 @@
         jQuery("#export").click(function() {
             jQuery("#printTable").tableToCSV(jQuery("h2").text() + '_startDate: ' + jQuery("#startDate").val() + ' endDate: ' + jQuery("#endDate").val());
         });
-        jQuery("#dates-to-match-reset").click(function () {
-            //jQuery("#dates-to-match").children().removeAttr('selected');
-            window.location.href = 'adultConsultationSheet.form';
-        })
     });
 </script>
 
@@ -75,8 +71,8 @@
             <td>${cOrP.telephone}</td>
             <td>${cOrP.type}</td>
             <td>${cOrP.address}</td>
-            <td>${cOrP.peerEducator}<c:if test=""> (${cOrP.peerEducatorTelephone})</c:if></td>
-            <td>${cOrP.contactPerson}  ${cOrP.contactPersonTelephone}</td>
+            <td>${cOrP.peerEducator}<c:if test="${not empty cOrP.peerEducatorTelephone}"> (${cOrP.peerEducatorTelephone})</c:if></td>
+            <td>${cOrP.contactPerson}<c:if test="${not empty cOrP.contactPersonTelephone}"> (${cOrP.contactPersonTelephone})</c:if></td>
             <td>${cOrP.dateTestedForHIV}</td>
             <td>${cOrP.registrationDate}</td>
             <td>${cOrP.hivEnrollmentDate}</td>
