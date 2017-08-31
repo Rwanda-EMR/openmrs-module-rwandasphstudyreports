@@ -29,4 +29,6 @@ public class GlobalPropertyConstants {
 	public static String MONTHS_ALLOWANCE_FOR_CONSULTATIONSHEET = "rwandasphstudyreports.monthsAllowanceBackwardsForConsultationSheet";
 
 	public static String DISABLE_REPORTS = "rwandasphstudyreports.disableReports";
+	
+	public static String ARV_ADHERENCE_OBS_CONCEPTID = "rwandasphstudyreports.arvAdherenceObservationsConceptId";
 }

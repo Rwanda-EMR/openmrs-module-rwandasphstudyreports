@@ -24,8 +24,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
-import org.openmrs.module.rwandasphstudyreports.reports.SetupAdultHIVConsultationSheet;
-import org.openmrs.module.rwandasphstudyreports.reports.SetupAdultLateVisitAndCD4Report;
 import org.openmrs.web.WebConstants;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -53,15 +51,7 @@ public class RwandaReportsForCDCManageController {
 	@RequestMapping(value = "/module/rwandasphstudyreports/executeReports", method = RequestMethod.POST)
 	public void executeReports(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		if (request.getParameter("formAction").equals("aRTMonthly")) {
-			new SetupAdultLateVisitAndCD4Report().setup();
-		} else if (request.getParameter("formAction").equals("consultSheetSetup")) {
-			new SetupAdultHIVConsultationSheet().setup();
-		} else if (request.getParameter("formAction").equals("indicatorReport")) {
-			// new SetupIDProgramQuarterlyIndicatorReport().setup();
-		} else if (request.getParameter("formAction").equals("dataQualityReport")) {
-			// new SetupDataQualityIndicatorReport().setup();
-		} else if (request.getParameter("formAction").equals("lostToFollowPatiensReport")) {
-			// new SetupLostToFollowupPatients().setup();
+			//new SetupAdultLateVisitAndCD4Report().setup();
 		}
 	}
 

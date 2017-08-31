@@ -21,7 +21,6 @@
 		<require_module>org.openmrs.module.reporting</require_module>
 		<require_module>org.openmrs.module.mohorderentrybridge</require_module>
 		<require_module>org.openmrs.module.orderextension</require_module>
-		<require_module>org.openmrs.module.reportingcompatibility</require_module>
 		<require_module>org.openmrs.module.vcttrac</require_module>
 	</require_modules>
 	<!-- / Required Modules -->
@@ -44,6 +43,10 @@
 	<extension>
 		<point>org.openmrs.patientDashboardTab</point>
 		<class>${project.parent.groupId}.${project.parent.artifactId}.extension.html.QuickDataEntryTab</class>
+	</extension>
+	<extension>
+		<point>org.openmrs.patientDashboardTab</point>
+		<class><class>${project.parent.groupId}.${project.parent.artifactId}.extension.html.ScreeningTab</class></class>
 	</extension>
 	
 	<!-- Maps hibernate file's, if present -->
@@ -483,6 +486,11 @@
 		<property>rwandasphstudyreports.disableReports</property>
 		<defaultValue>false</defaultValue>
 		<description>when set to true disables Rwanda specific reports</description>
+	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.arvAdherenceObservationsConceptId</property>
+		<defaultValue>2681</defaultValue>
+		<description>ANTIRETROVIRAL DRUG ADHERENCE OBSERVATIONS concept id</description>
 	</globalProperty>
 </module>
 

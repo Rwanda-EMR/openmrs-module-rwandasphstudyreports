@@ -1,11 +1,5 @@
 package org.openmrs.module.rwandasphstudyreports;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -14,6 +8,12 @@ import org.openmrs.ConceptAnswer;
 import org.openmrs.Location;
 import org.openmrs.Provider;
 import org.openmrs.api.context.Context;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class QuickDataEntry {
 
@@ -50,7 +50,7 @@ public class QuickDataEntry {
 			String providerUuid = json.getString("providerUuid");
 			String locationUuid = json.getString("locationUuid");
 			Object result = ("Boolean".equals(getTestType())) ? json.getBoolean("result") : json.getString("result");
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			SimpleDateFormat sdf = Context.getDateFormat();
 
 			setDateOfExam(sdf.parse(date));
 			setTest(Context.getConceptService().getConcept(Integer.parseInt(conceptId)));

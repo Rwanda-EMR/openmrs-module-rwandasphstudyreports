@@ -73,8 +73,8 @@
             <td>${cOrP.address}</td>
             <td>${cOrP.peerEducator}<c:if test="${not empty cOrP.peerEducatorTelephone}"> (${cOrP.peerEducatorTelephone})</c:if></td>
             <td>${cOrP.contactPerson}<c:if test="${not empty cOrP.contactPersonTelephone}"> (${cOrP.contactPersonTelephone})</c:if></td>
-            <td>${cOrP.dateTestedForHIV}</td>
             <td>${cOrP.registrationDate}</td>
+            <td>${cOrP.dateTestedForHIV}</td>
             <td>${cOrP.hivEnrollmentDate}</td>
             <td>${cOrP.artInitiationDate}</td>
             <td>${cOrP.currentOrLastRegimen}</td>

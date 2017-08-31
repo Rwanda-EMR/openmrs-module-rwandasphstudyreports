@@ -1,13 +1,11 @@
 package org.openmrs.module.rwandasphstudyreports;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
  * Created by k-joseph on 01/06/2017.
  */
 public class SphClientOrPatient {
-    public SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     private Integer id;
     private String tracnetId;
     private String name;

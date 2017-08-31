@@ -13,11 +13,21 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api;
 
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openmrs.*;
+import org.openmrs.Concept;
+import org.openmrs.EncounterType;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.PatientProgram;
+import org.openmrs.Program;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProgramWorkflowService;
@@ -32,10 +42,6 @@ import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.reports.BaseSPHReportConfig;
 import org.openmrs.module.rwandasphstudyreports.reports.PatientsWithNoVLAfter8Months;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
 
 /**
  * Tests {@link CDCReportsService}.
@@ -171,7 +177,8 @@ public class CDCReportsServiceTest extends BaseModuleContextSensitiveTest {
 		Calendar hivPos = Calendar.getInstance();
 		Calendar eightMonthsAfterHivEnrollment = Calendar.getInstance();
 		Collection<Integer> hivPatients = programService.patientsInProgram(hivProgram, null, null);
-
+		List<Obs> ops = obsService.getObservationsByPerson(patient);
+		
 		for (Integer ip : hivPatients) {
 			for (PatientProgram pp : programService.getPatientPrograms(patientService.getPatient(ip)))
 				programService.purgePatientProgram(pp);
@@ -183,7 +190,7 @@ public class CDCReportsServiceTest extends BaseModuleContextSensitiveTest {
 		eightMonthsAfterHivEnrollment.add(Calendar.MONTH, 8);
 		age30.add(Calendar.YEAR, -30);
 		patient.setBirthdate(age30.getTime());
-		for (Obs o : obsService.getObservationsByPerson(patient))
+		for (Obs o : ops)
 			obsService.purgeObs(o);
 
 		Obs hivPositiveObs = service.createObs(hivStatusConcept, hivPositive, hivPos.getTime(), null);
@@ -201,6 +208,12 @@ public class CDCReportsServiceTest extends BaseModuleContextSensitiveTest {
 		patientService.savePatient(patient);
 
 		Assert.assertFalse(service.checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(viralLoadConcept, 8, hivProgram, patient));
+		
+		List<Obs> os = Context.getObsService().getVoidedObservations();
+		
+		for (Obs o : os) {
+			System.out.println(o);
+		}
 	}
 
 	@Test

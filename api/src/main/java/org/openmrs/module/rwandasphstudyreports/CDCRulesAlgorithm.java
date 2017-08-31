@@ -1,13 +1,18 @@
 package org.openmrs.module.rwandasphstudyreports;
 
-import org.openmrs.*;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
+import org.openmrs.Encounter;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.Visit;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 
 public class CDCRulesAlgorithm {
 	public List<String> cdcDsRulesAlerts(Patient patient) {
@@ -20,12 +25,9 @@ public class CDCRulesAlgorithm {
 		List<Visit> visits = Context.getVisitService().getVisitsByPatient(patient);
 		Date lastVisitDate = null;
 		DrugOrder artInitDrug = Context.getService(CDCReportsService.class).getARTInitiationDrug(patient);
-		List<Obs> cd4Obs = getOnlyObsWithDatetimeMoreThanNMonthsAfterStartingDate(
-				Context.getObsService().getObservationsByPersonAndConcept(patient, cd4),
-				artInitDrug != null ? artInitDrug.getEffectiveStartDate() : null, 2);
+		List<Obs> cd4Obs = Context.getObsService().getObservationsByPersonAndConcept(patient, cd4);
 		boolean patientsWithNoVLAfter8Months = false;
 		Date enrollmentDate = Context.getService(CDCReportsService.class).getHIVEnrollmentDate(patient);
-		boolean cd4After6MonthsFromEnrollment = checkIfNoObsNMonthsFromDate(cd4Obs, 6, enrollmentDate);
 		boolean vlAfter6MonthsFromEnrollment = checkIfNoObsNMonthsFromDate(vLObs, 6, enrollmentDate);
 
 		visits = Context.getService(CDCReportsService.class).sortVisitsListByCreationDate(visits);
@@ -41,42 +43,50 @@ public class CDCRulesAlgorithm {
 			lastVisitDate = visits.get(0).getDateCreated();
 		}
 		if (lastVisitDate != null) {
-			if (getOnlyObsWithDatetimeMoreThanNMonthsAfterStartingDate(vLObs, artInitDrug != null ? artInitDrug.getEffectiveStartDate() : null, 8).isEmpty()
-					&& Context.getService(CDCReportsService.class).checkIfPatientIsOnARVMoreThanNMonths(patient, 6)
-					&& Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
-					&& vlAfter6MonthsFromEnrollment) {
+			if (vLObs.isEmpty()
+					&& Context.getService(CDCReportsService.class).checkIfPatientIsOnARVMoreThanNMonths(patient, 8)
+					&& Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)) {
 				alerts.add(
 						Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.orderBaselineVL"));
 			}
 		}
-		if (cd4Obs.isEmpty() && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
-				&& cd4After6MonthsFromEnrollment) {
+		if (cd4Obs.isEmpty() && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)) {
 			alerts.add(Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.orderBaselineCD4"));
 		}
 
-		if (Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
-				&& Context.getService(CDCReportsService.class).checkForAtleast50PercentDecreaseInCD4(patient)
-				&& Context.getService(CDCReportsService.class).checkIfPatientIsOnARVMoreThanNMonths(patient, 12)
-				&& cd4After6MonthsFromEnrollment) {
+		if (Context.getService(CDCReportsService.class).cd4BasedTreatmentFailure(patient)) {
 			alerts.add(Context.getMessageSourceService()
 					.getMessage("rwandasphstudyreports.alerts.cd4BasedTreatmentFailure"));
 		}
-		
-		if(artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 6) && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
-				&& vlAfter6MonthsFromEnrollment
-				&& Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, null, null, patient)) {
+
+		if (artInitDrug != null
+				&& Context.getService(CDCReportsService.class)
+						.checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 6)
+				&& Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
+				&& vlAfter6MonthsFromEnrollment && Context.getService(CDCReportsService.class)
+						.checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, null, null, patient)) {
 			alerts.add(Context.getMessageSourceService()
 					.getMessage("rwandasphstudyreports.alerts.patientsWithNoVLAfter8Months"));
 			patientsWithNoVLAfter8Months = true;
 		}
-		if(artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 6) && !patientsWithNoVLAfter8Months && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
-				&& Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, 6, null, patient))
-			alerts.add(Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.patientsWithNoVLAfter6Months"));
-		if(artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 6) && Context.getService(CDCReportsService.class).checkIfPatientListedAsBeingAViralLoadTreatmentFailureCase(patient))
+		if (artInitDrug != null
+				&& Context.getService(CDCReportsService.class)
+						.checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 6)
+				&& !patientsWithNoVLAfter8Months
+				&& Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
+				&& Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null,
+						6, null, patient))
+			alerts.add(Context.getMessageSourceService()
+					.getMessage("rwandasphstudyreports.alerts.patientsWithNoVLAfter6Months"));
+		if (artInitDrug != null
+				&& Context.getService(CDCReportsService.class)
+						.checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 6)
+				&& Context.getService(CDCReportsService.class)
+						.checkIfPatientListedAsBeingAViralLoadTreatmentFailureCase(patient))
 			alerts.add(Context.getMessageSourceService()
 					.getMessage("rwandasphstudyreports.alerts.patientsPartOfVLTreatmentFailureList"));
 		if (!vLObs.isEmpty()) {
-			Date vLDate = vLObs.get(vLObs.size() - 1).getObsDatetime();
+			Date vLDate = vLObs.get(0).getObsDatetime();
 			Calendar vLCalendar = Calendar.getInstance(Context.getLocale());
 			Calendar currentVisitDate = Calendar.getInstance(Context.getLocale());
 
@@ -89,22 +99,18 @@ public class CDCRulesAlgorithm {
 					alerts.add(
 							Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.orderRepeatVL"));
 				}
-
 			}
-			if (artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 6) && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositive(patient)
-					&& Context.getService(CDCReportsService.class).checkIfPatientIsOnARVMoreThanNMonths(patient, 6)
-					&& vLObs.get(vLObs.size() - 1).getValueNumeric() > 1000 && vlAfter6MonthsFromEnrollment) {
+			if (Context.getService(CDCReportsService.class).vlBasedTreatmentFailure(patient)) {
 				alerts.add(Context.getMessageSourceService()
 						.getMessage("rwandasphstudyreports.alerts.vlBasedTreatmentFailure"));
 			}
-
 		}
 
 		return alerts;
 	}
 
 	private boolean checkIfNoObsNMonthsFromDate(List<Obs> obs, Integer nMonths, Date date) {
-		if(!obs.isEmpty())  {
+		if (!obs.isEmpty()) {
 			Calendar c = Calendar.getInstance();
 
 			c.setTime(date);
@@ -114,31 +120,21 @@ public class CDCRulesAlgorithm {
 			c.set(Calendar.SECOND, 00);
 			c.set(Calendar.MILLISECOND, 00);
 
-			for(Obs o : obs) {
-				if(o.getObsDatetime() != null && o.getObsDatetime().before(c.getTime()))
+			for (Obs o : obs) {
+				if (o.getObsDatetime() != null && o.getObsDatetime().before(c.getTime()))
 					return false;
 			}
 		}
 		return true;
 	}
 
-	private boolean checkIfDateIsNMonthsFromNow(Date date, Integer nMonths) {
-		if(date != null && nMonths != null) {
-			Calendar c = Calendar.getInstance();
-
-			c.setTime(date);
-			c.add(Calendar.MONTH, -nMonths);
-			return c.getTime().after(date);
-		}
-		return false;
-	}
-
-	private Date getCurrentVisitEndDate(Patient patient) {
+	public static Date getCurrentVisitEndDate(Patient patient) {
 		Visit activeVisit = Context.getService(CDCReportsService.class).getActiveVisit(patient, null);
 		List<Encounter> encs = Context.getEncounterService().getEncountersByPatient(patient);
 		encs = Context.getService(CDCReportsService.class).sortEncountersListByCreationDate(encs);
 
-		if (activeVisit != null && activeVisit.getStopDatetime() != null && activeVisit.getStopDatetime().before(new Date())) {
+		if (activeVisit != null && activeVisit.getStopDatetime() != null
+				&& activeVisit.getStopDatetime().before(new Date())) {
 			return activeVisit.getStopDatetime();
 		} else {
 			if (!encs.isEmpty())
@@ -147,23 +143,5 @@ public class CDCRulesAlgorithm {
 			else
 				return new Date();
 		}
-	}
-
-	private List<Obs> getOnlyObsWithDatetimeMoreThanNMonthsAfterStartingDate(List<Obs> obsList, Date startingDate,
-			Integer months) {
-		List<Obs> matchedObs = new ArrayList<Obs>();
-
-		if (obsList.size() > 0 && startingDate != null && months != null) {
-			Calendar d = Calendar.getInstance(Context.getLocale());
-
-			d.setTime(startingDate);
-			d.add(Calendar.MONTH, months);
-			for (Obs o : obsList) {
-				if (o.getObsDatetime().after(d.getTime())) {
-					matchedObs.add(o);
-				}
-			}
-		}
-		return matchedObs;
 	}
 }

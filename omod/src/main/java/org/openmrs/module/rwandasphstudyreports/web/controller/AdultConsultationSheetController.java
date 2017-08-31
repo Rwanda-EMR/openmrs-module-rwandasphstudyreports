@@ -28,14 +28,12 @@ public class AdultConsultationSheetController {
         GlobalProperty period = Context.getAdministrationService().getGlobalPropertyObject(GlobalPropertyConstants.MONTHS_ALLOWANCE_FOR_CONSULTATIONSHEET);
         Calendar startDate = Calendar.getInstance();
         Date endDate = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-
 
         if(period != null && StringUtils.isNotBlank(period.getPropertyValue()))
             startDate.add(Calendar.MONTH, - Integer.parseInt(period.getPropertyValue()));
 
-        model.addAttribute("startDate", sdf.format(startDate.getTime()));
-        model.addAttribute("endDate", sdf.format(endDate));
+        model.addAttribute("startDate", Context.getDateFormat().format(startDate.getTime()));
+        model.addAttribute("endDate", Context.getDateFormat().format(endDate));
         model.addAttribute("clientsAndPatients", Context.getService(CDCReportsService.class).getHIVPositiveClientsOrPatientsForConsultationSheet(startDate.getTime(), endDate, null));
         model.addAttribute("testDateMatch", false);
         model.addAttribute("enrollmentDateMatch", false);
@@ -44,10 +42,9 @@ public class AdultConsultationSheetController {
 
     @RequestMapping(value = "/module/rwandasphstudyreports/adultConsultationSheet", method = RequestMethod.POST)
     public void post(ModelMap model, HttpServletRequest request) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         String[] selectedDateMatches = request.getParameterValues("datesToMatch");
 
-        model.addAttribute("clientsAndPatients", Context.getService(CDCReportsService.class).getHIVPositiveClientsOrPatientsForConsultationSheet(extractDate(request.getParameter("startDate"), sdf), extractDate(request.getParameter("endDate"), sdf), selectedDateMatches));
+        model.addAttribute("clientsAndPatients", Context.getService(CDCReportsService.class).getHIVPositiveClientsOrPatientsForConsultationSheet(extractDate(request.getParameter("startDate"), Context.getDateFormat()), extractDate(request.getParameter("endDate"), Context.getDateFormat()), selectedDateMatches));
         model.addAttribute("startDate", request.getParameter("startDate"));
         model.addAttribute("endDate", request.getParameter("endDate"));
         model.addAttribute("testDateMatch", selectedDateMatches != null && ArrayUtils.contains(selectedDateMatches, "test"));

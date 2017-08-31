@@ -13,9 +13,31 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api.impl;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openmrs.*;
+import org.openmrs.Cohort;
+import org.openmrs.Concept;
+import org.openmrs.ConceptDatatype;
+import org.openmrs.ConceptName;
+import org.openmrs.Drug;
+import org.openmrs.DrugOrder;
+import org.openmrs.Encounter;
+import org.openmrs.Location;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.PatientProgram;
+import org.openmrs.Person;
+import org.openmrs.Program;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.mohorderentrybridge.MoHDrugOrder;
@@ -37,9 +59,6 @@ import org.openmrs.module.rwandasphstudyreports.SphClientOrPatient;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.openmrs.module.rwandasphstudyreports.api.db.CDCReportsDAO;
 import org.openmrs.module.rwandasphstudyreports.reports.BaseSPHReportConfig;
-
-import java.text.ParseException;
-import java.util.*;
 
 /**
  * It is a default implementation of {@link CDCReportsService}.
@@ -72,22 +91,22 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	@Override
 	public ReportRequest executeAndGetPatientsWithNoVLAfter8MonthsReportRequest() {
 		ReportRequest repReq = executeAndGetReportRequest(BaseSPHReportConfig.PATIENTSWITHNOVLAFTER8MONTHS);
-		
+
 		return repReq != null ? repReq : null;
 	}
-	
+
 	@Override
 	public ReportRequest executeAndGetVLBasedTreatmentFailureReportRequest() {
 		ReportRequest repReq = executeAndGetReportRequest(BaseSPHReportConfig.VLBASEDTREATMENTFAILUREREPORT);
-		
+
 		return repReq != null ? repReq : null;
 	}
-	
+
 	private ReportRequest executeAndGetReportRequest(String uuid) {
 		DefinitionSummary repDefSum = null;
 		ReportRequest reportRequest = getTodayReportRequest(uuid);
 		Calendar startDate = Calendar.getInstance();
-		
+
 		if (reportRequest == null) {
 			List<DefinitionSummary> defs = Context.getService(ReportDefinitionService.class)
 					.getAllDefinitionSummaries(false);
@@ -98,8 +117,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 				}
 			}
 			if (repDefSum != null) {
-				ReportRequest rr = Context.getService(ReportService.class)
-						.getReportRequestByUuid(repDefSum.getUuid());
+				ReportRequest rr = Context.getService(ReportService.class).getReportRequestByUuid(repDefSum.getUuid());
 				ReportDefinition def = Context.getService(ReportDefinitionService.class)
 						.getDefinitionByUuid(repDefSum.getUuid());
 
@@ -111,8 +129,8 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 					startDate.add(Calendar.YEAR, -1);
 					rr.setStatus(ReportRequest.Status.REQUESTED);
 					rr.setPriority(ReportRequest.Priority.NORMAL);
-					//TODO fix for PatientsWithNoVLAfter8Months report
-					if(!uuid.equals(BaseSPHReportConfig.PATIENTSWITHNOVLAFTER8MONTHS))
+					// TODO fix for PatientsWithNoVLAfter8Months report
+					if (!uuid.equals(BaseSPHReportConfig.PATIENTSWITHNOVLAFTER8MONTHS))
 						rr.getReportDefinition().addParameterMapping("startDate", startDate.getTime());
 					rr.getReportDefinition().addParameterMapping("endDate", todayMidNight().getTime());
 					rr = Context.getService(ReportService.class).saveReportRequest(rr);
@@ -125,8 +143,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	}
 
 	private ReportRequest getTodayReportRequest(String uuid) {
-		ReportDefinition def = Context.getService(ReportDefinitionService.class)
-				.getDefinitionByUuid(uuid);
+		ReportDefinition def = Context.getService(ReportDefinitionService.class).getDefinitionByUuid(uuid);
 		List<ReportRequest> rrs = null;
 		ReportRequest req = null;
 		Calendar today = todayMidNight();
@@ -150,6 +167,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		today.clear(Calendar.MILLISECOND);
 		return today;
 	}
+
 	@Override
 	public Obs saveQuickDataEntry(QuickDataEntry entry, Patient patient, Encounter encounter) {
 		Obs obs = new Obs(patient, entry.getTest(), entry.getDateOfExam(), entry.getLocation());
@@ -209,16 +227,21 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		Concept hivPositive = Context.getConceptService().getConcept(Integer.parseInt(
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.HIV_POSITIVE_CONCEPTID)));
 
-		if(hiv == null)
+		if (hiv == null)
 			hiv = Context.getConceptService().getConcept(2169);
-		if(hivPositive == null)
+		if (hivPositive == null)
 			hivPositive = Context.getConceptService().getConcept(703);
 
 		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, hiv);
 
 		sortObsListByObsDateTime(vLObs);
-		if (hivPositive != null && vLObs != null && !vLObs.isEmpty()) {// check last status reported instead
-			if (hivPositive.getConceptId().equals(vLObs.get(0).getValueCoded() != null ? vLObs.get(0).getValueCoded().getConceptId() : null))
+		if (hivPositive != null && vLObs != null && !vLObs.isEmpty()) {// check
+																		// last
+																		// status
+																		// reported
+																		// instead
+			if (hivPositive.getConceptId()
+					.equals(vLObs.get(0).getValueCoded() != null ? vLObs.get(0).getValueCoded().getConceptId() : null))
 				return true;
 		}
 		return false;
@@ -285,13 +308,15 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		return false;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Date getHIVEnrollmentDate(Patient patient) {
 		GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 		Program program = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
-		List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, null, null, null, false));
+		List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient, program,
+				null, null, null, null, false));
 
-		if(!pp.isEmpty())
+		if (!pp.isEmpty())
 			return pp.get(0).getDateEnrolled();
 		return null;
 	}
@@ -308,55 +333,60 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 
 		sortObsListByObsDateTime(vLObs);
 
-		if (vLObs.size() > 2 && (vLObs.get(vLObs.size() - 1).getValueNumeric() * 100)
-				/ vLObs.get(vLObs.size() - 2).getValueNumeric() >= 50) {
+		if (vLObs.size() > 2 && (vLObs.get(0).getValueNumeric() * 100) / vLObs.get(1).getValueNumeric() >= 50) {
 			return true;
 		}
 
 		return false;
 	}
-	
+
 	/**
 	 * 
-	 * @param obsQuestion, defaults to Viral load concept if null
-	 * @param nMonths, defaults to 8 if not set
-	 * @param program, defaults to HIV program if not set
-	 * @param patient, must be set
+	 * @param obsQuestion,
+	 *            defaults to Viral load concept if null
+	 * @param nMonths,
+	 *            defaults to 8 if not set
+	 * @param program,
+	 *            defaults to HIV program if not set
+	 * @param patient,
+	 *            must be set
 	 * @return
 	 */
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public boolean checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(Concept obsQuestion, Integer nMonths, Program program, Patient patient) {
-		if(patient != null) {
+	public boolean checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(Concept obsQuestion, Integer nMonths,
+			Program program, Patient patient) {
+		if (patient != null) {
 			Calendar enD = Calendar.getInstance();
 			GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
-			
-			if(nMonths == null)
+
+			if (nMonths == null)
 				nMonths = 8;
-			if(program == null)
+			if (program == null)
 				program = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
-			if(obsQuestion == null)
-				obsQuestion = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);	
-		
+			if (obsQuestion == null)
+				obsQuestion = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);
+
 			List<Obs> os = Context.getObsService().getObservationsByPersonAndConcept(patient, obsQuestion);
-			List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, null, null, null, false));
-			
-			if((os.isEmpty() && !pp.isEmpty() || (!os.isEmpty() && pp.isEmpty()) || (os.isEmpty() && pp.isEmpty())))
+			List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient,
+					program, null, null, null, null, false));
+
+			if ((os.isEmpty() && !pp.isEmpty() || (!os.isEmpty() && pp.isEmpty()) || (os.isEmpty() && pp.isEmpty())))
 				return true;
 
-			if(!os.isEmpty() && !pp.isEmpty()) {
+			if (!os.isEmpty() && !pp.isEmpty()) {
 				sortPatientProgramListByEnrollmentDate(pp);
 				sortObsListByObsDateTime(os);
 				enD.setTime(pp.get(0).getDateEnrolled());
 				enD.add(Calendar.MONTH, nMonths);
-						
-				if(os.get(0).getObsDatetime().before(enD.getTime()))
+
+				if (os.get(0).getObsDatetime().before(enD.getTime()))
 					return true;
 			}
 		}
 		return false;
 	}
-	
+
 	private void sortPatientProgramListByEnrollmentDate(List<PatientProgram> pp) {
 		Collections.sort(pp, new Comparator<PatientProgram>() {
 			public int compare(PatientProgram o1, PatientProgram o2) {
@@ -364,38 +394,39 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 			}
 		});
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public boolean checkIfPatientListedAsBeingAViralLoadTreatmentFailureCase(Patient patient) {
-		//TODO withVLDateBetweenStartAndEndDate
+		// TODO withVLDateBetweenStartAndEndDate
 		Calendar enD = Calendar.getInstance();
 		GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 		Program program = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 		Concept vl = Context.getConceptService().getConcept(Integer.parseInt(
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID)));
 		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, vl);
-		List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, null, null, null, false));
-		
-		if(!vLObs.isEmpty() && !pp.isEmpty()) {
+		List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient, program,
+				null, null, null, null, false));
+
+		if (!vLObs.isEmpty() && !pp.isEmpty()) {
 			sortPatientProgramListByEnrollmentDate(pp);
 			sortObsListByObsDateTime(vLObs);
-			
+
 			Obs o = vLObs.get(0);
 			PatientProgram p = pp.get(0);
-			
-			if(p.getDateEnrolled() != null && o.getValueNumeric() != null && o.getValueNumeric() > 1000) {
+
+			if (p.getDateEnrolled() != null && o.getValueNumeric() != null && o.getValueNumeric() > 1000) {
 				enD.setTime(p.getDateEnrolled());
 				enD.add(Calendar.MONTH, 12);
-				
-				if(p.getActive(enD.getTime()))
+
+				if (p.getActive(enD.getTime()))
 					return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	@Override
 	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
 		Obs obs = null;
@@ -405,54 +436,78 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 			obs.setConcept(concept);
 			ConceptDatatype dt = obs.getConcept().getDatatype();
 			if (dt.isNumeric()) {
-                obs.setValueNumeric(Double.parseDouble(value.toString()));
-            } else if (dt.isText()) {
-                if (value instanceof Location) {
-                    Location location = (Location) value;
-                    obs.setValueText(location.getId().toString() + " - " + location.getName());
-                } else if (value instanceof Person) {
-                    Person person = (Person) value;
-                    obs.setValueText(person.getId().toString() + " - " + person.getPersonName().toString());
-                } else {
-                    obs.setValueText(value.toString());
-                }
-            } else if (dt.isCoded()) {
-                if (value instanceof Drug) {
-                    obs.setValueDrug((Drug) value);
-                    obs.setValueCoded(((Drug) value).getConcept());
-                } else if (value instanceof ConceptName) {
-                    obs.setValueCodedName((ConceptName) value);
-                    obs.setValueCoded(obs.getValueCodedName().getConcept());
-                } else if (value instanceof Concept) {
-                    obs.setValueCoded((Concept) value);
-                }
-            } else if (dt.isBoolean()) {
-                if (value != null) {
-                    try {
-                        obs.setValueAsString(value.toString());
-                    } catch (ParseException e) {
-                        throw new IllegalArgumentException("Unable to convert " + value + " to a Boolean Obs value", e);
-                    }
-                }
-            } else if (ConceptDatatype.DATE.equals(dt.getHl7Abbreviation())
-                    || ConceptDatatype.TIME.equals(dt.getHl7Abbreviation())
-                    || ConceptDatatype.DATETIME.equals(dt.getHl7Abbreviation())) {
-                Date date = (Date) value;
-                obs.setValueDatetime(date);
-            } else if ("ZZ".equals(dt.getHl7Abbreviation())) {
-                // don't set a value
-            } else {
-                throw new IllegalArgumentException("concept datatype not yet implemented: " + dt.getName()
-                        + " with Hl7 Abbreviation: " + dt.getHl7Abbreviation());
-            }
+				obs.setValueNumeric(Double.parseDouble(value.toString()));
+			} else if (dt.isText()) {
+				if (value instanceof Location) {
+					Location location = (Location) value;
+					obs.setValueText(location.getId().toString() + " - " + location.getName());
+				} else if (value instanceof Person) {
+					Person person = (Person) value;
+					obs.setValueText(person.getId().toString() + " - " + person.getPersonName().toString());
+				} else {
+					obs.setValueText(value.toString());
+				}
+			} else if (dt.isCoded()) {
+				if (value instanceof Drug) {
+					obs.setValueDrug((Drug) value);
+					obs.setValueCoded(((Drug) value).getConcept());
+				} else if (value instanceof ConceptName) {
+					obs.setValueCodedName((ConceptName) value);
+					obs.setValueCoded(obs.getValueCodedName().getConcept());
+				} else if (value instanceof Concept) {
+					obs.setValueCoded((Concept) value);
+				}
+			} else if (dt.isBoolean()) {
+				if (value != null) {
+					try {
+						obs.setValueAsString(value.toString());
+					} catch (ParseException e) {
+						throw new IllegalArgumentException("Unable to convert " + value + " to a Boolean Obs value", e);
+					}
+				}
+			} else if (ConceptDatatype.DATE.equals(dt.getHl7Abbreviation())
+					|| ConceptDatatype.TIME.equals(dt.getHl7Abbreviation())
+					|| ConceptDatatype.DATETIME.equals(dt.getHl7Abbreviation())) {
+				Date date = (Date) value;
+				obs.setValueDatetime(date);
+			} else if ("ZZ".equals(dt.getHl7Abbreviation())) {
+				// don't set a value
+			} else {
+				throw new IllegalArgumentException("concept datatype not yet implemented: " + dt.getName()
+						+ " with Hl7 Abbreviation: " + dt.getHl7Abbreviation());
+			}
 			if (datetime != null)
-                obs.setObsDatetime(datetime);
+				obs.setObsDatetime(datetime);
+			else
+				obs.setObsDatetime(new Date());
 			if (accessionNumber != null)
-                obs.setAccessionNumber(accessionNumber);
+				obs.setAccessionNumber(accessionNumber);
 		}
 		return obs;
 	}
+
+	@Override
+	public Obs saveNewObs(Concept concept, Object value, Date datetime, String accessionNumber, Patient patient) {
+		Obs o = createObs(concept, value, datetime, accessionNumber);
+
+		if (o != null && patient != null) {
+			o.setPerson(patient);
+			return Context.getObsService().saveObs(o, null);
+		}
+		return null;
+	}
 	
+	@Override
+	public Obs saveVLBasedTreatmentFailure(Patient patient) {
+		String adherenceConceptId = Context.getAdministrationService()
+				.getGlobalProperty(GlobalPropertyConstants.ARV_ADHERENCE_OBS_CONCEPTID);
+
+		if (StringUtils.isNotBlank(adherenceConceptId) && patient != null) {
+			return saveNewObs(Context.getConceptService().getConcept(Integer.parseInt(adherenceConceptId)), getVLTreatmentFailureAction(patient), null, null, patient);		
+		}
+		return null;
+	}
+
 	@Override
 	public void enrollPatientInProgram(Patient patient, Program program, Date enrollmentDate, Date completionDate) {
 		PatientProgram p = new PatientProgram();
@@ -462,21 +517,20 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		p.setDateEnrolled(enrollmentDate);
 		p.setDateCompleted(completionDate);
 		p.setCreator(Context.getAuthenticatedUser());
-		
+
 		Context.getProgramWorkflowService().savePatientProgram(p);
 	}
-	
+
 	@Override
-	public Report runReport(ReportDefinition reportDef, Date startDate, Date endDate,
-			Location location) {
+	public Report runReport(ReportDefinition reportDef, Date startDate, Date endDate, Location location) {
 		ReportRequest request = new ReportRequest(new Mapped<ReportDefinition>(reportDef, null), null,
 				new RenderingMode(new DefaultWebRenderer(), "Web", null, 100), Priority.HIGHEST, null);
 
-		if(startDate != null)
+		if (startDate != null)
 			request.getReportDefinition().addParameterMapping("startDate", startDate);
-		if(endDate != null)
+		if (endDate != null)
 			request.getReportDefinition().addParameterMapping("endDate", endDate);
-		if(location != null)
+		if (location != null)
 			request.getReportDefinition().addParameterMapping("location", location);
 		request.setStatus(Status.PROCESSING);
 		request = Context.getService(ReportService.class).saveReportRequest(request);
@@ -488,7 +542,8 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		return getDao().getHIVPositivePatientsOnARVTreatment();
 	}
 
-	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet(Date startDate, Date endDate, String[] datesToMatch) {
+	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet(Date startDate, Date endDate,
+			String[] datesToMatch) {
 		return getDao().getHIVPositiveClientsOrPatientsForConsultationSheet(startDate, endDate, datesToMatch);
 	}
 
@@ -496,12 +551,58 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		return getDao().getPatientsInHIVProgram(program, starDate, endDate);
 	}
 
-	public boolean matchTestEnrollmentAndArtInitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate, String[] datesToMatch, Date startDate, Date endDate) {
-		return getDao().matchTestEnrollmentAndArtInitDates(testDate, hivEnrollmentDate, artInitDate, datesToMatch, startDate, endDate);
+	public boolean matchTestEnrollmentAndArtInitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate,
+			String[] datesToMatch, Date startDate, Date endDate) {
+		return getDao().matchTestEnrollmentAndArtInitDates(testDate, hivEnrollmentDate, artInitDate, datesToMatch,
+				startDate, endDate);
 	}
 
 	@Override
 	public String getCurrentRegimen(List<MoHDrugOrder> orders) {
 		return getDao().getCurrentRegimen(orders);
+	}
+
+	@Override
+	public boolean vlBasedTreatmentFailure(Patient patient) {
+		Concept vl = Context.getConceptService().getConcept(Integer.parseInt(
+				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID)));
+		DrugOrder artInitDrug = getARTInitiationDrug(patient);
+		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, vl);
+
+		return artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 12)
+				&& checkIfPatientIsHIVPositive(patient) && !vLObs.isEmpty() && vLObs.get(0).getValueNumeric() >= 1000;
+	}
+
+	@Override
+	public boolean checkIfDateIsNMonthsFromNow(Date date, Integer nMonths) {
+		if (date != null && nMonths != null) {
+			Calendar c = Calendar.getInstance();
+
+			c.setTime(date);
+			c.add(Calendar.MONTH, -nMonths);
+			return c.getTime().after(date);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean cd4BasedTreatmentFailure(Patient patient) {
+		return checkIfPatientIsHIVPositive(patient) && checkForAtleast50PercentDecreaseInCD4(patient)
+				&& checkIfPatientIsOnARVMoreThanNMonths(patient, 12);
+	}
+
+	@Override
+	public String getVLTreatmentFailureAction(Patient patient) {
+		String adherenceConceptId = Context.getAdministrationService()
+				.getGlobalProperty(GlobalPropertyConstants.ARV_ADHERENCE_OBS_CONCEPTID);
+
+		if (patient != null && StringUtils.isNotBlank(adherenceConceptId)) {
+			List<Obs> actions = Context.getObsService().getObservationsByPersonAndConcept(patient,
+					Context.getConceptService().getConcept(Integer.parseInt(adherenceConceptId)));
+
+			if (!actions.isEmpty())
+				return actions.get(0).getValueText();
+		}
+		return null;
 	}
 }

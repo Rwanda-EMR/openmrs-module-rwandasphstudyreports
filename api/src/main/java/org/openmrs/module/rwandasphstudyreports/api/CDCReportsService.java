@@ -13,7 +13,18 @@
  */
 package org.openmrs.module.rwandasphstudyreports.api;
 
-import org.openmrs.*;
+import java.util.Date;
+import java.util.List;
+
+import org.openmrs.Cohort;
+import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
+import org.openmrs.Encounter;
+import org.openmrs.Location;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.Program;
+import org.openmrs.Visit;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.mohorderentrybridge.MoHDrugOrder;
 import org.openmrs.module.reporting.report.Report;
@@ -22,9 +33,6 @@ import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.openmrs.module.rwandasphstudyreports.SphClientOrPatient;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * This service exposes module's core functionality. It is a Spring managed bean
@@ -99,4 +107,16 @@ public interface CDCReportsService extends OpenmrsService {
 	public boolean matchTestEnrollmentAndArtInitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate, String[] datesToMatch, Date startDate, Date endDate);
 
 	public String getCurrentRegimen(List<MoHDrugOrder> orders);
+
+	boolean cd4BasedTreatmentFailure(Patient patient);
+
+	boolean checkIfDateIsNMonthsFromNow(Date date, Integer nMonths);
+
+	boolean vlBasedTreatmentFailure(Patient patient);
+
+	String getVLTreatmentFailureAction(Patient patient);
+
+	Obs saveNewObs(Concept concept, Object value, Date datetime, String accessionNumber, Patient patient);
+
+	Obs saveVLBasedTreatmentFailure(Patient patient);
 }

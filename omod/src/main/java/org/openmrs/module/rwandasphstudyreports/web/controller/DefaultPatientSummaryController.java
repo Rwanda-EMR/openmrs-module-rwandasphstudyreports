@@ -142,7 +142,7 @@ public class DefaultPatientSummaryController {
 		model.addAttribute("notesText", notesText);
 		model.addAttribute("locale", Context.getLocale());
 		model.addAttribute("agestring", getAgeString(p));
-		model.addAttribute("alerts", prepareAlerts(conceptsToWatch, p));
+		model.addAttribute("alerts", new HashMap<String, Object>());//skip PIH alerts
 		model.addAttribute("cdcAlerts", cdcRulrsAlgorithm.cdcDsRulesAlerts(p));
 		model.addAttribute("alertconcepts", conceptsIdsToWatch.split(","));
 		model.addAttribute("lastencounter", getLastEncounter(encounters));

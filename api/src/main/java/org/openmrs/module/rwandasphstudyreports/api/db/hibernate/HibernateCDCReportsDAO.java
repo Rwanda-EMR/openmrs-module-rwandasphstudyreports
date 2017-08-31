@@ -34,7 +34,9 @@ import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.openmrs.module.rwandasphstudyreports.api.db.CDCReportsDAO;
 import org.openmrs.module.vcttrac.VCTClient;
 import org.openmrs.module.vcttrac.service.VCTModuleService;
+import org.openmrs.module.vcttrac.util.VCTConfigurationUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.openmrs.api.context.Context.getProgramWorkflowService;
@@ -159,17 +161,17 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 
 		for(VCTClient c : clientList) {
 			if(!c.isVoided() && !c.getClient().isVoided())
-				clientIds = convertAndAddClientOrPatient(uiClients, clientIds, c.getClient(), startDate, endDate, datesToMatch);
+				clientIds = convertAndAddClientOrPatient(uiClients, clientIds, c, startDate, endDate, datesToMatch);
 		}
 		for(Patient p : patientList) {
 			if(!p.isVoided())
-				clientIds = convertAndAddClientOrPatient(uiClients, clientIds, p.getPerson(), startDate, endDate, datesToMatch);
+				clientIds = convertAndAddClientOrPatient(uiClients, clientIds, p, startDate, endDate, datesToMatch);
 		}
 
 		return uiClients;
 	}
 
-	private String convertAndAddClientOrPatient(List<SphClientOrPatient> uiClients, String clientIds, Person p, Date startDate, Date endDate, String[] datesToMatch) {
+	private String convertAndAddClientOrPatient(List<SphClientOrPatient> uiClients, String clientIds, Object p, Date startDate, Date endDate, String[] datesToMatch) {
 		SphClientOrPatient client = convertPersonIntoSphClientOrPatient(p, startDate, endDate, datesToMatch);
 		if(client != null && clientIds.indexOf("," + client.getId()) < 0) {
             uiClients.add(client);
@@ -185,56 +187,74 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 		c.set(Calendar.MILLISECOND, 00);
 	}
 
-	private SphClientOrPatient convertPersonIntoSphClientOrPatient(Person person, Date startDate, Date endDate, String[] datesToMatch) {
-		String query = "SELECT COUNT(patient_id) from patient where patient_id = " + person.getPersonId();
-		int numberOfClient = Integer.valueOf("" + getSessionFactory().getCurrentSession().createSQLQuery(query).uniqueResult());
-		Date testDate = checkIfPersonIsHIVPositive(person);
-		PersonAttributeType tel = Context.getPersonService().getPersonAttributeTypeByName("Phone Number");
-		PersonAttributeType peerEduc = Context.getPersonService().getPersonAttributeTypeByName("Peer Educator's Name");
-		PersonAttributeType peerEducTel = Context.getPersonService().getPersonAttributeTypeByName("Peer Educator's Phone Number");
-		PersonAttributeType contactPerson = Context.getPersonService().getPersonAttributeTypeByName("Contact Person's Name");
-		PersonAttributeType contactPersonTel = Context.getPersonService().getPersonAttributeTypeByName("Contact Person's Phone Number");
-		Date hivEnrollmentDate = checkIfPersonIsEnrolledInHIVProgram(person);
-		Date artInitDate = getArtInitiationDate(person);
-		String adultAge = Context.getAdministrationService().getGlobalProperty("reports.adultStartingAge");
-		Calendar adult = Calendar.getInstance();
-		PatientIdentifierType tracnetIdType = new GlobalPropertiesManagement().getPatientIdentifier(GlobalPropertiesManagement.TRACNET_IDENTIFIER);
+	private SphClientOrPatient convertPersonIntoSphClientOrPatient(Object p, Date startDate, Date endDate, String[] datesToMatch) {
+		Person person = null;
+		SimpleDateFormat sdf = Context.getDateFormat();
 
-		adult.add(Calendar.YEAR, StringUtils.isNotBlank(adultAge) ? - Integer.parseInt(adultAge) : -16);
-		resetTimes(adult);
-		if (person != null && testDate != null && person.getBirthdate().before(adult.getTime()) && matchTestEnrollmentAndArtInitDates(testDate, hivEnrollmentDate, artInitDate, datesToMatch, startDate, endDate)) {
-			SphClientOrPatient c = new SphClientOrPatient();
-			Patient patient = new Patient(person);
+		if(p instanceof Patient) {
+			person = ((Patient) p).getPerson();
+		} else if(p instanceof VCTClient) {
+			person = ((VCTClient) p).getClient();
+		}
+		if(person != null) {
+			Date testDate = checkIfPersonIsHIVPositive(person);
+			PersonAttributeType tel = Context.getPersonService().getPersonAttributeTypeByName("Phone Number");
+			PersonAttributeType peerEduc = Context.getPersonService().getPersonAttributeTypeByName("Peer Educator's Name");
+			PersonAttributeType peerEducTel = Context.getPersonService().getPersonAttributeTypeByName("Peer Educator's Phone Number");
+			PersonAttributeType contactPerson = Context.getPersonService().getPersonAttributeTypeByName("Contact Person's Name");
+			PersonAttributeType contactPersonTel = Context.getPersonService().getPersonAttributeTypeByName("Contact Person's Phone Number");
+			Date hivEnrollmentDate = checkIfPersonIsEnrolledInHIVProgram(person);
+			Date artInitDate = getArtInitiationDate(person);
+			String adultAge = Context.getAdministrationService().getGlobalProperty("reports.adultStartingAge");
+			Calendar adult = Calendar.getInstance();
+			PatientIdentifierType tracnetIdType = new GlobalPropertiesManagement().getPatientIdentifier(GlobalPropertiesManagement.TRACNET_IDENTIFIER);
 
-			if(numberOfClient == 0)
-				c.setType(SphClientOrPatient.SphClientOrPatientType.CLIENT.name());
-			else {
-				c.setType(SphClientOrPatient.SphClientOrPatientType.PATIENT.name());
-				patient = Context.getPatientService().getPatient(patient.getPatientId());
+			adult.add(Calendar.YEAR, StringUtils.isNotBlank(adultAge) ? -Integer.parseInt(adultAge) : -16);
+			resetTimes(adult);
+			if (testDate != null && person.getBirthdate().before(adult.getTime()) && matchTestEnrollmentAndArtInitDates(testDate, hivEnrollmentDate, artInitDate, datesToMatch, startDate, endDate)) {
+				SphClientOrPatient c = new SphClientOrPatient();
+				Patient patient = new Patient(person);
+				List<Obs> savedTestDate = Context.getObsService().getObservationsByPersonAndConcept(person, Context.getConceptService().getConcept(VCTConfigurationUtil.getHivTestDateConceptId()));
+                String hivTestDate = sdf.format(testDate);
+
+                if(savedTestDate != null && !savedTestDate.isEmpty()) {
+                    Collections.sort(savedTestDate, new Comparator<Obs>() {
+                        public int compare(Obs o1, Obs o2) {
+                            return o1.getValueDatetime().compareTo(o2.getValueDatetime());
+                        }
+                    });
+                    hivTestDate = Context.getDateFormat().format(savedTestDate.get(0).getValueDatetime()) + " (" + sdf.format(testDate) + ")";
+                }
+				if (p instanceof VCTClient) {
+					c.setType(SphClientOrPatient.SphClientOrPatientType.CLIENT.name());
+					c.setRegistrationDate(((VCTClient) p).getDateOfRegistration() +" (" + sdf.format(person.getDateCreated()) + ")");
+				} else {
+					c.setType(SphClientOrPatient.SphClientOrPatientType.PATIENT.name());
+					c.setRegistrationDate(sdf.format(person.getDateCreated()));
+					patient = Context.getPatientService().getPatient(patient.getPatientId());
+				}
+				c.setAddress(person.getPersonAddress() != null ? getFormattedAddress(person.getPersonAddress()) : "");
+				c.setBirthDate(person.getBirthdate() != null ? sdf.format(person.getBirthdate()) : "");
+				c.setId(person.getPersonId());
+				if (tracnetIdType != null && patient.getPatientIdentifier(tracnetIdType) != null) {
+					c.setTracnetId(patient.getPatientIdentifier(tracnetIdType).getIdentifier());
+				}
+				c.setDateTestedForHIV(hivTestDate);
+				c.setName(person.getPersonName() != null ? person.getPersonName().getFullName() : "");
+				c.setPeerEducator(person.getAttribute(peerEduc) != null ? person.getAttribute(peerEduc).getValue() : "");
+				c.setPeerEducatorTelephone(person.getAttribute(peerEducTel) != null ? person.getAttribute(peerEducTel).getValue() : "");
+				c.setContactPerson(person.getAttribute(contactPerson) != null ? person.getAttribute(contactPerson).getValue() : "");
+				c.setContactPersonTelephone(person.getAttribute(contactPersonTel) != null ? person.getAttribute(contactPersonTel).getValue() : "");
+				c.setSex(person.getGender());
+				c.setTelephone(person.getAttribute(tel) != null ? person.getAttribute(tel).getValue() : "");
+				c.setHivEnrollmentDate(hivEnrollmentDate != null ? sdf.format(hivEnrollmentDate) : "");
+				c.setArtInitiationDate(artInitDate != null ? sdf.format(artInitDate) : "");
+				c.setCurrentOrLastRegimen(getCurrentRegimen(Context.getService(MoHOrderEntryBridgeService.class)
+						.getMoHDrugOrdersByPatient(patient)));
+				c.setAlerts(new CDCRulesAlgorithm().cdcDsRulesAlerts(new Patient(person)));
+
+				return c;
 			}
-			c.setAddress(person.getPersonAddress() != null ? getFormattedAddress(person.getPersonAddress()) : "");
-			c.setBirthDate(person.getBirthdate() != null ? c.sdf.format(person.getBirthdate()) : "");
-			c.setId(person.getPersonId());
-			if(tracnetIdType != null && patient.getPatientIdentifier(tracnetIdType) != null) {
-				c.setTracnetId(patient.getPatientIdentifier(tracnetIdType).getIdentifier());
-			}
-			c.setName(person.getPersonName() != null ? person.getPersonName().getFullName() : "");
-			c.setDateTestedForHIV(c.sdf.format(testDate));
-			c.setPeerEducator(person.getAttribute(peerEduc) != null ? person.getAttribute(peerEduc).getValue() : "");
-			c.setPeerEducatorTelephone(person.getAttribute(peerEducTel) != null ? person.getAttribute(peerEducTel).getValue() : "");
-			c.setContactPerson(person.getAttribute(contactPerson) != null ? person.getAttribute(contactPerson).getValue() : "");
-			c.setContactPersonTelephone(person.getAttribute(contactPersonTel) != null ? person.getAttribute(contactPersonTel).getValue() : "");
-			c.setSex(person.getGender());
-			c.setTelephone(person.getAttribute(tel) != null ? person.getAttribute(tel).getValue() : "");
-			c.setRegistrationDate(c.sdf.format(person.getDateCreated()));
-			c.setHivEnrollmentDate(hivEnrollmentDate != null ? c.sdf.format(hivEnrollmentDate) : "");
-			c.setDateTestedForHIV(c.sdf.format(testDate));
-			c.setArtInitiationDate(artInitDate != null ? c.sdf.format(artInitDate) : "");
-			c.setCurrentOrLastRegimen(getCurrentRegimen(Context.getService(MoHOrderEntryBridgeService.class)
-					.getMoHDrugOrdersByPatient(patient)));
-			c.setAlerts(new CDCRulesAlgorithm().cdcDsRulesAlerts(new Patient(person)));
-
-			return c ;
 		}
 		return null;
 	}
@@ -309,8 +329,10 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 			}
 		});
 		for(MoHDrugOrder ord : orders) {
-			if(ord.getIsActive() && ord.getStartDate().before(today) && ((ord.getStopDate() != null && ord.getStopDate().after(today)) || ord.getStopDate() == null))
-				o.add(ord.getDrugOrder().getDrug().getDisplayName());
+			if(ord.getIsActive() && ord.getStartDate().before(today) && ((ord.getStopDate() != null && ord.getStopDate().after(today)) || ord.getStopDate() == null)) {
+				if(ord.getDrugOrder() != null && ord.getDrugOrder().getDrug() != null)
+					o.add(ord.getDrugOrder().getDrug().getDisplayName());
+			}
 		}
 
 		return StringUtils.join(o, ", ");
