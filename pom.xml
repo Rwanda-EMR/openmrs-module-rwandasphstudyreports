@@ -33,7 +33,7 @@
 	
 	<properties>
 		<openMRSVersion>1.11.5</openMRSVersion>
-		<mohOrderEntryBridgeVersion>1.0.1</mohOrderEntryBridgeVersion>
+		<mohOrderEntryBridgeVersion>1.1-SNAPSHOT</mohOrderEntryBridgeVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<reportingVersion>0.9.9</reportingVersion>
 		<serializationVersion>0.2.7</serializationVersion>

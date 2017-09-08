@@ -21,7 +21,7 @@ public class CDCRulesAlgorithm {
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID)));
 		Concept cd4 = Context.getConceptService().getConcept(Integer.parseInt(
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.CD4_COUNT_CONCEPTID)));
-		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, vl);
+		List<Obs> vLObs = Context.getObsService().getLastNObservations(1, patient, vl, false);
 		List<Visit> visits = Context.getVisitService().getVisitsByPatient(patient);
 		Date lastVisitDate = null;
 		DrugOrder artInitDrug = Context.getService(CDCReportsService.class).getARTInitiationDrug(patient);
@@ -31,7 +31,7 @@ public class CDCRulesAlgorithm {
 		boolean vlAfter6MonthsFromEnrollment = checkIfNoObsNMonthsFromDate(vLObs, 6, enrollmentDate);
 
 		visits = Context.getService(CDCReportsService.class).sortVisitsListByCreationDate(visits);
-		Context.getService(CDCReportsService.class).sortObsListByObsDateTime(vLObs);
+		//Context.getService(CDCReportsService.class).sortObsListByObsDateTime(vLObs);
 
 		if (visits.isEmpty()) {
 			List<Encounter> encs = Context.getEncounterService().getEncountersByPatient(patient);

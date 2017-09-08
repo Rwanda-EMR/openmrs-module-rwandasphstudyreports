@@ -182,6 +182,7 @@
 			<td class="th"><spring:message code="rwandasphstudyreports.frequency" /></td>
 			<td class="th"><spring:message code="rwandasphstudyreports.startdate" /></td>
 			<td class="th"><spring:message code="rwandasphstudyreports.stopdate" /></td>
+			<td class="th"><spring:message code="rwandasphstudyreports.order.action" /></td>
 			<td class="th"><spring:message code="rwandasphstudyreports.reason" /></td>
 		</tr>
 		<c:forEach items="${drugorders}" var="drug">
@@ -194,7 +195,8 @@
 						date="${drug.startDate}" type="medium"/></td>
 					<td class="nowrap"><openmrs:formatDate
 						date="${drug.stopDate}" type="medium"/></td>
-					<td>${not empty drug.drugOrder.orderReason ? drug.drugOrder.orderReason[0].name : ""}</td>
+					<td>${not empty drug.drugOrder.action ? drug.drugOrder.action : ""}</td>
+					<td>${drug.orderReason}</td>
 				</tr>
 			</c:if>
 		</c:forEach>

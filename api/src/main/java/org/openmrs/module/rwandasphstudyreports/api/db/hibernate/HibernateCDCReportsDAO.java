@@ -190,9 +190,11 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 	private SphClientOrPatient convertPersonIntoSphClientOrPatient(Object p, Date startDate, Date endDate, String[] datesToMatch) {
 		Person person = null;
 		SimpleDateFormat sdf = Context.getDateFormat();
+		Patient patient = null;
 
 		if(p instanceof Patient) {
 			person = ((Patient) p).getPerson();
+			patient = (Patient) p;
 		} else if(p instanceof VCTClient) {
 			person = ((VCTClient) p).getClient();
 		}
@@ -208,52 +210,55 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 			String adultAge = Context.getAdministrationService().getGlobalProperty("reports.adultStartingAge");
 			Calendar adult = Calendar.getInstance();
 			PatientIdentifierType tracnetIdType = new GlobalPropertiesManagement().getPatientIdentifier(GlobalPropertiesManagement.TRACNET_IDENTIFIER);
-
+					
 			adult.add(Calendar.YEAR, StringUtils.isNotBlank(adultAge) ? -Integer.parseInt(adultAge) : -16);
 			resetTimes(adult);
 			if (testDate != null && person.getBirthdate().before(adult.getTime()) && matchTestEnrollmentAndArtInitDates(testDate, hivEnrollmentDate, artInitDate, datesToMatch, startDate, endDate)) {
 				SphClientOrPatient c = new SphClientOrPatient();
-				Patient patient = new Patient(person);
 				List<Obs> savedTestDate = Context.getObsService().getObservationsByPersonAndConcept(person, Context.getConceptService().getConcept(VCTConfigurationUtil.getHivTestDateConceptId()));
                 String hivTestDate = sdf.format(testDate);
 
-                if(savedTestDate != null && !savedTestDate.isEmpty()) {
-                    Collections.sort(savedTestDate, new Comparator<Obs>() {
-                        public int compare(Obs o1, Obs o2) {
-                            return o1.getValueDatetime().compareTo(o2.getValueDatetime());
-                        }
-                    });
-                    hivTestDate = Context.getDateFormat().format(savedTestDate.get(0).getValueDatetime()) + " (" + sdf.format(testDate) + ")";
+                patient = patient == null ? new Patient(person) : patient;
+                c.setAlerts(new CDCRulesAlgorithm().cdcDsRulesAlerts(patient));
+                if(c.getAlerts() != null && !c.getAlerts().isEmpty()) {
+	                if(savedTestDate != null && !savedTestDate.isEmpty()) {
+	                    Collections.sort(savedTestDate, new Comparator<Obs>() {
+	                        public int compare(Obs o1, Obs o2) {
+	                            return o1.getValueDatetime().compareTo(o2.getValueDatetime());
+	                        }
+	                    });
+	                    hivTestDate = Context.getDateFormat().format(savedTestDate.get(0).getValueDatetime()) + " (" + sdf.format(testDate) + ")";
+	                }
+					if (p instanceof VCTClient) {
+						c.setType(SphClientOrPatient.SphClientOrPatientType.CLIENT.name());
+						c.setRegistrationDate(((VCTClient) p).getDateOfRegistration() +" (" + sdf.format(person.getDateCreated()) + ")");
+					} else {
+						c.setType(SphClientOrPatient.SphClientOrPatientType.PATIENT.name());
+						c.setRegistrationDate(sdf.format(person.getDateCreated()));
+						patient = Context.getPatientService().getPatient(patient.getPatientId());
+					}
+					c.setAddress(person.getPersonAddress() != null ? getFormattedAddress(person.getPersonAddress()) : "");
+					c.setBirthDate(person.getBirthdate() != null ? sdf.format(person.getBirthdate()) : "");
+					c.setId(person.getPersonId());
+					if (tracnetIdType != null && patient.getPatientIdentifier(tracnetIdType) != null) {
+						c.setTracnetId(patient.getPatientIdentifier(tracnetIdType).getIdentifier());
+					}
+					c.setDateTestedForHIV(hivTestDate);
+					c.setName(person.getPersonName() != null ? person.getPersonName().getFullName() : "");
+					c.setPeerEducator(person.getAttribute(peerEduc) != null ? person.getAttribute(peerEduc).getValue() : "");
+					c.setPeerEducatorTelephone(person.getAttribute(peerEducTel) != null ? person.getAttribute(peerEducTel).getValue() : "");
+					c.setContactPerson(person.getAttribute(contactPerson) != null ? person.getAttribute(contactPerson).getValue() : "");
+					c.setContactPersonTelephone(person.getAttribute(contactPersonTel) != null ? person.getAttribute(contactPersonTel).getValue() : "");
+					c.setSex(person.getGender());
+					c.setTelephone(person.getAttribute(tel) != null ? person.getAttribute(tel).getValue() : "");
+					c.setHivEnrollmentDate(hivEnrollmentDate != null ? sdf.format(hivEnrollmentDate) : "");
+					c.setArtInitiationDate(artInitDate != null ? sdf.format(artInitDate) : "");
+					c.setCurrentOrLastRegimen(getCurrentRegimen(Context.getService(MoHOrderEntryBridgeService.class)
+							.getMoHDrugOrdersByPatient(patient)));
+					c.setAlerts(new CDCRulesAlgorithm().cdcDsRulesAlerts(new Patient(person)));
+	
+					return c;
                 }
-				if (p instanceof VCTClient) {
-					c.setType(SphClientOrPatient.SphClientOrPatientType.CLIENT.name());
-					c.setRegistrationDate(((VCTClient) p).getDateOfRegistration() +" (" + sdf.format(person.getDateCreated()) + ")");
-				} else {
-					c.setType(SphClientOrPatient.SphClientOrPatientType.PATIENT.name());
-					c.setRegistrationDate(sdf.format(person.getDateCreated()));
-					patient = Context.getPatientService().getPatient(patient.getPatientId());
-				}
-				c.setAddress(person.getPersonAddress() != null ? getFormattedAddress(person.getPersonAddress()) : "");
-				c.setBirthDate(person.getBirthdate() != null ? sdf.format(person.getBirthdate()) : "");
-				c.setId(person.getPersonId());
-				if (tracnetIdType != null && patient.getPatientIdentifier(tracnetIdType) != null) {
-					c.setTracnetId(patient.getPatientIdentifier(tracnetIdType).getIdentifier());
-				}
-				c.setDateTestedForHIV(hivTestDate);
-				c.setName(person.getPersonName() != null ? person.getPersonName().getFullName() : "");
-				c.setPeerEducator(person.getAttribute(peerEduc) != null ? person.getAttribute(peerEduc).getValue() : "");
-				c.setPeerEducatorTelephone(person.getAttribute(peerEducTel) != null ? person.getAttribute(peerEducTel).getValue() : "");
-				c.setContactPerson(person.getAttribute(contactPerson) != null ? person.getAttribute(contactPerson).getValue() : "");
-				c.setContactPersonTelephone(person.getAttribute(contactPersonTel) != null ? person.getAttribute(contactPersonTel).getValue() : "");
-				c.setSex(person.getGender());
-				c.setTelephone(person.getAttribute(tel) != null ? person.getAttribute(tel).getValue() : "");
-				c.setHivEnrollmentDate(hivEnrollmentDate != null ? sdf.format(hivEnrollmentDate) : "");
-				c.setArtInitiationDate(artInitDate != null ? sdf.format(artInitDate) : "");
-				c.setCurrentOrLastRegimen(getCurrentRegimen(Context.getService(MoHOrderEntryBridgeService.class)
-						.getMoHDrugOrdersByPatient(patient)));
-				c.setAlerts(new CDCRulesAlgorithm().cdcDsRulesAlerts(new Patient(person)));
-
-				return c;
 			}
 		}
 		return null;

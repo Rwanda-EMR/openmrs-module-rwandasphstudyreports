@@ -232,14 +232,10 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		if (hivPositive == null)
 			hivPositive = Context.getConceptService().getConcept(703);
 
-		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, hiv);
+		List<Obs> vLObs = Context.getObsService().getLastNObservations(1, patient, hiv, false);;
 
 		sortObsListByObsDateTime(vLObs);
-		if (hivPositive != null && vLObs != null && !vLObs.isEmpty()) {// check
-																		// last
-																		// status
-																		// reported
-																		// instead
+		if (hivPositive != null && vLObs != null && !vLObs.isEmpty()) {
 			if (hivPositive.getConceptId()
 					.equals(vLObs.get(0).getValueCoded() != null ? vLObs.get(0).getValueCoded().getConceptId() : null))
 				return true;
@@ -329,11 +325,11 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		Concept cd4 = Context.getConceptService().getConcept(Integer.parseInt(
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.CD4_COUNT_CONCEPTID)));
 
-		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, cd4);
+		List<Obs> cd4Obs = Context.getObsService().getLastNObservations(1, patient, cd4, false);;
 
-		sortObsListByObsDateTime(vLObs);
+		sortObsListByObsDateTime(cd4Obs);
 
-		if (vLObs.size() > 2 && (vLObs.get(0).getValueNumeric() * 100) / vLObs.get(1).getValueNumeric() >= 50) {
+		if (cd4Obs.size() > 2 && (cd4Obs.get(0).getValueNumeric() * 100) / cd4Obs.get(1).getValueNumeric() >= 50) {
 			return true;
 		}
 
@@ -367,7 +363,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 			if (obsQuestion == null)
 				obsQuestion = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);
 
-			List<Obs> os = Context.getObsService().getObservationsByPersonAndConcept(patient, obsQuestion);
+			List<Obs> os = Context.getObsService().getLastNObservations(1, patient, obsQuestion, false);;
 			List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient,
 					program, null, null, null, null, false));
 
@@ -404,7 +400,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		Program program = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 		Concept vl = Context.getConceptService().getConcept(Integer.parseInt(
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID)));
-		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, vl);
+		List<Obs> vLObs = Context.getObsService().getLastNObservations(1, patient, vl, false);
 		List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient, program,
 				null, null, null, null, false));
 
@@ -567,7 +563,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		Concept vl = Context.getConceptService().getConcept(Integer.parseInt(
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID)));
 		DrugOrder artInitDrug = getARTInitiationDrug(patient);
-		List<Obs> vLObs = Context.getObsService().getObservationsByPersonAndConcept(patient, vl);
+		List<Obs> vLObs = Context.getObsService().getLastNObservations(1, patient, vl, false);
 
 		return artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 12)
 				&& checkIfPatientIsHIVPositive(patient) && !vLObs.isEmpty() && vLObs.get(0).getValueNumeric() >= 1000;
@@ -595,10 +591,9 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	public String getVLTreatmentFailureAction(Patient patient) {
 		String adherenceConceptId = Context.getAdministrationService()
 				.getGlobalProperty(GlobalPropertyConstants.ARV_ADHERENCE_OBS_CONCEPTID);
-
 		if (patient != null && StringUtils.isNotBlank(adherenceConceptId)) {
-			List<Obs> actions = Context.getObsService().getObservationsByPersonAndConcept(patient,
-					Context.getConceptService().getConcept(Integer.parseInt(adherenceConceptId)));
+			List<Obs> actions = Context.getObsService().getLastNObservations(1, patient,
+					Context.getConceptService().getConcept(Integer.parseInt(adherenceConceptId)), false);
 
 			if (!actions.isEmpty())
 				return actions.get(0).getValueText();
