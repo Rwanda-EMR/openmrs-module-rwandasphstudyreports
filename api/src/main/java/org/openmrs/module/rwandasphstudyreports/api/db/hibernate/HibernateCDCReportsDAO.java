@@ -142,6 +142,7 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 	public List<Patient> getPatientsInHIVProgram(Program program, Date starDate, Date endDate) {
 		List<Patient> patients = new ArrayList<Patient>();
 
+		//return Context.getProgramWorkflowService().patientsInProgram(program, starDate, endDate);
 		for(PatientProgram p : Context.getProgramWorkflowService().getPatientPrograms(null, program, starDate, endDate, null, null, false)) {
 			if(!patients.contains(p.getPatient()))
 				patients.add(p.getPatient());
@@ -214,10 +215,10 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 					
 			adult.add(Calendar.YEAR, StringUtils.isNotBlank(adultAge) ? -Integer.parseInt(adultAge) : -16);
 			resetTimes(adult);
-			if (testDate != null && person.getBirthdate().before(adult.getTime()) && matchTestEnrollmentAndArtInitDates(testDate, hivEnrollmentDate, artInitDate, datesToMatch, startDate, endDate)) {
+			if (person.getBirthdate().before(adult.getTime()) && matchTestEnrollmentAndArtInitDates(testDate, hivEnrollmentDate, artInitDate, datesToMatch, startDate, endDate)) {
 				SphClientOrPatient c = new SphClientOrPatient();
 				List<Obs> savedTestDate = Context.getObsService().getObservationsByPersonAndConcept(person, Context.getConceptService().getConcept(VCTConfigurationUtil.getHivTestDateConceptId()));
-                String hivTestDate = sdf.format(testDate);
+                String hivTestDate = testDate != null ? sdf.format(testDate) : "";
 
                 patient = patient == null ? new Patient(person) : patient;
                 c.setAlerts(new CDCRulesAlgorithm().cdcDsRulesAlerts(patient));
@@ -228,7 +229,8 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 	                            return o1.getValueDatetime().compareTo(o2.getValueDatetime());
 	                        }
 	                    });
-	                    hivTestDate = Context.getDateFormat().format(savedTestDate.get(0).getValueDatetime()) + " (" + sdf.format(testDate) + ")";
+	                    hivTestDate = savedTestDate != null && !savedTestDate.isEmpty() ? Context.getDateFormat().format(savedTestDate.get(0).getValueDatetime()) : ""
+	                    		+ testDate != null ? " (" + sdf.format(testDate) + ")" : "";
 	                }
 					if (p instanceof VCTClient) {
 						c.setType(SphClientOrPatient.SphClientOrPatientType.CLIENT.name());
