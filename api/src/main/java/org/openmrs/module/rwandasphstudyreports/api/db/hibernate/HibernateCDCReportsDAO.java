@@ -159,15 +159,16 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 		String adultAge = Context.getAdministrationService().getGlobalProperty("reports.adultStartingAge");
 		String clientIds = "";
 
-		for(VCTClient c : clientList) {
-			if(!c.isVoided() && !c.getClient().isVoided())
-				clientIds = convertAndAddClientOrPatient(uiClients, clientIds, c, startDate, endDate, datesToMatch);
-		}
 		for(Patient p : patientList) {
 			if(!p.isVoided())
 				clientIds = convertAndAddClientOrPatient(uiClients, clientIds, p, startDate, endDate, datesToMatch);
 		}
-
+		
+		for(VCTClient c : clientList) {
+			if(!c.isVoided() && !c.getClient().isVoided())
+				clientIds = convertAndAddClientOrPatient(uiClients, clientIds, c, startDate, endDate, datesToMatch);
+		}
+		
 		return uiClients;
 	}
 

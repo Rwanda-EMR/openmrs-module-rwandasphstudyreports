@@ -60,7 +60,7 @@ public interface CDCReportsService extends OpenmrsService {
 
 	Visit getActiveVisit(Patient patient, String visitLocationUuid);
 
-	boolean checkIfPatientIsHIVPositive(Patient patient);
+	boolean checkIfPatientIsHIVPositiveOrMissingResult(Patient patient);
 
 	List<DrugOrder> matchOnlyDrugConceptFromOrders(List<DrugOrder> dOrders, Concept c);
 
@@ -118,5 +118,7 @@ public interface CDCReportsService extends OpenmrsService {
 
 	Obs saveNewObs(Concept concept, Object value, Date datetime, String accessionNumber, Patient patient);
 
-	Obs saveVLBasedTreatmentFailure(Patient patient);
+	Obs saveVLBasedTreatmentFailure(Patient patient, String selectedACtionPoint);
+	
+	public boolean checkIfPatientIsExittedFromCare(Patient p);
 }

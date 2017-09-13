@@ -151,7 +151,7 @@ public class DefaultPatientSummaryController {
 		model.addAttribute("symptoms", prepareMostRecentObs(symptomPresent));
 		model.addAttribute("prevdiags", prepareMostRecentObs(prevDiag));
 		model.addAttribute("drugorders", drugorders);
-		model.addAttribute("currentRegimen", Context.getService(CDCReportsService.class).getCurrentRegimen(drugorders));
+		model.addAttribute("currentRegimen", !Context.getService(CDCReportsService.class).checkIfPatientIsExittedFromCare(p) ? Context.getService(CDCReportsService.class).getCurrentRegimen(drugorders) : "");
 		model.addAttribute("labdata", prepareLabData(labTestsConcepts, p, conceptsIdsToGraph));
 		model.addAttribute("graphdata", prepareGraphData(conceptsToGraph, p));
 		model.addAttribute("graphconcepts", conceptsIdsToGraph.split(","));

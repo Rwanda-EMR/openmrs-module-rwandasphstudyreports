@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -221,7 +222,10 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	}
 
 	@Override
-	public boolean checkIfPatientIsHIVPositive(Patient patient) {
+	/**
+	 * TODO empty ain't gonna imply positive although not all MoH sites enter the result
+	 */
+	public boolean checkIfPatientIsHIVPositiveOrMissingResult(Patient patient) {
 		Concept hiv = Context.getConceptService().getConcept(Integer.parseInt(
 				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.HIV_STATUS_CONCEPTID)));
 		Concept hivPositive = Context.getConceptService().getConcept(Integer.parseInt(
@@ -232,12 +236,15 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		if (hivPositive == null)
 			hivPositive = Context.getConceptService().getConcept(703);
 
-		List<Obs> vLObs = Context.getObsService().getLastNObservations(1, patient, hiv, false);;
+		List<Obs> hivObs = Context.getObsService().getLastNObservations(1, patient, hiv, false);
 
-		sortObsListByObsDateTime(vLObs);
-		if (hivPositive != null && vLObs != null && !vLObs.isEmpty()) {
+		if(hivObs.isEmpty()) {
+			return true;
+		}
+		sortObsListByObsDateTime(hivObs);
+		if (hivPositive != null && hivObs != null && !hivObs.isEmpty()) {
 			if (hivPositive.getConceptId()
-					.equals(vLObs.get(0).getValueCoded() != null ? vLObs.get(0).getValueCoded().getConceptId() : null))
+					.equals(hivObs.get(0).getValueCoded() != null ? hivObs.get(0).getValueCoded().getConceptId() : null))
 				return true;
 		}
 		return false;
@@ -494,12 +501,12 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	}
 	
 	@Override
-	public Obs saveVLBasedTreatmentFailure(Patient patient) {
+	public Obs saveVLBasedTreatmentFailure(Patient patient, String selectedACtionPoint) {
 		String adherenceConceptId = Context.getAdministrationService()
 				.getGlobalProperty(GlobalPropertyConstants.ARV_ADHERENCE_OBS_CONCEPTID);
 
 		if (StringUtils.isNotBlank(adherenceConceptId) && patient != null) {
-			return saveNewObs(Context.getConceptService().getConcept(Integer.parseInt(adherenceConceptId)), getVLTreatmentFailureAction(patient), null, null, patient);		
+			return saveNewObs(Context.getConceptService().getConcept(Integer.parseInt(adherenceConceptId)), selectedACtionPoint, null, null, patient);		
 		}
 		return null;
 	}
@@ -565,8 +572,8 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		DrugOrder artInitDrug = getARTInitiationDrug(patient);
 		List<Obs> vLObs = Context.getObsService().getLastNObservations(1, patient, vl, false);
 
-		return artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate(), 12)
-				&& checkIfPatientIsHIVPositive(patient) && !vLObs.isEmpty() && vLObs.get(0).getValueNumeric() >= 1000;
+		return artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate() != null ? artInitDrug.getEffectiveStartDate() : artInitDrug.getDateCreated(), 12)
+				&& checkIfPatientIsHIVPositiveOrMissingResult(patient) && !vLObs.isEmpty() && vLObs.get(0).getValueNumeric() >= 1000;
 	}
 
 	@Override
@@ -574,7 +581,6 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		if (date != null && nMonths != null) {
 			Calendar c = Calendar.getInstance();
 
-			c.setTime(date);
 			c.add(Calendar.MONTH, -nMonths);
 			return c.getTime().after(date);
 		}
@@ -583,7 +589,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 
 	@Override
 	public boolean cd4BasedTreatmentFailure(Patient patient) {
-		return checkIfPatientIsHIVPositive(patient) && checkForAtleast50PercentDecreaseInCD4(patient)
+		return checkIfPatientIsHIVPositiveOrMissingResult(patient) && checkForAtleast50PercentDecreaseInCD4(patient)
 				&& checkIfPatientIsOnARVMoreThanNMonths(patient, 12);
 	}
 
@@ -599,5 +605,15 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 				return actions.get(0).getValueText();
 		}
 		return null;
+	}
+	
+	@Override
+	public boolean checkIfPatientIsExittedFromCare(Patient p) {
+		Concept reasonForExitingCare = new GlobalPropertiesManagement().getConcept(GlobalPropertiesManagement.REASON_FOR_EXITING_CARE);
+		 Set<Obs> obs = Context.getObsService().getObservations(p, reasonForExitingCare, false);
+		
+		 if(!obs.isEmpty())
+			 return true;
+		return false;
 	}
 }

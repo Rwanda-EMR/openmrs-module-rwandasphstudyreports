@@ -1,11 +1,16 @@
 package org.openmrs.module.rwandasphstudyreports.web.controller;
 
+import java.util.List;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
 import org.openmrs.module.rwandasphstudyreports.VLTreatmentFailureAction;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.openmrs.web.WebConstants;
@@ -37,7 +42,7 @@ public class ScreeningController {
 		String selectedACtionPoint = request.getParameter("selectedClinicalAction");
 		
 		if (p != null && StringUtils.isNotBlank(selectedACtionPoint)) {
-			Obs o = Context.getService(CDCReportsService.class).saveVLBasedTreatmentFailure(p);
+			Obs o = Context.getService(CDCReportsService.class).saveVLBasedTreatmentFailure(p, selectedACtionPoint);
 			
 			if(o != null)
 			request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR,
@@ -47,14 +52,22 @@ public class ScreeningController {
 	}
 
 	private void setUpModel(ModelMap model, Patient p) {
-		if(p != null && Context.getService(CDCReportsService.class).vlBasedTreatmentFailure(p)) {
-			model.addAttribute("vlTreatmentFailure", true);
-			model.addAttribute("msg", Context.getMessageSourceService().getMessage("rwandasphstudyreports.screening.yes"));
-			model.addAttribute("clinicalActions", VLTreatmentFailureAction.getAllVLTreatmentFailureActions());
-			model.addAttribute("savedClinicalAction", Context.getService(CDCReportsService.class).getVLTreatmentFailureAction(p));
+		if (!Context.getService(CDCReportsService.class).checkIfPatientIsExittedFromCare(p)) {
+			if (p != null && Context.getService(CDCReportsService.class).vlBasedTreatmentFailure(p)) {
+				model.addAttribute("vlTreatmentFailure", true);
+				model.addAttribute("msg",
+						Context.getMessageSourceService().getMessage("rwandasphstudyreports.screening.yes"));
+				model.addAttribute("clinicalActions", VLTreatmentFailureAction.getAllVLTreatmentFailureActions());
+				model.addAttribute("savedClinicalAction",
+						Context.getService(CDCReportsService.class).getVLTreatmentFailureAction(p));
+			} else {
+				model.addAttribute("vlTreatmentFailure", false);
+				model.addAttribute("msg",
+						Context.getMessageSourceService().getMessage("rwandasphstudyreports.screening.no"));
+			} 
 		} else {
 			model.addAttribute("vlTreatmentFailure", false);
-			model.addAttribute("msg", Context.getMessageSourceService().getMessage("rwandasphstudyreports.screening.no"));
+			model.addAttribute("msg", "Patient exited care");
 		}
 	}
 }
