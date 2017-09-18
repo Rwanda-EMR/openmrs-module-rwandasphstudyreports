@@ -54,7 +54,7 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 	public void started() {
 		log.info("Rwanda Reports For CDC Module started");
 		try {
-			if("true".equalsIgnoreCase(Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.DISABLE_REPORTS))) {
+			if(!"true".equalsIgnoreCase(Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.DISABLE_REPORTS))) {
 				new HIVPositivePatientsDelayInLinkageToCareReport().setup();
 				new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().setup();
 				new PatientsNotInitiatedOnART().setup();

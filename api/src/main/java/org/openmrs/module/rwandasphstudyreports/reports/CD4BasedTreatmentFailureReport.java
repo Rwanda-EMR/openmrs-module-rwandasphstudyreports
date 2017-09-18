@@ -163,7 +163,7 @@ public class CD4BasedTreatmentFailureReport implements SetupReport {
 				null);
 
 		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		dataSetDefinition.addFilter(hivPositive, null);
+		//TODO dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(onART, null);
 		dataSetDefinition.addFilter(cd4declineOfMoreThan50Percent, mappings);
 

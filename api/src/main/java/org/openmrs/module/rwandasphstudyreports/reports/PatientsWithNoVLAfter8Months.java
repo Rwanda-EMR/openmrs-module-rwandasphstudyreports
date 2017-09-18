@@ -166,7 +166,7 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 		InverseCohortDefinition withNoVLRecordedInLessThanNMonthsAgo = new InverseCohortDefinition(Cohorts.withVLRecordedInLessThanNMonthsAgo(8));
 		
 		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		dataSetDefinition.addFilter(hivPositive, null);
+		//TODO dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(noVL8MonthsAfterEnrollmentIntoHIV, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(inHIV, null);
 		//dataSetDefinition.addFilter(withNoVLRecordedInLessThanNMonthsAgo, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));

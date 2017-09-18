@@ -153,7 +153,7 @@ public class OutStandingBaselineVLReport implements SetupReport {
 		InverseCohortDefinition noVL = Cohorts.createNoObservationDefintion(viralLoad);
 
 		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		dataSetDefinition.addFilter(hivPositive, null);
+		//TODO dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(onART, null);
 		dataSetDefinition.addFilter(noVL, null);
 

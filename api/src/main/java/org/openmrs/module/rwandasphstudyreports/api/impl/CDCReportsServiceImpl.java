@@ -501,12 +501,12 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	}
 	
 	@Override
-	public Obs saveVLBasedTreatmentFailure(Patient patient, String selectedACtionPoint) {
+	public Obs saveVLBasedTreatmentFailure(Patient patient, String selectedActionPoint) {
 		String adherenceConceptId = Context.getAdministrationService()
 				.getGlobalProperty(GlobalPropertyConstants.ARV_ADHERENCE_OBS_CONCEPTID);
 
 		if (StringUtils.isNotBlank(adherenceConceptId) && patient != null) {
-			return saveNewObs(Context.getConceptService().getConcept(Integer.parseInt(adherenceConceptId)), selectedACtionPoint, null, null, patient);		
+			return saveNewObs(Context.getConceptService().getConcept(Integer.parseInt(adherenceConceptId)), selectedActionPoint, null, null, patient);		
 		}
 		return null;
 	}

@@ -217,18 +217,13 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 			resetTimes(adult);
 			if (person.getBirthdate().before(adult.getTime()) && matchTestEnrollmentAndArtInitDates(testDate, hivEnrollmentDate, artInitDate, datesToMatch, startDate, endDate)) {
 				SphClientOrPatient c = new SphClientOrPatient();
-				List<Obs> savedTestDate = Context.getObsService().getObservationsByPersonAndConcept(person, Context.getConceptService().getConcept(VCTConfigurationUtil.getHivTestDateConceptId()));
+				List<Obs> savedTestDate = Context.getObsService().getLastNObservations(1, person, Context.getConceptService().getConcept(VCTConfigurationUtil.getHivTestDateConceptId()), false);
                 String hivTestDate = testDate != null ? sdf.format(testDate) : "";
 
                 patient = patient == null ? new Patient(person) : patient;
                 c.setAlerts(new CDCRulesAlgorithm().cdcDsRulesAlerts(patient));
                 if(c.getAlerts() != null && !c.getAlerts().isEmpty()) {
 	                if(savedTestDate != null && !savedTestDate.isEmpty()) {
-	                    Collections.sort(savedTestDate, new Comparator<Obs>() {
-	                        public int compare(Obs o1, Obs o2) {
-	                            return o1.getValueDatetime().compareTo(o2.getValueDatetime());
-	                        }
-	                    });
 	                    hivTestDate = savedTestDate != null && !savedTestDate.isEmpty() ? Context.getDateFormat().format(savedTestDate.get(0).getValueDatetime()) : ""
 	                    		+ testDate != null ? " (" + sdf.format(testDate) + ")" : "";
 	                }
