@@ -61,13 +61,28 @@ public class Cohorts {
 				"select distinct p.patient_id from patient p where p.voided=0");
 		return patientsNotVoided;
 	}
-
+	
 	public static CodedObsCohortDefinition getHIVPositivePatients() {
 		Concept hivStatus = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
 		Concept hivPositive = gp.getConcept(GlobalPropertyConstants.HIV_POSITIVE_CONCEPTID);
-
+		
 		return createCodedObsCohortDefinition("hivPositive", hivStatus, hivPositive, SetComparator.IN,
 				TimeModifier.LAST);
+	}
+
+	public static CompositionCohortDefinition getHIVPositivePatientsOrMissingResult() {
+		Concept hivStatus = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
+		Concept hivPositive = gp.getConcept(GlobalPropertyConstants.HIV_POSITIVE_CONCEPTID);
+		CodedObsCohortDefinition o = createCodedObsCohortDefinition("hivPositive", hivStatus, hivPositive, SetComparator.IN,
+				TimeModifier.LAST);
+		SqlCohortDefinition o2 = new SqlCohortDefinition("select distinct patient_id from patient where patient_id not in (select person_id from obs where concept_id = " + hivStatus.getConceptId() + ")");
+		CompositionCohortDefinition c = new CompositionCohortDefinition();
+		
+		c.getSearches().put("1", new Mapped<CohortDefinition>(o, null));
+		c.getSearches().put("2", new Mapped<CohortDefinition>(o2, null));
+		c.setCompositionString("1 OR 2");
+		
+		return c;
 	}
 
 	// TODO orders joining could count similar drug orders
@@ -103,18 +118,33 @@ public class Cohorts {
 	public static SqlCohortDefinition patientsWithVLAbove1000() {
 		SqlCohortDefinition c = new SqlCohortDefinition("select distinct person_id from obs where concept_id = "
 				+ gp.getConcept(GlobalPropertiesManagement.VIRAL_LOAD_TEST)
-				+ " and value_numeric > 1000 and obs_datetime > :startDate and obs_datetime <= :endDate order by obs_datetime desc");
-		c.addParameter(new Parameter("startDate", "startDate", Date.class));
-		c.addParameter(new Parameter("endDate", "endDate", Date.class));
+				+ " and value_numeric >= 1000");
 
 		return c;
 	}
+	
+	public static NumericObsCohortDefinition patientsWithLastVLAbove1000() {
+		NumericObsCohortDefinition n = null;
+		Concept c = gp.getConcept(GlobalPropertiesManagement.VIRAL_LOAD_TEST);
 
-	public static SqlCohortDefinition patientsWithNoClinicalVisitforMoreThanNMonths(Integer numberOfMonths) {
-		String q = "select distinct patient_id from patient where patient_id not in (select distinct patient_id from encounter where encounter_datetime > DATE_SUB(:endDate, INTERVAL "
-				+ numberOfMonths + " MONTH))";
+		if (c != null) {
+			n = new NumericObsCohortDefinition();
+			n.setQuestion(c);
+			n.setTimeModifier(TimeModifier.LAST);
+			n.setOperator1(RangeComparator.GREATER_EQUAL);
+			n.setValue1(1000.0);
+			n.addParameter(new Parameter("startDate", "startDate", Date.class));
+			n.addParameter(new Parameter("endDate", "endDate", Date.class));
+		}
+		return n;
+	}
+
+	public static SqlCohortDefinition patientsWithNoClinicalVisitforLastNMonths(Integer numberOfMonths) {
+		String q = "select distinct patient_id from patient where patient_id not in (select distinct patient_id from encounter where IFNULL(encounter_datetime, date_created) > DATE_SUB(:endDate, INTERVAL "
+				+ numberOfMonths + " MONTH) and IFNULL(encounter_datetime, date_created) > :startDate)";
 		SqlCohortDefinition sql = new SqlCohortDefinition();
 
+		sql.addParameter(new Parameter("startDate", "startDate", Date.class));
 		sql.addParameter(new Parameter("endDate", "endDate", Date.class));
 		sql.setQuery(q);
 		return sql;
@@ -198,7 +228,7 @@ public class Cohorts {
 		SqlCohortDefinition patientsWithBaseLineObservation = new SqlCohortDefinition(
 				"select p.patient_id from patient p, person_attribute pa, person_attribute_type pat, obs o1, obs o2, patient_program pp where p.voided = 0 and "
 						+ "p.patient_id = pa.person_id and pat.name = 'Health Center' and pat.person_attribute_type_id = pa.person_attribute_type_id and pa.voided = 0 and pa.value = :location and "
-						+ "pp.voided = 0 and pp.patient_id =  " + "p.patient_id" + " and o1.concept_id = "
+						+ "pp.voided = 0 and pp.patient_id = p.patient_id and o1.concept_id = "
 						+ concept.getId() + " and o1.obs_id = (select obs_id from obs where "
 						+ "voided = 0 and p.patient_id = person_id and concept_id = " + concept.getId()
 						+ " and value_numeric is not null "
@@ -210,6 +240,21 @@ public class Cohorts {
 		patientsWithBaseLineObservation.addParameter(new Parameter("startDate", "startDate", Date.class));
 		patientsWithBaseLineObservation.addParameter(new Parameter("endDate", "endDate", Date.class));
 		patientsWithBaseLineObservation.addParameter(new Parameter("location", "location", Location.class));
+		return patientsWithBaseLineObservation;
+	}
+	
+	public static SqlCohortDefinition createPatientsWithDeclineFromBaselineNoLocationFiltering(String name, Concept concept) {
+		SqlCohortDefinition patientsWithBaseLineObservation = new SqlCohortDefinition(
+				"select p.patient_id from patient p, obs o1, obs o2 where p.voided = 0 and o1.concept_id = "
+						+ concept.getId() + " and o1.obs_id = (select obs_id from obs where "
+						+ "voided = 0 and p.patient_id = person_id and concept_id = " + concept.getId()
+						+ " and value_numeric is not null "
+						+ "order by value_numeric desc LIMIT 1) and o2.obs_id = (select obs_id from obs where voided = "
+						+ "0 and p.patient_id = person_id and concept_id = " + concept.getId()
+						+ " and value_numeric is not null and "
+						+ "obs_datetime <= :endDate order by obs_datetime desc LIMIT 1) and ((o2.value_numeric/o1.value_numeric)*100) < 50");
+		patientsWithBaseLineObservation.setName(name);
+		patientsWithBaseLineObservation.addParameter(new Parameter("endDate", "endDate", Date.class));
 		return patientsWithBaseLineObservation;
 	}
 
@@ -699,8 +744,9 @@ public class Cohorts {
 		inProgram.setName(name);
 
 		List<Program> programs = new ArrayList<Program>();
+		
 		programs.add(program);
-
+		
 		inProgram.setPrograms(programs);
 
 		return inProgram;
@@ -719,6 +765,8 @@ public class Cohorts {
 		InProgramCohortDefinition inProgram = createInProgram(name, program);
 
 		inProgram.addParameter(new Parameter("onOrBefore", "On Or Before", Date.class));
+		inProgram.addParameter(new Parameter("onOrAfter", "On Or After", Date.class));
+		
 		return inProgram;
 	}
 
@@ -996,14 +1044,11 @@ public class Cohorts {
 		return obsCohortDefinition;
 	}
 
-	public static InverseCohortDefinition createNoObservationDefintion(Concept concept) {
-
+	public static SqlCohortDefinition createNoObservationDefintion(Concept concept) {
 		SqlCohortDefinition query = new SqlCohortDefinition(
-				"select distinct person_id from obs where voided = 0 and concept_id = " + concept.getId());
+				"select distinct patient_id from patient where patient_id not in (select person_id from obs where voided = 0 and concept_id = " + concept.getId() + ")");
 
-		InverseCohortDefinition noObs = new InverseCohortDefinition(query);
-
-		return noObs;
+		return query;
 	}
 
 	public static CodedObsCohortDefinition createCodedObsCohortDefinition(Concept question, Concept value,
@@ -2454,7 +2499,7 @@ public class Cohorts {
 		if (program != null && nMonths != null) {
 			SqlCohortDefinition sql = new SqlCohortDefinition();
 			String query = "select distinct patient_id from patient_program where program_id = "
-					+ program.getProgramId() + " and date_enrolled >= (:endDate - INTERVAL " + nMonths + " MONTH)";
+					+ program.getProgramId() + " and :endDate >= (date_enrolled + INTERVAL " + nMonths + " MONTH)";
 
 			sql.addParameter(new Parameter("endDate", "endDate", Date.class));
 			sql.setQuery(query);
@@ -2485,8 +2530,10 @@ public class Cohorts {
 			SqlCohortDefinition sql = new SqlCohortDefinition();
 			String query = "select distinct patient_id from patient_program where program_id = "
 					+ program.getProgramId()
-					+ " and patient_id not in (select distinct person_id from obs where concept_id = "
-					+ obsQuestion.getConceptId() + " and voided != 1) or IFNULL(date_enrolled, date_created) >= (:endDate - INTERVAL " + nMonths + " MONTH)";
+					+ " and ((patient_id not in (select distinct person_id from obs where concept_id = "
+					+ obsQuestion.getConceptId() + " and voided != 1 order by obs_datetime)) or (patient_id in (select distinct person_id from obs where concept_id = "
+					+ obsQuestion.getConceptId() + " and voided != 1 and IFNULL(obs_datetime, date_created) >= IFNULL(date_enrolled, date_created) and IFNULL(obs_datetime, date_created) <= (IFNULL(date_enrolled, date_created) + INTERVAL "
+					+ nMonths + " MONTH)))) and :endDate >= (IFNULL(date_enrolled, date_created) + INTERVAL " + nMonths + " MONTH)";
 
 			sql.addParameter(new Parameter("endDate", "endDate", Date.class));
 			sql.setQuery(query);
@@ -2515,21 +2562,7 @@ public class Cohorts {
 		}
 		return null;
 	}
-
-	public static SqlCohortDefinition withVLRecordedInLessThanNMonthsAgo(Integer nMonths) {
-		if (nMonths != null) {
-
-			SqlCohortDefinition sql = new SqlCohortDefinition();
-			String query = "select distinct person_id as patient_id from obs where IFNULL(obs_datetime, date_created) < (:endDate - INTERVAL " + nMonths + " MONTH)";
-
-			sql.addParameter(new Parameter("endDate", "endDate", Date.class));
-			sql.setQuery(query);
-
-			return sql;
-		}
-		return null;
-	}
-
+	
 	public static SqlCohortDefinition getVCTInclusiveCohortDefinition() {
 		SqlCohortDefinition sql = new SqlCohortDefinition();
 		Concept arvDrugs = gp.getConcept(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
@@ -2537,6 +2570,36 @@ public class Cohorts {
 
 		sql.setQuery(query);
 
+		return sql;
+	}
+	
+	public static CodedObsCohortDefinition getPatientsExitedFromHIVCare() {
+		CodedObsCohortDefinition c = new CodedObsCohortDefinition();
+		Concept exitCareReason = gp.getConcept(GlobalPropertiesManagement.REASON_FOR_EXITING_CARE);
+		
+		c.setQuestion(exitCareReason);
+		c.setTimeModifier(TimeModifier.LAST);
+		c.setRetired(false);
+		
+		return c;
+	}
+	
+	public static SqlCohortDefinition notInProgram(Program program) {
+		if(program != null)
+			return new SqlCohortDefinition("select distinct patient_id from patient where patient_id not in(select patient_id from patient_program where program_id = " + program.getProgramId() +")");
+		return null;
+	}
+	
+	public static SqlCohortDefinition startAndEndDateBetweenNMonthsFromHIVPositive(Integer nMonths) {
+		Concept cd = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
+		SqlCohortDefinition sql = new SqlCohortDefinition();
+		
+		if(cd != null) {
+			sql.addParameter(new Parameter("startDate", "startDate", Date.class));
+			sql.addParameter(new Parameter("endDate", "endDate", Date.class));
+			sql.setQuery("select distinct person_id from obs where concept_id = " + cd.getConceptId()
+				+ " and IFNULL(obs_datetime, date_created) >= :startDate and " + nMonths != null ? ("IFNULL(obs_datetime, date_created) + INTERVAL " + nMonths + " MONTH <= :endDate") : "IFNULL(obs_datetime, date_created) <= :endDate");
+		}
 		return sql;
 	}
 }

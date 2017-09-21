@@ -4,6 +4,7 @@ import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
@@ -137,14 +138,14 @@ public class PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport implements Set
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(null);
-		SqlCohortDefinition withNoVisits = Cohorts.patientsWithNoClinicalVisitforMoreThanNMonths(4);
+		SqlCohortDefinition withNoVisits = Cohorts.patientsWithNoClinicalVisitforLastNMonths(4);
 
-		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onDate=${endDate}"));
+		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram), ParameterizableUtil.createParameterMappings("onOrAfter=${startDate},onOrBefore=${endDate}"));
 		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(onART, null);
-		dataSetDefinition.addFilter(withNoVisits, null);
-
+		dataSetDefinition.addFilter(withNoVisits, ParameterizableUtil.createParameterMappings("startDate=${startDate},endDate=${endDate}"));
+		dataSetDefinition.addFilter(new InverseCohortDefinition(Cohorts.getPatientsExitedFromHIVCare()), null);
+		
 		reportDefinition.addDataSetDefinition("PatientsOnARTWithNoClinicalVisitsInLast4Months", dataSetDefinition,
 				mappings);
 	}

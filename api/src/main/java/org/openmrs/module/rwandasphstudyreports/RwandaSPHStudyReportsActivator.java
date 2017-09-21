@@ -59,6 +59,7 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 				new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().setup();
 				new PatientsNotInitiatedOnART().setup();
 				new OutStandingBaselineVLReport().setup();
+				new OutStandingBaselineCD4Report().setup();
 				new VLBasedTreatmentFailureReport().setup();
 				new CD4BasedTreatmentFailureReport().setup();
 				new PatientsWithNoVLAfter8Months().setup();

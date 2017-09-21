@@ -1,10 +1,14 @@
 package org.openmrs.module.rwandasphstudyreports.reports;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
@@ -20,10 +24,6 @@ import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
 import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.Helper;
 import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class PatientsNotInitiatedOnART implements SetupReport {
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
@@ -141,12 +141,12 @@ public class PatientsNotInitiatedOnART implements SetupReport {
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
 		InverseCohortDefinition notOnART = new InverseCohortDefinition(Cohorts.getPatientsOnART(null));
-		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
+		CompositionCohortDefinition hivPositive = Cohorts.getHIVPositivePatientsOrMissingResult();
 		SqlCohortDefinition patientsNotTransferredOut = Cohorts.createSQLCodedObsCohortDefinition(reasonForExitingCare,
 				transferOut, true);
 
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}"));
+				ParameterizableUtil.createParameterMappings("onOrAfter=${startDate},onOrBefore=${endDate}"));
 		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(notOnART, null);
 		dataSetDefinition.addFilter(hivPositive, null);

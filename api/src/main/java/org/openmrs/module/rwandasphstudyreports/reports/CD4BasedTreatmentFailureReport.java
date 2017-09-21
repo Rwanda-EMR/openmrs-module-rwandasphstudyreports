@@ -1,10 +1,15 @@
 package org.openmrs.module.rwandasphstudyreports.reports;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
@@ -20,10 +25,6 @@ import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
 import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.Helper;
 import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class CD4BasedTreatmentFailureReport implements SetupReport {
 
@@ -153,20 +154,24 @@ public class CD4BasedTreatmentFailureReport implements SetupReport {
 		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Contact Person's Phone Number", "contactPersonTel"), new HashMap<String, Object>());
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
+		CompositionCohortDefinition hivPositive = Cohorts.getHIVPositivePatientsOrMissingResult();
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(12);
-		SqlCohortDefinition cd4declineOfMoreThan50Percent = Cohorts.createPatientsWithDeclineFromBaseline("cd4decline",
+		SqlCohortDefinition cd4declineOfMoreThan50Percent = Cohorts.createPatientsWithDeclineFromBaselineNoLocationFiltering("cd4decline",
 				cd4Count);
 		dataSetDefinition.addColumn(
 				RowPerPatientColumns.getBaselineObservationAtMonthBeforeEndDate("cd4AtArtInitiation", cd4Count, 30, 30,
 						0, artStart, ParameterizableUtil.createParameterMappings("endDate=${endDate}"), "dd/MMM/yyyy"),
 				null);
 
+		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
+				ParameterizableUtil.createParameterMappings("onOrAfter=${startDate},onOrBefore=${endDate}"));
 		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		//TODO dataSetDefinition.addFilter(hivPositive, null);
+		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(onART, null);
-		dataSetDefinition.addFilter(cd4declineOfMoreThan50Percent, mappings);
-
+		dataSetDefinition.addFilter(Cohorts.createCodedObsCohortDefinition(cd4Count, null, null, null), null);
+		dataSetDefinition.addFilter(cd4declineOfMoreThan50Percent, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		dataSetDefinition.addFilter(new InverseCohortDefinition(Cohorts.getPatientsExitedFromHIVCare()), null);
+		
 		reportDefinition.addDataSetDefinition("CD4BasedTreatmentFailure", dataSetDefinition, mappings);
 	}
 

@@ -1,10 +1,16 @@
 package org.openmrs.module.rwandasphstudyreports.reports;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.NumericObsCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
@@ -19,10 +25,6 @@ import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
 import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.Helper;
 import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class VLBasedTreatmentFailureReport implements SetupReport {
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
@@ -69,7 +71,7 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = config.createReportDefinition("VLBasedTreatmentFailure");
 		createDataSetDefinition(reportDefinition);
-		reportDefinition.setDescription("Viral Load Bases Treatment Failure");
+		reportDefinition.setDescription("Viral Load Based Treatment Failure");
 		reportDefinition.setUuid(BaseSPHReportConfig.VLBASEDTREATMENTFAILUREREPORT);
 		Helper.saveReportDefinition(reportDefinition);
 
@@ -149,20 +151,21 @@ public class VLBasedTreatmentFailureReport implements SetupReport {
 		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Contact Person's Phone Number", "contactPersonTel"), new HashMap<String, Object>());
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		CodedObsCohortDefinition hivPositive = Cohorts.getHIVPositivePatients();
+		CompositionCohortDefinition hivPositive = Cohorts.getHIVPositivePatientsOrMissingResult();
 		SqlCohortDefinition onART = Cohorts.getPatientsOnART(12);
-		SqlCohortDefinition vlAbove1000 = Cohorts.patientsWithVLAbove1000();
+		NumericObsCohortDefinition vlAbove1000 = Cohorts.patientsWithLastVLAbove1000();
 		SqlCohortDefinition inProgramFor12MonthsFromEnrollment = Cohorts.inProgramForNMonthsFromEnrollment(hivProgram, 12);
-		SqlCohortDefinition withVLDateBetweenStartAndEndDate = Cohorts.withObsInStartEndDateRange(viralLoad);
+		//SqlCohortDefinition withVLDateBetweenStartAndEndDate = Cohorts.withObsInStartEndDateRange(viralLoad);
 		
-		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
-				ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}"));
+		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram), ParameterizableUtil.createParameterMappings("onOrAfter=${startDate},onOrBefore=${endDate}"));
 		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		//TODO dataSetDefinition.addFilter(hivPositive, null);
+		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(onART, null);
+		//dataSetDefinition.addFilter(Cohorts.createCodedObsCohortDefinition(viralLoad, null, null, null), null);
 		dataSetDefinition.addFilter(vlAbove1000, mappings);
-		//dataSetDefinition.addFilter(inProgramFor12MonthsFromEnrollment, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		dataSetDefinition.addFilter(withVLDateBetweenStartAndEndDate, mappings);
+		dataSetDefinition.addFilter(inProgramFor12MonthsFromEnrollment, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
+		//dataSetDefinition.addFilter(withVLDateBetweenStartAndEndDate, mappings);
+		dataSetDefinition.addFilter(new InverseCohortDefinition(Cohorts.getPatientsExitedFromHIVCare()), null);
 		
 		reportDefinition.addDataSetDefinition("VLBasedTreatmentFailure", dataSetDefinition, mappings);
 	}

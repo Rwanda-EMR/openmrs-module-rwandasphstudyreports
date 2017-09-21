@@ -21,6 +21,8 @@ public class BaseSPHReportConfig {
 	
 	public static String OUTSTANDINGBASELINEVLREPORT = "220467a6-3c38-11e7-a919-92ebcb67fe33";
 	
+	public static String OUTSTANDINGBASELINECD4REPORT = "330467a6-3c38-11e7-a919-92ebcb67fe77";
+	
 	public static String VLBASEDTREATMENTFAILUREREPORT = "22046882-3c38-11e7-a919-92ebcb67fe33";
 	
 	public static String CD4BASEDTREATMENTFAILUREREPORT = "22046c4c-3c38-11e7-a919-92ebcb67fe33";

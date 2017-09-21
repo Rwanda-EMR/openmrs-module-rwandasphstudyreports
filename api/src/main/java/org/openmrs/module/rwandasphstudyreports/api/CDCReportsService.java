@@ -110,8 +110,6 @@ public interface CDCReportsService extends OpenmrsService {
 
 	boolean cd4BasedTreatmentFailure(Patient patient);
 
-	boolean checkIfDateIsNMonthsFromNow(Date date, Integer nMonths);
-
 	boolean vlBasedTreatmentFailure(Patient patient);
 
 	String getVLTreatmentFailureAction(Patient patient);

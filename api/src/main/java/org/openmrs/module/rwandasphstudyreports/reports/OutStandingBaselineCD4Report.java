@@ -1,15 +1,17 @@
 package org.openmrs.module.rwandasphstudyreports.reports;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
-import org.openmrs.api.PatientSetService.TimeModifier;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
-import org.openmrs.module.reporting.cohort.definition.InProgramCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
-import org.openmrs.module.reporting.common.SetComparator;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -25,12 +27,7 @@ import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.Helper;
 import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class PatientsWithNoVLAfter8Months implements SetupReport {
+public class OutStandingBaselineCD4Report implements SetupReport {
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
 
 	private Program hivProgram;
@@ -59,28 +56,29 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 
 	@Override
 	public void setup() throws Exception {
-		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATEREPORTSONACTIVATION)))
+		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATEREPORTSONACTIVATION))) {
 			delete();
-		setupProperties();
-		setupProperties();
-
-		ReportDefinition rd = createReportDefinition();
-		config.setupReport(rd, "PatientsWithNoVLAfter8Months", "PatientsWithNoVLAfter8Months.xls");
+			setupProperties();
+			setupProperties();
+	
+			ReportDefinition rd = createReportDefinition();
+			config.setupReport(rd, "OutStandingBaselineCD4", "OutStandingBaselineCD4.xls");
+		}
 	}
 
 	@Override
 	public void delete() {
-		config.deleteReportDefinition("PatientsWithNoVLAfter8Months");
+		config.deleteReportDefinition("OutStandingBaselineVL");
 	}
 
 	private ReportDefinition createReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 
-		reportDefinition.setName("PatientsWithNoVLAfter8Months");
+		reportDefinition.setDescription("OutStanding Baseline c4 count Tests");
 		reportDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+		reportDefinition.setName("OutStandingBaselineCD4");
+		reportDefinition.setUuid(BaseSPHReportConfig.OUTSTANDINGBASELINECD4REPORT);
 		createDataSetDefinition(reportDefinition);
-		reportDefinition.setDescription("Patients who haven't done Viral Load Tests after 8 Months after Enrollment");
-		reportDefinition.setUuid(BaseSPHReportConfig.PATIENTSWITHNOVLAFTER8MONTHS);
 		Helper.saveReportDefinition(reportDefinition);
 
 		return reportDefinition;
@@ -90,8 +88,8 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 		RowPerPatientDataSetDefinition dataSetDefinition = new RowPerPatientDataSetDefinition();
 		DateDiff monthSinceLastVisit = RowPerPatientColumns.getDifferenceSinceLastEncounter("MonthsSinceLastVisit",
 				encounterTypes, DateDiffType.MONTHS);
-		DateDiff monthSinceLastVL = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastViralLoad",
-				viralLoad, DateDiffType.MONTHS);
+		DateDiff monthSinceLastCD4 = RowPerPatientColumns.getDifferenceSinceLastObservation("MonthsSinceLastcd4Count",
+				cd4Count, DateDiffType.MONTHS);
 		SortCriteria sortCriteria = new SortCriteria();
 		Map<String, Object> mappings = new HashMap<String, Object>();
 
@@ -121,11 +119,11 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentReturnVisitDate("returnVisit", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
 		monthSinceLastVisit.addParameter(reportDefinition.getParameter("endDate"));
-		monthSinceLastVL.addParameter(reportDefinition.getParameter("endDate"));
+		monthSinceLastCD4.addParameter(reportDefinition.getParameter("endDate"));
 
 		dataSetDefinition.addColumn(monthSinceLastVisit,
 				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		dataSetDefinition.addColumn(monthSinceLastVL,
+		dataSetDefinition.addColumn(monthSinceLastCD4,
 				ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("nextRDV", scheduledVisit, "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
@@ -133,41 +131,36 @@ public class PatientsWithNoVLAfter8Months implements SetupReport {
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecent("telephone2", telephone2, null),
 				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Phone Number", "tel"),
-				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getPatientAddress("address", true, true, true, true),
 				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentViralLoad("viralLoad", "dd/MMM/yyyy"),
-				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentHIVTest("hivTest", "dd/MMM/yyyy"),
+		dataSetDefinition.addColumn(RowPerPatientColumns.getMostRecentCD4("cd4Count", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(
 				RowPerPatientColumns.getRecentEncounterType("lastvisit", encounterTypes, "dd/MMM/yyyy", null),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(
-				RowPerPatientColumns.getAllViralLoadsValues("viralLoads", "dd/MMM/yyyy", null, null),
+				RowPerPatientColumns.getAllCD4Values("cd4Counts", "dd/MMM/yyyy", null, null),
 				new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.getDateOfEarliestProgramEnrolment("hivEnrolment", hivProgram, "dd/MMM/yyyy"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Name", "peerEducator"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Peer Educator's Phone Number", "peerEducatorPhone"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Phone Number", "privatePhone"), new HashMap<String, Object>());
-		dataSetDefinition.addColumn(RowPerPatientColumns.getDateCreatedColumn("registrationDate"),
-				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Contact Person's Name", "contactPerson"), new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Contact Person's Phone Number", "contactPersonTel"), new HashMap<String, Object>());
 
 		SqlCohortDefinition adultPatientsCohort = Cohorts.getAdultPatients();
-		SqlCohortDefinition noVL8MonthsAfterEnrollmentIntoHIV = Cohorts.withNoObsInLastNMonthsAfterProgramInit(viralLoad, 8, hivProgram);
-		//TODO fix
-		InProgramCohortDefinition inHIV = Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram);
-		
+		CompositionCohortDefinition hivPositive = Cohorts.getHIVPositivePatientsOrMissingResult();
+		SqlCohortDefinition onART = Cohorts.getPatientsOnART(null);
+		SqlCohortDefinition noCD4 = Cohorts.createNoObservationDefintion(cd4Count);
+
 		dataSetDefinition.addFilter(adultPatientsCohort, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		//TODO dataSetDefinition.addFilter(hivPositive, null);
-		dataSetDefinition.addFilter(noVL8MonthsAfterEnrollmentIntoHIV, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		dataSetDefinition.addFilter(Cohorts.inProgramForNMonthsFromEnrollment(hivProgram, 8), mappings);
+		dataSetDefinition.addFilter(hivPositive, null);
+		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
+				ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}"));
+		dataSetDefinition.addFilter(onART, null);
+		dataSetDefinition.addFilter(noCD4, null);
 		dataSetDefinition.addFilter(new InverseCohortDefinition(Cohorts.getPatientsExitedFromHIVCare()), null);
-		
-		reportDefinition.addDataSetDefinition("PatientsWithNoVLAfter8Months", dataSetDefinition, mappings);
+
+		reportDefinition.addDataSetDefinition("OutStandingBaselineCD4", dataSetDefinition, mappings);
 	}
 
 	private void setupProperties() {

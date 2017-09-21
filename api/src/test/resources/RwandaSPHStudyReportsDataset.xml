@@ -19,6 +19,10 @@
 
 	<patient_identifier patient_identifier_id="10432" patient_id="10432" identifier="1000K" identifier_type="2" preferred="1" location_id="1" creator="1" date_created="2017-09-22 00:00:00.0" voided="false" void_reason="" uuid="8a9aac6e-3f9f-4ed2-8fb5-25215f8cc01"/>
 
+	<program program_id="10432" concept_id="10" creator="1" date_created="2008-08-15 16:07:34.0" retired="false" name="HIV Program" description="HIV Program - test" uuid="71779c39-d289-4dfe-91b5-e7cfaa27c77z"/>
+
+	<patient_program patient_program_id="10432" patient_id="10432" program_id="10432" date_enrolled="2016-08-01 00:00:00.0" creator="1" date_created="2008-08-18 11:40:48.0" changed_by="1" date_changed="2008-08-18 12:29:29.0" voided="false" uuid="b75462a0-4c92-451e-b8bc-e98b38b98986"/>
+  
 	<concept concept_id="1085" retired="false" datatype_id="4" class_id="9" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609aa"/>
  	<concept concept_id="796" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ab"/>
  	<concept concept_id="797" retired="false" datatype_id="4" class_id="3" is_set="true" creator="1" date_created="2017-08-15 16:08:18.0" version="" uuid="f923524a-b90c-4870-a948-4125638609ac"/>
@@ -83,7 +87,7 @@
 	<global_property property="rwandasphstudyreports.guardianTelephoneNumberConceptId" property_value="6330" uuid="4f55827e-26fe-102b-80cb-0017a47801af"/>
 	<global_property property="rwandasphstudyreports.hivPositiveConceptId" property_value="703" uuid="4f55827e-26fe-102b-80cb-0017a47801ah"/>
 	<global_property property="rwandasphstudyreports.returnVisitConceptId" property_value="8130" uuid="4f55827e-26fe-102b-80cb-0017a47801ag"/>
-	<global_property property="reports.adulthivprogramname" property_value="HIV PROGRAM" uuid="4f55827e-26fe-102b-80cb-0017a47801am"/>
+	<global_property property="reports.adulthivprogramname" property_value="HIV Program" uuid="4f55827e-26fe-102b-80cb-0017a47801am"/>
 	<global_property property="reports.adultStartingAge" property_value="16" uuid="4f55827e-26fe-102b-80cb-0017a47801aj"/>
 	<global_property property="reports.cd4Concept" property_value="5497" uuid="4f55827e-26fe-102b-80cb-0017a47801ak"/>
 	<global_property property="reports.accompagnatuerRelationship" property_value="1" uuid="4f55827e-26fe-102b-80cb-0017a47801an"/>

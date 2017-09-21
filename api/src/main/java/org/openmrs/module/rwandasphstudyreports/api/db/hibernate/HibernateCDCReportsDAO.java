@@ -86,15 +86,14 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 				.getGlobalProperty(GlobalPropertyConstants.ARV_DRUGS_CONCEPTSETID);
 		if (StringUtils.isNotBlank(otherARVDrugConceptsIds))
 			for (String s : otherARVDrugConceptsIds.split(",")) {
-				arvDrugsOrders.addAll(Context.getService(CDCReportsService.class).matchOnlyDrugConceptFromOrders(
+				arvDrugsOrders.addAll(matchOnlyDrugConceptFromOrders(
 						drugOrders, Context.getConceptService().getConcept(Integer.parseInt(s.trim()))));
 			}
 		if (StringUtils.isNotBlank(aRVDrugConceptSetIds)
 				&& Context.getConceptService().getConcept(Integer.parseInt(aRVDrugConceptSetIds)).isSet())
 			for (Concept c : Context.getConceptService().getConcept(Integer.parseInt(aRVDrugConceptSetIds))
 					.getSetMembers()) {
-				arvDrugsOrders.addAll(
-						Context.getService(CDCReportsService.class).matchOnlyDrugConceptFromOrders(drugOrders, c));
+				arvDrugsOrders.addAll(matchOnlyDrugConceptFromOrders(drugOrders, c));
 			}
 		Context.getService(CDCReportsService.class).sortOrderListByStartDate(arvDrugsOrders);
 
@@ -339,5 +338,40 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 		}
 
 		return StringUtils.join(o, ", ");
+	}
+	
+	@Override
+	public List<DrugOrder> matchOnlyDrugConceptFromOrders(List<DrugOrder> dOrders, Concept c) {
+		List<DrugOrder> orders = new ArrayList<DrugOrder>();
+
+		for (DrugOrder o : dOrders) {
+			if (c.getConceptId().equals(o.getConcept().getConceptId()))
+				orders.add(o);
+		}
+		return orders;
+	}
+	
+	@Override
+	public boolean checkForAtleast50PercentDecreaseInCD4(Patient patient) {
+		Concept cd4 = Context.getConceptService().getConcept(Integer.parseInt(
+				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.CD4_COUNT_CONCEPTID)));
+
+		List<Obs> cd4Obs = Context.getObsService().getLastNObservations(1, patient, cd4, false);
+		Obs o = getMaximumObs(patient, cd4);
+		
+		if (o != null && (((o.getValueNumeric() - cd4Obs.get(0).getValueNumeric()) * 100) / o.getValueNumeric()) >= 50) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private Obs getMaximumObs(Patient patient, Concept concept) {
+		if(patient != null && concept != null) {
+			Integer obsId = (Integer) sessionFactory.getCurrentSession().createSQLQuery(
+				    "select obs_id from obs where concept_id = " + concept.getConceptId() + " and person_id = " + patient.getPersonId() + " order by value_numeric desc limit 1").uniqueResult();
+			return obsId != null ? Context.getObsService().getObs(obsId) : null;
+		}
+		return null;
 	}
 }

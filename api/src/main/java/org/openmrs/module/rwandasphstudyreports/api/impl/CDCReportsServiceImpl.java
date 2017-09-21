@@ -212,13 +212,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 
 	@Override
 	public List<DrugOrder> matchOnlyDrugConceptFromOrders(List<DrugOrder> dOrders, Concept c) {
-		List<DrugOrder> orders = new ArrayList<DrugOrder>();
-
-		for (DrugOrder o : dOrders) {
-			if (c.getConceptId().equals(o.getConcept().getConceptId()))
-				orders.add(o);
-		}
-		return orders;
+		return getDao().matchOnlyDrugConceptFromOrders(dOrders, c);
 	}
 
 	@Override
@@ -329,18 +323,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	 */
 	@Override
 	public boolean checkForAtleast50PercentDecreaseInCD4(Patient patient) {
-		Concept cd4 = Context.getConceptService().getConcept(Integer.parseInt(
-				Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.CD4_COUNT_CONCEPTID)));
-
-		List<Obs> cd4Obs = Context.getObsService().getLastNObservations(1, patient, cd4, false);;
-
-		sortObsListByObsDateTime(cd4Obs);
-
-		if (cd4Obs.size() > 2 && (cd4Obs.get(0).getValueNumeric() * 100) / cd4Obs.get(1).getValueNumeric() >= 50) {
-			return true;
-		}
-
-		return false;
+		return getDao().checkForAtleast50PercentDecreaseInCD4(patient);
 	}
 
 	/**
@@ -356,7 +339,6 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	 * @return
 	 */
 	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(Concept obsQuestion, Integer nMonths,
 			Program program, Patient patient) {
 		if (patient != null) {
@@ -365,35 +347,34 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 
 			if (nMonths == null)
 				nMonths = 8;
-			if (program == null)
-				program = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 			if (obsQuestion == null)
 				obsQuestion = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);
 
 			List<Obs> os = Context.getObsService().getLastNObservations(1, patient, obsQuestion, false);;
-			List<PatientProgram> pp = new ArrayList(Context.getProgramWorkflowService().getPatientPrograms(patient,
-					program, null, null, null, null, false));
-
-			if ((os.isEmpty() && !pp.isEmpty() || (!os.isEmpty() && pp.isEmpty()) || (os.isEmpty() && pp.isEmpty())))
-				return true;
-
-			if (!os.isEmpty() && !pp.isEmpty()) {
-				sortPatientProgramListByEnrollmentDate(pp);
-				sortObsListByObsDateTime(os);
-				enD.setTime(pp.get(0).getDateEnrolled());
+			Date enrollmentDate = getHIVEnrollmentDate(patient);
+			
+			if (enrollmentDate != null) {
+				enD.setTime(enrollmentDate);
 				enD.add(Calendar.MONTH, nMonths);
-
-				if (os.get(0).getObsDatetime().before(enD.getTime()))
-					return true;
+				
+				if(new Date().after(enD.getTime())) {
+					if (os.isEmpty())
+						return true;
+					else {
+						if (os.get(0).getObsDatetime().before(enD.getTime()) && (os.get(0).getObsDatetime().after(enrollmentDate) || os.get(0).getObsDatetime().equals(enrollmentDate))) {
+							return true;
+						}
+					}
+				}
 			}
 		}
 		return false;
 	}
 
-	private void sortPatientProgramListByEnrollmentDate(List<PatientProgram> pp) {
+	private void sortPatientProgramListByDate(List<PatientProgram> pp) {
 		Collections.sort(pp, new Comparator<PatientProgram>() {
 			public int compare(PatientProgram o1, PatientProgram o2) {
-				return o1.getDateEnrolled().compareTo(o2.getDateEnrolled());
+				return o1.getDateCreated().compareTo(o2.getDateCreated());
 			}
 		});
 	}
@@ -412,7 +393,7 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 				null, null, null, null, false));
 
 		if (!vLObs.isEmpty() && !pp.isEmpty()) {
-			sortPatientProgramListByEnrollmentDate(pp);
+			sortPatientProgramListByDate(pp);
 			sortObsListByObsDateTime(vLObs);
 
 			Obs o = vLObs.get(0);
@@ -572,21 +553,10 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		DrugOrder artInitDrug = getARTInitiationDrug(patient);
 		List<Obs> vLObs = Context.getObsService().getLastNObservations(1, patient, vl, false);
 
-		return artInitDrug != null && checkIfDateIsNMonthsFromNow(artInitDrug.getEffectiveStartDate() != null ? artInitDrug.getEffectiveStartDate() : artInitDrug.getDateCreated(), 12)
+		return artInitDrug != null && checkIfPatientIsOnARVMoreThanNMonths(patient, 12)
 				&& checkIfPatientIsHIVPositiveOrMissingResult(patient) && !vLObs.isEmpty() && vLObs.get(0).getValueNumeric() >= 1000;
 	}
-
-	@Override
-	public boolean checkIfDateIsNMonthsFromNow(Date date, Integer nMonths) {
-		if (date != null && nMonths != null) {
-			Calendar c = Calendar.getInstance();
-
-			c.add(Calendar.MONTH, -nMonths);
-			return c.getTime().after(date);
-		}
-		return false;
-	}
-
+	
 	@Override
 	public boolean cd4BasedTreatmentFailure(Patient patient) {
 		return checkIfPatientIsHIVPositiveOrMissingResult(patient) && checkForAtleast50PercentDecreaseInCD4(patient)

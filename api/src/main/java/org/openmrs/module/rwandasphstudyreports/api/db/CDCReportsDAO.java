@@ -18,6 +18,7 @@ import org.openmrs.module.mohorderentrybridge.MoHDrugOrder;
 import org.openmrs.module.rwandasphstudyreports.SphClientOrPatient;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -43,4 +44,8 @@ public interface CDCReportsDAO {
 	public boolean matchTestEnrollmentAndArtInitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate, String[] datesToMatch, Date startDate, Date endDate);
 
 	public String getCurrentRegimen(List<MoHDrugOrder> orders);
+	
+	public List<DrugOrder> matchOnlyDrugConceptFromOrders(List<DrugOrder> dOrders, Concept c);
+
+	boolean checkForAtleast50PercentDecreaseInCD4(Patient patient);
 }
