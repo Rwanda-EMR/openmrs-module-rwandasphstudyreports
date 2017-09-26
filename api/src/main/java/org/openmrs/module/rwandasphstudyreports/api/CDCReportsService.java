@@ -100,7 +100,7 @@ public interface CDCReportsService extends OpenmrsService {
 
 	public List<Patient> getHIVPositivePatientsOnARVTreatment();
 
-	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet(Date startDate, Date endDate, String[] datesToMatch);
+	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet(Date startDate, Date endDate, String[] datesToMatch, String[] alerts);
 
 	public Date getHIVEnrollmentDate(Patient patient);
 

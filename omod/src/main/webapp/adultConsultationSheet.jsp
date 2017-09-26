@@ -10,10 +10,16 @@
     <spring:message code="rwandasphstudyreports.startdate"/> <input type="text" id="startDate" size="11" value="${startDate}" name="startDate" onclick="showCalendar(this)" />
     <spring:message code="rwandasphstudyreports.enddate"/> <input type="text" id="endDate" size="11" value="${endDate}" name="endDate" onclick="showCalendar(this)" />
     <spring:message code="rwandasphstudyreports.datesToMatch"/>
-    <select multiple name="datesToMatch">
+    <select multiple name="datesToMatch" id="dates-to-match">
         <option value="test" <c:if test="${testDateMatch}"> selected</c:if>>HIV Test</option>
         <option value="enrollment" <c:if test="${enrollmentDateMatch}"> selected</c:if>>HIV Enrollment</option>
         <option value="initiation" <c:if test="${initiationDateMatch}"> selected</c:if>>ART Initiation</option>
+    </select>
+    <spring:message code="rwandasphstudyreports.alertsToMatch"/>
+    <select multiple name="alerts" id="alerts-to-match">
+    	<c:forEach items="${alerts}" var="a">
+    		<option value="${a.name}" <c:if test="${fn:containsIgnoreCase(alertsString, a.name)}"> selected</c:if>> ${a.displayName}</option>
+    	</c:forEach>
     </select>
     <input type="submit" value="<spring:message code='general.submit'/>"/>
     <input type="button" onclick="window.location.href = 'adultConsultationSheet.form'" value="<spring:message code='rwandasphstudyreports.reset'/>"/>
@@ -36,8 +42,11 @@
 </script>
 
 <style type="text/css">
-    select[multiple] {
-        max-height: 4em;
+    #dates-to-match {
+        height: 4em;
+    }
+    #alerts-to-match {
+        height: 8em;
     }
 </style>
 

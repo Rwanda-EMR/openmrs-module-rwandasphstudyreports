@@ -37,7 +37,7 @@ public interface CDCReportsDAO {
 
 	public List<Patient> getHIVPositivePatientsOnARVTreatment();
 
-	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet(Date startDate, Date endDate, String[] datesToMatch);
+	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet(Date startDate, Date endDate, String[] datesToMatch, String[] alerts);
 
 	public List<Patient> getPatientsInHIVProgram(Program program, Date starDate, Date endDate);
 

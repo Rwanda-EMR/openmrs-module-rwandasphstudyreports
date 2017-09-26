@@ -21,8 +21,12 @@ public class VLTreatmentFailureAction {
     }
     
     public enum Actions {
-    	REINFORCE("REINFORCE THE ADHERENCE"),
-		SECOND_REGIMEN("Give ARVs of Second line");
+    	counseling("Counseling"),
+    	checkDosage("Check dosage"),
+    	homeVisit("Home visit"),
+    	orderVL("Order VL"),
+    	secondLineART("Shift patient to second line ART"),
+    	thirdLineART("Shift patient to third line ART");
 
 		private String displayName;
 

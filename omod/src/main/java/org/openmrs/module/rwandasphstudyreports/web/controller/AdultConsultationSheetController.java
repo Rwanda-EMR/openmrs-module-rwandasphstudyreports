@@ -1,9 +1,11 @@
 package org.openmrs.module.rwandasphstudyreports.web.controller;
 
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.rwandasphstudyreports.CDCAlert;
 import org.openmrs.module.rwandasphstudyreports.GlobalPropertyConstants;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.springframework.stereotype.Controller;
@@ -34,22 +36,27 @@ public class AdultConsultationSheetController {
 
         model.addAttribute("startDate", Context.getDateFormat().format(startDate.getTime()));
         model.addAttribute("endDate", Context.getDateFormat().format(endDate));
-        model.addAttribute("clientsAndPatients", Context.getService(CDCReportsService.class).getHIVPositiveClientsOrPatientsForConsultationSheet(startDate.getTime(), endDate, null));
+        model.addAttribute("clientsAndPatients", Context.getService(CDCReportsService.class).getHIVPositiveClientsOrPatientsForConsultationSheet(startDate.getTime(), endDate, null, null));
         model.addAttribute("testDateMatch", false);
         model.addAttribute("enrollmentDateMatch", false);
         model.addAttribute("initiationDateMatch", false);
+        model.addAttribute("alerts", CDCAlert.getAllCDCAlerts());
+        model.addAttribute("alertsString", "");
     }
 
     @RequestMapping(value = "/module/rwandasphstudyreports/adultConsultationSheet", method = RequestMethod.POST)
     public void post(ModelMap model, HttpServletRequest request) {
         String[] selectedDateMatches = request.getParameterValues("datesToMatch");
+        String[] selectedAlerts = request.getParameterValues("alerts");
 
-        model.addAttribute("clientsAndPatients", Context.getService(CDCReportsService.class).getHIVPositiveClientsOrPatientsForConsultationSheet(extractDate(request.getParameter("startDate"), Context.getDateFormat()), extractDate(request.getParameter("endDate"), Context.getDateFormat()), selectedDateMatches));
         model.addAttribute("startDate", request.getParameter("startDate"));
         model.addAttribute("endDate", request.getParameter("endDate"));
+        model.addAttribute("clientsAndPatients", Context.getService(CDCReportsService.class).getHIVPositiveClientsOrPatientsForConsultationSheet(extractDate(request.getParameter("startDate"), Context.getDateFormat()), extractDate(request.getParameter("endDate"), Context.getDateFormat()), selectedDateMatches, selectedAlerts));
         model.addAttribute("testDateMatch", selectedDateMatches != null && ArrayUtils.contains(selectedDateMatches, "test"));
         model.addAttribute("enrollmentDateMatch", selectedDateMatches != null && ArrayUtils.contains(selectedDateMatches, "enrollment"));
         model.addAttribute("initiationDateMatch", selectedDateMatches != null && ArrayUtils.contains(selectedDateMatches, "initiation"));
+        model.addAttribute("alerts", CDCAlert.getAllCDCAlerts());
+        model.addAttribute("alertsString", StringUtils.join(selectedAlerts, ", "));
     }
 
     private Date extractDate(String dateStr, SimpleDateFormat sdf) {

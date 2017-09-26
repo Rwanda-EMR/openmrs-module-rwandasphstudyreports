@@ -527,8 +527,8 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 	}
 
 	public List<SphClientOrPatient> getHIVPositiveClientsOrPatientsForConsultationSheet(Date startDate, Date endDate,
-			String[] datesToMatch) {
-		return getDao().getHIVPositiveClientsOrPatientsForConsultationSheet(startDate, endDate, datesToMatch);
+			String[] datesToMatch, String[] alerts) {
+		return getDao().getHIVPositiveClientsOrPatientsForConsultationSheet(startDate, endDate, datesToMatch, alerts);
 	}
 
 	public List<Patient> getPatientsInHIVProgram(Program program, Date starDate, Date endDate) {

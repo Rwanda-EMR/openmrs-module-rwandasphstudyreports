@@ -1,16 +1,11 @@
 package org.openmrs.module.rwandasphstudyreports.web.controller;
 
-import java.util.List;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.rwandasphstudyreports.GlobalPropertiesManagement;
 import org.openmrs.module.rwandasphstudyreports.VLTreatmentFailureAction;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.openmrs.web.WebConstants;
@@ -53,7 +48,7 @@ public class ScreeningController {
 
 	private void setUpModel(ModelMap model, Patient p) {
 		if (!Context.getService(CDCReportsService.class).checkIfPatientIsExittedFromCare(p)) {
-			if (p != null && Context.getService(CDCReportsService.class).vlBasedTreatmentFailure(p)) {
+			if (p != null && (Context.getService(CDCReportsService.class).vlBasedTreatmentFailure(p) || Context.getService(CDCReportsService.class).cd4BasedTreatmentFailure(p))) {
 				model.addAttribute("vlTreatmentFailure", true);
 				model.addAttribute("msg",
 						Context.getMessageSourceService().getMessage("rwandasphstudyreports.screening.yes"));
