@@ -104,7 +104,7 @@ public interface CDCReportsService extends OpenmrsService {
 
 	public Date getHIVEnrollmentDate(Patient patient);
 
-	public boolean matchTestEnrollmentAndArtInitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate, String[] datesToMatch, Date startDate, Date endDate);
+	public boolean matchTestEnrollmentArtInitAndReturnVisitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate, Date returnVisitDate, String[] datesToMatch, Date startDate, Date endDate);
 
 	public String getCurrentRegimen(List<MoHDrugOrder> orders);
 

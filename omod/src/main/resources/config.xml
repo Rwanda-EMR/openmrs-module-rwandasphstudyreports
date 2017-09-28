@@ -423,7 +423,7 @@
 	</globalProperty>
 	<globalProperty>
 		<property>rwandasphstudyreports.returnVisitConceptId</property>
-		<defaultValue>8130</defaultValue>
+		<defaultValue>5096</defaultValue>
 		<description>RETURN VISIT DATE concept id</description>
 	</globalProperty>
 	<globalProperty>

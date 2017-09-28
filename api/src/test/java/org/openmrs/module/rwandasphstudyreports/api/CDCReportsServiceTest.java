@@ -233,20 +233,20 @@ public class CDCReportsServiceTest extends BaseModuleContextSensitiveTest {
 		e.add(Calendar.MONTH, 0);
 		before.add(Calendar.MONTH, -5);
 
-		boolean match = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"test", "enrollment", "initiation"}, s.getTime(), e.getTime());
-		boolean match1 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"test", "initiation"}, s.getTime(), e.getTime());
-		boolean match2 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"enrollment", "initiation"}, s.getTime(), e.getTime());
-		boolean match3 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"test", "enrollment"}, s.getTime(), e.getTime());
-		boolean match4 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), null, s.getTime(), e.getTime());
-		boolean match5 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), null, s.getTime(), e.getTime());
-		boolean match6 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), null, s.getTime(), e.getTime());
-		boolean match7 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[0], s.getTime(), e.getTime());
-		boolean match8 = service.matchTestEnrollmentAndArtInitDates(null, h.getTime(), a.getTime(), new String[] {"test", "enrollment", "initiation"}, s.getTime(), e.getTime());
-		boolean match9 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), null, null, new String[] {"test"}, s.getTime(), e.getTime());
-		boolean match10 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"test", "enrollment", "initiation"}, null, e.getTime());
-		boolean match11 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), null, null, new String[] {"test", "enrollment", "initiation"}, s.getTime(), e.getTime());
-		boolean match12 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"test", "enrollment", "initiation"}, new Date(), e.getTime());
-		boolean match13 = service.matchTestEnrollmentAndArtInitDates(t.getTime(), h.getTime(), a.getTime(), new String[] {"test", "enrollment", "initiation"}, s.getTime(), before.getTime());
+		boolean match = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), h.getTime(), a.getTime(), null, new String[] {"test", "enrollment", "initiation"}, s.getTime(), e.getTime());
+		boolean match1 = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), h.getTime(), a.getTime(), null, new String[] {"test", "initiation"}, s.getTime(), e.getTime());
+		boolean match2 = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), h.getTime(), a.getTime(), null, new String[] {"enrollment", "initiation"}, s.getTime(), e.getTime());
+		boolean match3 = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), h.getTime(), a.getTime(), null, new String[] {"test", "enrollment"}, s.getTime(), e.getTime());
+		boolean match4 = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), h.getTime(), a.getTime(), null, null, s.getTime(), e.getTime());
+		boolean match5 = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), h.getTime(), a.getTime(), null, null, s.getTime(), e.getTime());
+		boolean match6 = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), h.getTime(), a.getTime(), null, null, s.getTime(), e.getTime());
+		boolean match7 = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), h.getTime(), a.getTime(), null, new String[0], s.getTime(), e.getTime());
+		boolean match8 = service.matchTestEnrollmentArtInitAndReturnVisitDates(null, h.getTime(), a.getTime(), null, new String[] {"test", "enrollment", "initiation"}, s.getTime(), e.getTime());
+		boolean match9 = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), null, null, null, new String[] {"test"}, s.getTime(), e.getTime());
+		boolean match10 = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), h.getTime(), null, a.getTime(), new String[] {"test", "enrollment", "initiation"}, null, e.getTime());
+		boolean match11 = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), null, null, null, new String[] {"test", "enrollment", "initiation"}, s.getTime(), e.getTime());
+		boolean match12 = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), h.getTime(), a.getTime(), null, new String[] {"test", "enrollment", "initiation"}, new Date(), e.getTime());
+		boolean match13 = service.matchTestEnrollmentArtInitAndReturnVisitDates(t.getTime(), h.getTime(), a.getTime(), null, new String[] {"test", "enrollment", "initiation"}, s.getTime(), before.getTime());
 
 		Assert.assertTrue(match);
 		Assert.assertTrue(match1);

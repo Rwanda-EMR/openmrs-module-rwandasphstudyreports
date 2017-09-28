@@ -12,8 +12,9 @@
     <spring:message code="rwandasphstudyreports.datesToMatch"/>
     <select multiple name="datesToMatch" id="dates-to-match">
         <option value="test" <c:if test="${testDateMatch}"> selected</c:if>>HIV Test</option>
-        <option value="enrollment" <c:if test="${enrollmentDateMatch}"> selected</c:if>>HIV Enrollment</option>
+        <option value="enrollment" selected>HIV Enrollment</option>
         <option value="initiation" <c:if test="${initiationDateMatch}"> selected</c:if>>ART Initiation</option>
+        <option value="returnVisit" <c:if test="${returnVisitDateMatch}"> selected</c:if>>Return Visit</option>
     </select>
     <spring:message code="rwandasphstudyreports.alertsToMatch"/>
     <select multiple name="alerts" id="alerts-to-match">
@@ -43,7 +44,7 @@
 
 <style type="text/css">
     #dates-to-match {
-        height: 4em;
+        height: 5.4em;
     }
     #alerts-to-match {
         height: 8em;
@@ -66,6 +67,7 @@
         <th>HIV Test Date</th>
         <th>HIV Enrollment Date</th>
         <th>ART Initiation Date</th>
+        <th>Return Visit Date</th>
         <th>Regimen</th>
         <th>Alerts</th>
     </tr>
@@ -86,11 +88,12 @@
             <td>${cOrP.dateTestedForHIV}</td>
             <td>${cOrP.hivEnrollmentDate}</td>
             <td>${cOrP.artInitiationDate}</td>
+            <td>${cOrP.returnVisitDate}</td>
             <td>${cOrP.currentOrLastRegimen}</td>
             <td>
                 <c:choose>
                     <c:when test="${cOrP.type == 'PATIENT'}">
-                        <c:forEach items="${cOrP.alerts}" var="alert">-${alert}<br /></c:forEach>
+                        <c:forEach items="${cOrP.alerts}" var="alert">-${alert}</c:forEach>
                     </c:when>
                     <c:otherwise>
                         <spring:message code='rwandasphstudyreports.alerts.notLinked'/>

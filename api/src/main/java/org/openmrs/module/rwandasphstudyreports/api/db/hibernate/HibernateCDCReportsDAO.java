@@ -250,23 +250,34 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 			Calendar adult = Calendar.getInstance();
 			PatientIdentifierType tracnetIdType = new GlobalPropertiesManagement()
 					.getPatientIdentifier(GlobalPropertiesManagement.TRACNET_IDENTIFIER);
+			String rVisitDC = Context.getAdministrationService()
+					.getGlobalProperty(GlobalPropertyConstants.RETURN_VISIT_CONCEPTID);
+			List<Obs> returnVisitDate = StringUtils.isNotBlank(rVisitDC) ? Context.getObsService().getLastNObservations(
+					1, person, Context.getConceptService().getConcept(Integer.parseInt(rVisitDC)), false) : null;
+			List<Obs> savedTestDate = Context.getObsService().getLastNObservations(1, person,
+					Context.getConceptService().getConcept(VCTConfigurationUtil.getHivTestDateConceptId()), false);
 
 			if (person.getBirthdate().before(adult.getTime())) {
 				adult.add(Calendar.YEAR, StringUtils.isNotBlank(adultAge) ? -Integer.parseInt(adultAge) : -16);
 				resetTimes(adult);
-				if (matchTestEnrollmentAndArtInitDates(testDate, hivEnrollmentDate, artInitDate, datesToMatch,
-						startDate, endDate)) {
-					SphClientOrPatient c = new SphClientOrPatient();
-					List<Obs> savedTestDate = Context.getObsService().getLastNObservations(1, person,
-							Context.getConceptService().getConcept(VCTConfigurationUtil.getHivTestDateConceptId()),
-							false);
-					String hivTestDate = testDate != null ? sdf.format(testDate) : "";
+				String hivTestDate = testDate != null ? sdf.format(testDate) : "";
 
-					if (savedTestDate != null && !savedTestDate.isEmpty()) {
-						hivTestDate = savedTestDate != null && !savedTestDate.isEmpty()
-								? Context.getDateFormat().format(savedTestDate.get(0).getValueDatetime())
-								: "" + testDate != null ? " (" + sdf.format(testDate) + ")" : "";
-					}
+				if (savedTestDate != null && !savedTestDate.isEmpty()) {
+					hivTestDate = savedTestDate != null && !savedTestDate.isEmpty()
+							? Context.getDateFormat().format(savedTestDate.get(0).getValueDatetime())
+							: "" + testDate != null ? " (" + sdf.format(testDate) + ")" : "";
+				}
+				if (matchTestEnrollmentArtInitAndReturnVisitDates(
+						savedTestDate != null && !savedTestDate.isEmpty()
+								&& savedTestDate.get(0).getValueDatetime() != null
+										? savedTestDate.get(0).getValueDatetime() : testDate,
+						hivEnrollmentDate, artInitDate,
+						returnVisitDate != null && returnVisitDate.size() > 0
+								&& returnVisitDate.get(0).getValueDatetime() != null
+										? returnVisitDate.get(0).getValueDatetime() : null,
+						datesToMatch, startDate, endDate)) {
+					SphClientOrPatient c = new SphClientOrPatient();
+
 					if (p instanceof VCTClient) {
 						c.setType(SphClientOrPatient.SphClientOrPatientType.CLIENT.name());
 						c.setRegistrationDate(((VCTClient) p).getDateOfRegistration() + " ("
@@ -277,38 +288,40 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 						patient = Context.getPatientService().getPatient(patient.getPatientId());
 					}
 					patient = patient == null ? new Patient(person) : patient;
-					
-					List<String> patientAlerts = new CDCRulesAlgorithm().cdcDsRulesAlerts(patient);
-					
-					c.setAlerts(patientAlerts);
-					if (c.getAlerts() != null && !c.getAlerts().isEmpty()) {
-						if (matchAlerts(alerts, patientAlerts)) {
-							c.setAddress(person.getPersonAddress() != null
-									? getFormattedAddress(person.getPersonAddress()) : "");
-							c.setBirthDate(person.getBirthdate() != null ? sdf.format(person.getBirthdate()) : "");
-							c.setId(person.getPersonId());
-							if (tracnetIdType != null && patient.getPatientIdentifier(tracnetIdType) != null) {
-								c.setTracnetId(patient.getPatientIdentifier(tracnetIdType).getIdentifier());
-							}
-							c.setDateTestedForHIV(hivTestDate);
-							c.setName(person.getPersonName() != null ? person.getPersonName().getFullName() : "");
-							c.setPeerEducator(person.getAttribute(peerEduc) != null
-									? person.getAttribute(peerEduc).getValue() : "");
-							c.setPeerEducatorTelephone(person.getAttribute(peerEducTel) != null
-									? person.getAttribute(peerEducTel).getValue() : "");
-							c.setContactPerson(person.getAttribute(contactPerson) != null
-									? person.getAttribute(contactPerson).getValue() : "");
-							c.setContactPersonTelephone(person.getAttribute(contactPersonTel) != null
-									? person.getAttribute(contactPersonTel).getValue() : "");
-							c.setSex(person.getGender());
-							c.setTelephone(person.getAttribute(tel) != null ? person.getAttribute(tel).getValue() : "");
-							c.setHivEnrollmentDate(hivEnrollmentDate != null ? sdf.format(hivEnrollmentDate) : "");
-							c.setArtInitiationDate(artInitDate != null ? sdf.format(artInitDate) : "");
-							c.setCurrentOrLastRegimen(getCurrentRegimen(Context
-									.getService(MoHOrderEntryBridgeService.class).getMoHDrugOrdersByPatient(patient)));
 
-							return c;
+					List<String> patientAlerts = new CDCRulesAlgorithm().cdcDsRulesAlerts(patient);
+
+					c.setAlerts(patientAlerts);
+					if ((c.getAlerts() != null && !c.getAlerts().isEmpty() && matchAlerts(alerts, patientAlerts))
+							|| SphClientOrPatient.SphClientOrPatientType.CLIENT.name().equals(c.getType())) {
+						c.setAddress(person.getPersonAddress() != null ? getFormattedAddress(person.getPersonAddress())
+								: "");
+						c.setBirthDate(person.getBirthdate() != null ? sdf.format(person.getBirthdate()) : "");
+						c.setId(person.getPersonId());
+						if (tracnetIdType != null && patient.getPatientIdentifier(tracnetIdType) != null) {
+							c.setTracnetId(patient.getPatientIdentifier(tracnetIdType).getIdentifier());
 						}
+						c.setDateTestedForHIV(hivTestDate);
+						c.setName(person.getPersonName() != null ? person.getPersonName().getFullName() : "");
+						c.setPeerEducator(
+								person.getAttribute(peerEduc) != null ? person.getAttribute(peerEduc).getValue() : "");
+						c.setPeerEducatorTelephone(person.getAttribute(peerEducTel) != null
+								? person.getAttribute(peerEducTel).getValue() : "");
+						c.setContactPerson(person.getAttribute(contactPerson) != null
+								? person.getAttribute(contactPerson).getValue() : "");
+						c.setContactPersonTelephone(person.getAttribute(contactPersonTel) != null
+								? person.getAttribute(contactPersonTel).getValue() : "");
+						c.setSex(person.getGender());
+						c.setTelephone(person.getAttribute(tel) != null ? person.getAttribute(tel).getValue() : "");
+						c.setHivEnrollmentDate(hivEnrollmentDate != null ? sdf.format(hivEnrollmentDate) : "");
+						c.setReturnVisitDate(returnVisitDate != null && returnVisitDate.size() > 0
+								&& returnVisitDate.get(0).getValueDatetime() != null
+										? sdf.format(returnVisitDate.get(0).getValueDatetime()) : "");
+						c.setArtInitiationDate(artInitDate != null ? sdf.format(artInitDate) : "");
+						c.setCurrentOrLastRegimen(getCurrentRegimen(Context.getService(MoHOrderEntryBridgeService.class)
+								.getMoHDrugOrdersByPatient(patient)));
+
+						return c;
 					}
 				}
 			}
@@ -331,8 +344,8 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 	}
 
 	@Override
-	public boolean matchTestEnrollmentAndArtInitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate,
-			String[] datesToMatch, Date startDate, Date endDate) {
+	public boolean matchTestEnrollmentArtInitAndReturnVisitDates(Date testDate, Date hivEnrollmentDate,
+			Date artInitDate, Date returnVisitDate, String[] datesToMatch, Date startDate, Date endDate) {
 		boolean matched = false;
 
 		if (datesToMatch != null && ArrayUtils.isNotEmpty(datesToMatch) && startDate != null && endDate != null) {
@@ -348,7 +361,10 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 									&& (hivEnrollmentDate.equals(endDate) || hivEnrollmentDate.before(endDate))))
 							|| (d.equals("initiation") && (artInitDate != null
 									&& (artInitDate.equals(startDate) || artInitDate.after(startDate))
-									&& (artInitDate.equals(endDate) || artInitDate.before(endDate))))) {
+									&& (artInitDate.equals(endDate) || artInitDate.before(endDate))))
+							|| (d.equals("returnVisit") && (returnVisitDate != null
+									&& (returnVisitDate.equals(startDate) || returnVisitDate.after(startDate))
+									&& (returnVisitDate.equals(endDate) || returnVisitDate.before(endDate))))) {
 						matched = matched || i == 0 || (!matched && i > 0) ? true : false;
 					} else
 						matched = false;

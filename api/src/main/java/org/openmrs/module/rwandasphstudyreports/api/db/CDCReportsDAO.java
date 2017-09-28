@@ -41,7 +41,7 @@ public interface CDCReportsDAO {
 
 	public List<Patient> getPatientsInHIVProgram(Program program, Date starDate, Date endDate);
 
-	public boolean matchTestEnrollmentAndArtInitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate, String[] datesToMatch, Date startDate, Date endDate);
+	public boolean matchTestEnrollmentArtInitAndReturnVisitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate, Date returnVisitDate, String[] datesToMatch, Date startDate, Date endDate);
 
 	public String getCurrentRegimen(List<MoHDrugOrder> orders);
 	

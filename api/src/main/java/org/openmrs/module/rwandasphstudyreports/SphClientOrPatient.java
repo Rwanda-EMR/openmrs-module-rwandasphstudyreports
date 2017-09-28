@@ -25,6 +25,7 @@ public class SphClientOrPatient {
     private List<String> alerts;
     private String type;
     private String currentOrLastRegimen;
+    private String returnVisitDate;
 
     public Integer getId() {
         return id;
@@ -177,7 +178,15 @@ public class SphClientOrPatient {
         this.currentOrLastRegimen = currentOrLastRegimen;
     }
 
-    public enum SphClientOrPatientType {
+    public String getReturnVisitDate() {
+		return returnVisitDate;
+	}
+
+	public void setReturnVisitDate(String returnVisitDate) {
+		this.returnVisitDate = returnVisitDate;
+	}
+
+	public enum SphClientOrPatientType {
         CLIENT,
         PATIENT;
     }

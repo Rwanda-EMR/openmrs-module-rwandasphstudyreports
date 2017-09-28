@@ -535,9 +535,10 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		return getDao().getPatientsInHIVProgram(program, starDate, endDate);
 	}
 
-	public boolean matchTestEnrollmentAndArtInitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate,
+	public boolean matchTestEnrollmentArtInitAndReturnVisitDates(Date testDate, Date hivEnrollmentDate, Date artInitDate,
+			Date returnVisitDate,
 			String[] datesToMatch, Date startDate, Date endDate) {
-		return getDao().matchTestEnrollmentAndArtInitDates(testDate, hivEnrollmentDate, artInitDate, datesToMatch,
+		return getDao().matchTestEnrollmentArtInitAndReturnVisitDates(testDate, hivEnrollmentDate, artInitDate, returnVisitDate, datesToMatch,
 				startDate, endDate);
 	}
 

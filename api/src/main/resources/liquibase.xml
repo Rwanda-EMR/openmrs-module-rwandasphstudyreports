@@ -27,4 +27,13 @@
 			<where>property='reports.hivRapidTestConceptId'</where>
 		</update>
 	</changeSet>
+	<changeSet id="20172709-2245" author="k-joseph">
+		<comment>
+			Correcting rwandasphstudyreports.returnVisitConceptId
+		</comment>
+		<update tableName="global_property">
+			<column name="property_value" value="5096"/>
+			<where>property='rwandasphstudyreports.returnVisitConceptId'</where>
+		</update>
+	</changeSet>
 </databaseChangeLog>
