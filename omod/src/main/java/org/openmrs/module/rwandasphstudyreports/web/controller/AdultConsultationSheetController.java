@@ -40,7 +40,7 @@ public class AdultConsultationSheetController {
 		modalInit(model, Context.getDateFormat().format(startDate.getTime()),
 				Context.getDateFormat().format(endDate), Context.getService(CDCReportsService.class)
 						.getHIVPositiveClientsOrPatientsForConsultationSheet(startDate.getTime(), endDate, null, null),
-				false, false, false, CDCAlert.getAllCDCAlerts(), "");
+				false, false, false, false, CDCAlert.getAllCDCAlerts(), "");
 	}
 
 	@RequestMapping(value = "/module/rwandasphstudyreports/adultConsultationSheet", method = RequestMethod.POST)
@@ -54,18 +54,20 @@ public class AdultConsultationSheetController {
 						extractDate(request.getParameter("endDate"), Context.getDateFormat()), selectedDateMatches,
 						selectedAlerts),
 				selectedDateMatches != null && ArrayUtils.contains(selectedDateMatches, "test"),
+				selectedDateMatches != null && ArrayUtils.contains(selectedDateMatches, "enrollment"),
 				selectedDateMatches != null && ArrayUtils.contains(selectedDateMatches, "initiation"),
 				selectedDateMatches != null && ArrayUtils.contains(selectedDateMatches, "returnVisit"),
 				CDCAlert.getAllCDCAlerts(), StringUtils.join(selectedAlerts, ", "));
 	}
 
 	private void modalInit(ModelMap model, String startDate, String endDate,
-			List<SphClientOrPatient> clientsAndPatients, boolean testDateMatch, boolean initiationDateMatch,
+			List<SphClientOrPatient> clientsAndPatients, boolean testDateMatch, boolean enrollmentDateMatch, boolean initiationDateMatch,
 			boolean returnVisitDateMatch, List<CDCAlert> alerts, String alertsString) {
 		model.addAttribute("startDate", startDate);
 		model.addAttribute("endDate", endDate);
 		model.addAttribute("clientsAndPatients", clientsAndPatients);
 		model.addAttribute("testDateMatch", testDateMatch);
+		model.addAttribute("enrollmentDateMatch", enrollmentDateMatch);
 		model.addAttribute("initiationDateMatch", initiationDateMatch);
 		model.addAttribute("alerts", alerts);
 		model.addAttribute("alertsString", alertsString);

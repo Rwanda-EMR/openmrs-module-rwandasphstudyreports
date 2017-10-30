@@ -62,7 +62,7 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 				new OutStandingBaselineCD4Report().setup();
 				new VLBasedTreatmentFailureReport().setup();
 				new CD4BasedTreatmentFailureReport().setup();
-				new PatientsWithNoVLAfter8Months().setup();
+				new PatientsWithNoVLAfter8Months().delete();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

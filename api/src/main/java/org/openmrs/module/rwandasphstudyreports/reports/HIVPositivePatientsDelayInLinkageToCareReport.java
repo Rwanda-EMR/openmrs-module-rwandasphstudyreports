@@ -53,7 +53,7 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 
 	@Override
 	public void setup() throws Exception {
-		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATEREPORTSONACTIVATION)))
+		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATE_REPORTS_ON_ACTIVATION)))
 			delete();
 		setupProperties();
 		setupProperties();

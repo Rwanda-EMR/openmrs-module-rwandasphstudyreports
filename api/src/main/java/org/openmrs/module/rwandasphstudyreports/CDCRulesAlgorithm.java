@@ -58,13 +58,7 @@ public class CDCRulesAlgorithm {
 				alerts.add(Context.getMessageSourceService()
 						.getMessage("rwandasphstudyreports.alerts.cd4BasedTreatmentFailure"));
 			}
-	
-			if (artInitDrug != null && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositiveOrMissingResult(patient)
-					&& Context.getService(CDCReportsService.class).checkIfPatientHasNoObsInLastNMonthsAfterProgramInit(null, null, null, patient)) {
-				alerts.add(Context.getMessageSourceService()
-						.getMessage("rwandasphstudyreports.alerts.patientsWithNoVLAfter8Months"));
-				patientsWithNoVLAfter8Months = true;
-			}
+			
 			if (!vLObs.isEmpty()) {
 				Date vLDate = vLObs.get(0).getObsDatetime();
 				Calendar vLCalendar = Calendar.getInstance(Context.getLocale());

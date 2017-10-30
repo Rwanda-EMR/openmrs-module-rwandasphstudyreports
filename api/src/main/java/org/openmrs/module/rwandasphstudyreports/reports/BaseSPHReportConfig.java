@@ -31,15 +31,17 @@ public class BaseSPHReportConfig {
 	
 	public static String SETUPADULTHIVCONSULTATIONSHEET = "7085a940-3c3c-11e7-a919-92ebcb67fe33";
 	
-	public static String RECREATEREPORTSONACTIVATION = "rwandasphstudyreports.reCreateReportsOnActivation";
+	public static String RECREATE_REPORTS_ON_ACTIVATION = "rwandasphstudyreports.reCreateReportsOnActivation";
 
 	public void deleteReportDefinition(String name) {
 		ReportService rs = Context.getService(ReportService.class);
 
-		for (ReportDesign rd : rs.getAllReportDesigns(false)) {
-			if (name.equals(rd.getName())) {
-				rs.purgeReportDesign(rd);
-			}
+		if (rs != null) {
+			for (ReportDesign rd : rs.getAllReportDesigns(false)) {
+				if (name.equals(rd.getName())) {
+					rs.purgeReportDesign(rd);
+				}
+			} 
 		}
 		Helper.purgeReportDefinition(name);
 	}

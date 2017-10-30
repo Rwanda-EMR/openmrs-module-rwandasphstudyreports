@@ -12,7 +12,7 @@
     <spring:message code="rwandasphstudyreports.datesToMatch"/>
     <select multiple name="datesToMatch" id="dates-to-match">
         <option value="test" <c:if test="${testDateMatch}"> selected</c:if>>HIV Test</option>
-        <option value="enrollment" selected>HIV Enrollment</option>
+        <option value="enrollment" <c:if test="${enrollmentDateMatch}"> selected</c:if>>HIV Enrollment</option>
         <option value="initiation" <c:if test="${initiationDateMatch}"> selected</c:if>>ART Initiation</option>
         <option value="returnVisit" <c:if test="${returnVisitDateMatch}"> selected</c:if>>Return Visit</option>
     </select>

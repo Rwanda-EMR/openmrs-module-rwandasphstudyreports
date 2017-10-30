@@ -37,6 +37,7 @@ import org.hibernate.criterion.Restrictions;
 import org.openmrs.Cohort;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
+import org.openmrs.GlobalProperty;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifierType;
@@ -164,12 +165,21 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 	}
 
 	@Override
-	public List<Patient> getPatientsInHIVProgram(Program program, Date starDate, Date endDate) {
+	public List<Patient> getPatientsInHIVProgram(Program program, Date startDate, Date endDate) {
 		List<Patient> patients = new ArrayList<Patient>();
 
-		// return Context.getProgramWorkflowService().patientsInProgram(program,
-		// starDate, endDate);
-		for (PatientProgram p : Context.getProgramWorkflowService().getPatientPrograms(null, program, starDate, endDate,
+		if(startDate == null) {
+			GlobalProperty period = Context.getAdministrationService()
+					.getGlobalPropertyObject(GlobalPropertyConstants.MONTHS_ALLOWANCE_FOR_CONSULTATIONSHEET);
+			Calendar sd = Calendar.getInstance();
+			endDate = new Date();
+
+			if (period != null && StringUtils.isNotBlank(period.getPropertyValue()))
+				sd.add(Calendar.MONTH, -Integer.parseInt(period.getPropertyValue()));
+			startDate = sd.getTime();
+		}
+			
+		for (PatientProgram p : Context.getProgramWorkflowService().getPatientPrograms(null, program, startDate, endDate,
 				null, null, false)) {
 			if (!patients.contains(p.getPatient()))
 				patients.add(p.getPatient());
@@ -184,8 +194,8 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 		List<VCTClient> clientList = Context.getService(VCTModuleService.class)
 				.getVCTClientsWaitingForHIVProgramEnrollment();
 		List<Patient> patientList = getPatientsInHIVProgram(
-				new GlobalPropertiesManagement().getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM), startDate,
-				endDate);
+				new GlobalPropertiesManagement().getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM), datesToMatch != null && ArrayUtils.contains(datesToMatch, "enrollment") ? startDate : null,
+						datesToMatch != null && ArrayUtils.contains(datesToMatch, "enrollment") ? endDate : null);
 		List<SphClientOrPatient> uiClients = new ArrayList<SphClientOrPatient>();
 		String clientIds = "";
 
