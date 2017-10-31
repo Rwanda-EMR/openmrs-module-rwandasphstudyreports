@@ -168,7 +168,7 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 	public List<Patient> getPatientsInHIVProgram(Program program, Date startDate, Date endDate) {
 		List<Patient> patients = new ArrayList<Patient>();
 
-		if(startDate == null) {
+		if(startDate == null && endDate == null) {
 			GlobalProperty period = Context.getAdministrationService()
 					.getGlobalPropertyObject(GlobalPropertyConstants.MONTHS_ALLOWANCE_FOR_CONSULTATIONSHEET);
 			Calendar sd = Calendar.getInstance();
@@ -270,9 +270,9 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 			if (person.getBirthdate().before(adult.getTime())) {
 				adult.add(Calendar.YEAR, StringUtils.isNotBlank(adultAge) ? -Integer.parseInt(adultAge) : -16);
 				resetTimes(adult);
-				String hivTestDate = testDate != null ? sdf.format(testDate) : "";
+				String hivTestDate = testDate != null ? sdf.format(testDate) : (savedTestDate != null && !savedTestDate.isEmpty() ? Context.getDateFormat().format(savedTestDate.get(0).getValueDatetime()) : "");
 
-				if (savedTestDate != null && !savedTestDate.isEmpty()) {
+				if (savedTestDate != null && !savedTestDate.isEmpty() && testDate != null) {
 					hivTestDate = savedTestDate != null && !savedTestDate.isEmpty()
 							? Context.getDateFormat().format(savedTestDate.get(0).getValueDatetime())
 							: "" + testDate != null ? " (" + sdf.format(testDate) + ")" : "";
@@ -358,32 +358,34 @@ public class HibernateCDCReportsDAO implements CDCReportsDAO {
 			Date artInitDate, Date returnVisitDate, String[] datesToMatch, Date startDate, Date endDate) {
 		boolean matched = false;
 
-		if (datesToMatch != null && ArrayUtils.isNotEmpty(datesToMatch) && startDate != null && endDate != null) {
-			for (int i = 0; i < datesToMatch.length; i++) {
-				String d = datesToMatch[i];
+		if (startDate != null && endDate != null) {
+			if (datesToMatch != null && ArrayUtils.isNotEmpty(datesToMatch)) {
+				for (int i = 0; i < datesToMatch.length; i++) {
+					String d = datesToMatch[i];
 
-				if (StringUtils.isNotBlank(d)) {
-					if ((d.equals("test")
-							&& (testDate != null && (testDate.equals(startDate) || testDate.after(startDate))
-									&& (testDate.equals(endDate) || testDate.before(endDate))))
-							|| (d.equals("enrollment") && (hivEnrollmentDate != null
-									&& (hivEnrollmentDate.equals(startDate) || hivEnrollmentDate.after(startDate))
-									&& (hivEnrollmentDate.equals(endDate) || hivEnrollmentDate.before(endDate))))
-							|| (d.equals("initiation") && (artInitDate != null
-									&& (artInitDate.equals(startDate) || artInitDate.after(startDate))
-									&& (artInitDate.equals(endDate) || artInitDate.before(endDate))))
-							|| (d.equals("returnVisit") && (returnVisitDate != null
-									&& (returnVisitDate.equals(startDate) || returnVisitDate.after(startDate))
-									&& (returnVisitDate.equals(endDate) || returnVisitDate.before(endDate))))) {
-						matched = matched || i == 0 || (!matched && i > 0) ? true : false;
-					} else
+					if (StringUtils.isNotBlank(d)) {
+						if ((d.equals("test")
+								&& (testDate != null && (testDate.equals(startDate) || testDate.after(startDate))
+										&& (testDate.equals(endDate) || testDate.before(endDate))))
+								|| (d.equals("enrollment") && (hivEnrollmentDate != null
+										&& (hivEnrollmentDate.equals(startDate) || hivEnrollmentDate.after(startDate))
+										&& (hivEnrollmentDate.equals(endDate) || hivEnrollmentDate.before(endDate))))
+								|| (d.equals("initiation") && (artInitDate != null
+										&& (artInitDate.equals(startDate) || artInitDate.after(startDate))
+										&& (artInitDate.equals(endDate) || artInitDate.before(endDate))))
+								|| (d.equals("returnVisit") && (returnVisitDate != null
+										&& (returnVisitDate.equals(startDate) || returnVisitDate.after(startDate))
+										&& (returnVisitDate.equals(endDate) || returnVisitDate.before(endDate))))) {
+							matched = matched || i == 0 ? true : false;
+						} else
+							matched = false;
+					} else {
 						matched = false;
-				} else {
-					matched = false;
+					}
 				}
-			}
-		} else
-			matched = true;
+			} else
+				matched = true;
+		}
 		return matched;
 	}
 

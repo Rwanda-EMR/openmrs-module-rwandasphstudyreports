@@ -256,9 +256,9 @@ public class CDCReportsServiceTest extends BaseModuleContextSensitiveTest {
 		Assert.assertTrue(match5);
 		Assert.assertTrue(match6);
 		Assert.assertTrue(match7);
-		Assert.assertTrue(match8);
+		Assert.assertFalse(match8);
 		Assert.assertTrue(match9);
-		Assert.assertTrue(match10);
+		Assert.assertFalse(match10);
 		Assert.assertFalse(match11);
 		Assert.assertFalse(match11);
 		Assert.assertFalse(match12);

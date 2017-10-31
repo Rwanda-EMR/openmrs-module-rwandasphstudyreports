@@ -39,8 +39,8 @@ public class AdultConsultationSheetController {
 
 		modalInit(model, Context.getDateFormat().format(startDate.getTime()),
 				Context.getDateFormat().format(endDate), Context.getService(CDCReportsService.class)
-						.getHIVPositiveClientsOrPatientsForConsultationSheet(startDate.getTime(), endDate, null, null),
-				false, false, false, false, CDCAlert.getAllCDCAlerts(), "");
+						.getHIVPositiveClientsOrPatientsForConsultationSheet(startDate.getTime(), endDate, new String[] {"enrollment"}, null),
+				false, true, false, false, CDCAlert.getAllCDCAlerts(), "");
 	}
 
 	@RequestMapping(value = "/module/rwandasphstudyreports/adultConsultationSheet", method = RequestMethod.POST)
