@@ -156,7 +156,7 @@ public class OutStandingBaselineCD4Report implements SetupReport {
 		dataSetDefinition.addFilter(hivPositive, null);
 		dataSetDefinition.addFilter(Cohorts.createInProgramParameterizableByDate("adultHIV: In Program", hivProgram),
 				ParameterizableUtil.createParameterMappings("onOrBefore=${endDate}"));
-		dataSetDefinition.addFilter(onART, null);
+		dataSetDefinition.addFilter(onART, ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
 		dataSetDefinition.addFilter(noCD4, null);
 		dataSetDefinition.addFilter(new InverseCohortDefinition(Cohorts.getPatientsExitedFromHIVCare()), null);
 

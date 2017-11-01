@@ -104,6 +104,9 @@ public class OutStandingBaselineVLReport implements SetupReport {
 		
 		dataSetDefinition.addColumn(RowPerPatientColumns.getDrugOrderForStartOfART("artInitiation", "dd/MMM/yyyy"),
 				new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getDateOfEarliestProgramEnrolment("hivEnrolment", hivProgram, "dd/MMM/yyyy"), new HashMap<String, Object>());
+		dataSetDefinition.addColumn(RowPerPatientColumns.getDateCreatedColumn("registrationDate"),
+				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getAccompRelationship("accompagnateur"),
 				new HashMap<String, Object>());
 		dataSetDefinition.addColumn(RowPerPatientColumns.getTracnetId("TRACNET_ID"), new HashMap<String, Object>());

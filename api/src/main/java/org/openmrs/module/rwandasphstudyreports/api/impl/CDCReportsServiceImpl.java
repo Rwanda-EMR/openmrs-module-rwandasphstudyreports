@@ -32,6 +32,7 @@ import org.openmrs.ConceptName;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
+import org.openmrs.GlobalProperty;
 import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
@@ -103,7 +104,8 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 		return repReq != null ? repReq : null;
 	}
 
-	private ReportRequest executeAndGetReportRequest(String uuid) {
+	@Override
+	public ReportRequest executeAndGetReportRequest(String uuid) {
 		DefinitionSummary repDefSum = null;
 		ReportRequest reportRequest = getTodayReportRequest(uuid);
 		Calendar startDate = Calendar.getInstance();
@@ -121,13 +123,18 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 				ReportRequest rr = Context.getService(ReportService.class).getReportRequestByUuid(repDefSum.getUuid());
 				ReportDefinition def = Context.getService(ReportDefinitionService.class)
 						.getDefinitionByUuid(repDefSum.getUuid());
-
+				String period = Context.getAdministrationService()
+						.getGlobalProperty(GlobalPropertyConstants.MONTHS_ALLOWANCE_FOR_CONSULTATIONSHEET);
+				
 				if (rr == null) {
 					rr = new ReportRequest(new Mapped<ReportDefinition>(def, null), null,
 							new RenderingMode(new DefaultWebRenderer(), "Web", null, 100), Priority.NORMAL, null);
 
 					startDate.setTime(todayMidNight().getTime());
-					startDate.add(Calendar.YEAR, -1);
+					if(StringUtils.isNotBlank(period))
+						startDate.add(Calendar.MONTH, -Integer.parseInt(period));
+					else
+						startDate.add(Calendar.YEAR, -1);
 					rr.setStatus(ReportRequest.Status.REQUESTED);
 					rr.setPriority(ReportRequest.Priority.NORMAL);
 					// TODO fix for PatientsWithNoVLAfter8Months report
@@ -297,7 +304,25 @@ public class CDCReportsServiceImpl extends BaseOpenmrsService implements CDCRepo
 				artInit.setTime(artInitDrug.getEffectiveStartDate());
 				artInit.add(Calendar.MONTH, numberOfMonths);
 
-				if (artInit.getTime().before(new Date())) {
+				if (artInit.getTime().equals(new Date()) || artInit.getTime().before(new Date())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean checkIfPatientIsInHIVMoreThanNMonths(Patient patient, Integer numberOfMonths) {
+		if (patient != null && numberOfMonths != null) {
+			Date hivEnrollment = getHIVEnrollmentDate(patient);
+			if (hivEnrollment != null) {
+				Calendar inHiv = Calendar.getInstance(Context.getLocale());
+
+				inHiv.setTime(hivEnrollment);
+				inHiv.add(Calendar.MONTH, numberOfMonths);
+
+				if (inHiv.getTime().equals(new Date()) || inHiv.getTime().before(new Date())) {
 					return true;
 				}
 			}

@@ -119,4 +119,8 @@ public interface CDCReportsService extends OpenmrsService {
 	Obs saveVLBasedTreatmentFailure(Patient patient, String selectedACtionPoint);
 	
 	public boolean checkIfPatientIsExittedFromCare(Patient p);
+
+	boolean checkIfPatientIsInHIVMoreThanNMonths(Patient patient, Integer numberOfMonths);
+
+	ReportRequest executeAndGetReportRequest(String uuid);
 }

@@ -24,6 +24,10 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
+import org.openmrs.module.rwandasphstudyreports.reports.BaseSPHReportConfig;
+import org.openmrs.module.rwandasphstudyreports.reports.CD4BasedTreatmentFailureReport;
+import org.openmrs.module.rwandasphstudyreports.reports.HIVPositivePatientsDelayInLinkageToCareReport;
+import org.openmrs.module.rwandasphstudyreports.reports.PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport;
 import org.openmrs.web.WebConstants;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -55,22 +59,54 @@ public class RwandaReportsForCDCManageController {
 		}
 	}
 
+	private String redirectToReport(ReportRequest reportRequest) {
+		String uuid = reportRequest != null ? reportRequest.getUuid() : "";
+
+		return "redirect:/module/reporting/reports/reportHistoryOpen.form?uuid=" + uuid;
+	}
+
+	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToOutStandingBaselineCD4Report", method = RequestMethod.GET)
+	public String reDirectToOutStandingBaselineCD4Report() {
+		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetReportRequest(BaseSPHReportConfig.OUTSTANDINGBASELINECD4REPORT);
+		return redirectToReport(reportRequest);
+	}
+	
+	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToOutStandingBaselineVLReport", method = RequestMethod.GET)
+	public String reDirectToOutStandingBaselineVLReport() {
+		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetReportRequest(BaseSPHReportConfig.OUTSTANDINGBASELINEVLREPORT);
+		return redirectToReport(reportRequest);
+	}
+
 	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToVLBasedTreatmentFailureReport", method = RequestMethod.GET)
 	public String reDirectToVLBasedTreatmentFailureReport() {
 		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetVLBasedTreatmentFailureReportRequest();
-		String uuid = reportRequest != null ? reportRequest.getUuid() : "";
-
-		return "redirect:/module/reporting/reports/reportHistoryOpen.form?uuid=" + uuid;
+		return redirectToReport(reportRequest);
 	}
 
-	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToPatientsWithNoVLAfter8MonthsReport", method = RequestMethod.GET)
-	public String reDirectToPatientsWithNoVLAfter8MonthsReport() {
-		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetPatientsWithNoVLAfter8MonthsReportRequest();
-		String uuid = reportRequest != null ? reportRequest.getUuid() : "";
-
-		return "redirect:/module/reporting/reports/reportHistoryOpen.form?uuid=" + uuid;
+	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToCD4BasedTreatmentFailureReport", method = RequestMethod.GET)
+	public String reDirectToCD4BasedTreatmentFailureReport() {
+		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetReportRequest(BaseSPHReportConfig.CD4BASEDTREATMENTFAILUREREPORT);
+		return redirectToReport(reportRequest);
+	}
+	
+	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToPatientsOnARTWithNoClinicalVisitsInLast4MonthsReport", method = RequestMethod.GET)
+	public String reDirectToPatientsOnARTWithNoClinicalVisitsInLast4MonthsReport() {
+		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetReportRequest(BaseSPHReportConfig.PATIENTSONARTWITHNOCLINICALVISITSINLAST4MONTHSREPORT);
+		return redirectToReport(reportRequest);
 	}
 
+	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToPatientsNotInitiatedOnARTReport", method = RequestMethod.GET)
+	public String reDirectToPatientsNotInitiatedOnARTReport() {
+		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetReportRequest(BaseSPHReportConfig.PATIENTSNOTINITIATEDONART);
+		return redirectToReport(reportRequest);
+	}
+	
+	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToHIVPositivePatientsDelayInLinkageToCareReport", method = RequestMethod.GET)
+	public String reDirectToHIVPositivePatientsDelayInLinkageToCareReport() {
+		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetReportRequest(BaseSPHReportConfig.HIVPOSITIVEPATIENTSDELAYINLINKAGETOCAREREPORT);
+		return redirectToReport(reportRequest);
+	}
+	
 	@RequestMapping(value = "/module/rwandasphstudyreports/portlets/quickDataEntry", method = RequestMethod.GET)
 	public void quickDataEntry(ModelMap model) throws Exception {
 		initialiseQuickDataEntries(model);

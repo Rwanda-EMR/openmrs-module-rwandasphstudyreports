@@ -44,7 +44,7 @@ public class CDCRulesAlgorithm {
 				lastVisitDate = visits.get(0).getDateCreated();
 			}
 			if (lastVisitDate != null) {
-				if (vLObs.isEmpty() && Context.getService(CDCReportsService.class).checkIfPatientIsOnARVMoreThanNMonths(patient, 8)
+				if (vLObs.isEmpty() && Context.getService(CDCReportsService.class).checkIfPatientIsInHIVMoreThanNMonths(patient, 8)
 						&& Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositiveOrMissingResult(patient)) {
 					alerts.add(
 							Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.orderBaselineVL"));
