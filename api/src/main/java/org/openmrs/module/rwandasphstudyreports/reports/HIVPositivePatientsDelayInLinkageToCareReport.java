@@ -73,7 +73,6 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 		createDataSetDefinition(reportDefinition);
 		reportDefinition.setUuid(BaseSPHReportConfig.HIVPOSITIVEPATIENTSDELAYINLINKAGETOCAREREPORT);
 		reportDefinition.setDescription("HIV Positive Patients Delayed In LinkageToCare");
-		reportDefinition.setBaseCohortDefinition(Cohorts.getVCTInclusiveCohortDefinition(), null);
 		Helper.saveReportDefinition(reportDefinition);
 		
 		return reportDefinition;
@@ -136,9 +135,8 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 		dataSetDefinition.addColumn(RowPerPatientColumns.patientAttribute("Contact Person's Phone Number", "contactPersonTel"), new HashMap<String, Object>());
 		
 		dataSetDefinition.addFilter(Cohorts.getAdultPatients(), ParameterizableUtil.createParameterMappings("endDate=${endDate}"));
-		dataSetDefinition.addFilter( Cohorts.getHIVPositivePatients(), null);
+		dataSetDefinition.addFilter(Cohorts.getHIVPositivePatientsOrMissingResult(), null);
 		dataSetDefinition.addFilter(Cohorts.notInProgram(hivProgram), null);
-		//dataSetDefinition.addFilter(Cohorts.startAndEndDateBetweenNMonthsFromHIVPositive(6), ParameterizableUtil.createParameterMappings("onOrAfter=${startDate},onOrBefore=${endDate}"));
 		
 		reportDefinition.addDataSetDefinition("HIVPositivePatientsDelayInLinkageToCare", dataSetDefinition, mappings);
 	}
