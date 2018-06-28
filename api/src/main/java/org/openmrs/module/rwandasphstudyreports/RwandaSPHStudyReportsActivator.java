@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.ModuleActivator;
 import org.openmrs.module.rwandasphstudyreports.reports.*;
+import org.openmrs.module.rwandasphstudyreports.sitepackages.SitePackageManager;
 
 /**
  * This class contains the logic that is run every time this module is either
@@ -56,13 +57,20 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 		try {
 			if(!"true".equalsIgnoreCase(Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.DISABLE_REPORTS))) {
 				new HIVPositivePatientsDelayInLinkageToCareReport().setup();
+				
+				//TODO check with Michael what to do with these!
 				new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().setup();
 				new PatientsNotInitiatedOnART().setup();
-				new OutStandingBaselineVLReport().setup();
-				new OutStandingBaselineCD4Report().setup();
-				new VLBasedTreatmentFailureReport().setup();
-				new CD4BasedTreatmentFailureReport().setup();
-				new PatientsWithNoVLAfter8Months().delete();
+				
+				if(SitePackageManager.currentSiteIsPackage2()) {
+					new OutStandingBaselineVLReport().setup();
+					new OutStandingBaselineCD4Report().setup();
+				}
+				
+				if(SitePackageManager.currentSiteIsPackage2()) {
+					new VLBasedTreatmentFailureReport().setup();
+					new CD4BasedTreatmentFailureReport().setup();
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -74,6 +82,16 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 	 */
 	public void willStop() {
 		log.info("Stopping Rwanda Reports For CDC Module");
+		
+		// delete all Rwanda forms
+		new HIVPositivePatientsDelayInLinkageToCareReport().delete();
+		new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().delete();
+		new PatientsNotInitiatedOnART().delete();
+		new PatientsWithNoVLAfter8Months().delete();
+		new OutStandingBaselineVLReport().delete();
+		new OutStandingBaselineCD4Report().delete();
+		new VLBasedTreatmentFailureReport().delete();
+		new CD4BasedTreatmentFailureReport().delete();
 	}
 
 	/**

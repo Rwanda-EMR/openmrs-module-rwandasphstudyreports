@@ -13,32 +13,30 @@
  */
 package org.openmrs.module.rwandasphstudyreports.web.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONArray;
 import org.openmrs.Encounter;
-import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.rwandasphstudyreports.QuickDataEntry;
 import org.openmrs.module.rwandasphstudyreports.api.CDCReportsService;
 import org.openmrs.module.rwandasphstudyreports.reports.BaseSPHReportConfig;
-import org.openmrs.module.rwandasphstudyreports.reports.CD4BasedTreatmentFailureReport;
-import org.openmrs.module.rwandasphstudyreports.reports.HIVPositivePatientsDelayInLinkageToCareReport;
-import org.openmrs.module.rwandasphstudyreports.reports.PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport;
+import org.openmrs.module.rwandasphstudyreports.sitepackages.SitePackageManager;
 import org.openmrs.web.WebConstants;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The main controller.
@@ -67,26 +65,42 @@ public class RwandaReportsForCDCManageController {
 
 	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToOutStandingBaselineCD4Report", method = RequestMethod.GET)
 	public String reDirectToOutStandingBaselineCD4Report() {
-		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetReportRequest(BaseSPHReportConfig.OUTSTANDINGBASELINECD4REPORT);
-		return redirectToReport(reportRequest);
+		if(SitePackageManager.currentSiteIsPackage2()) {
+			ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetReportRequest(BaseSPHReportConfig.OUTSTANDINGBASELINECD4REPORT);
+			return redirectToReport(reportRequest);
+		} else {
+			return "redirect:/index.htm";
+		}
 	}
 	
 	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToOutStandingBaselineVLReport", method = RequestMethod.GET)
 	public String reDirectToOutStandingBaselineVLReport() {
-		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetReportRequest(BaseSPHReportConfig.OUTSTANDINGBASELINEVLREPORT);
-		return redirectToReport(reportRequest);
+		if(SitePackageManager.currentSiteIsPackage2()) {
+			ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetReportRequest(BaseSPHReportConfig.OUTSTANDINGBASELINEVLREPORT);
+			return redirectToReport(reportRequest);
+		} else {
+			return "redirect:/index.htm";
+		}
 	}
 
 	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToVLBasedTreatmentFailureReport", method = RequestMethod.GET)
 	public String reDirectToVLBasedTreatmentFailureReport() {
-		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetVLBasedTreatmentFailureReportRequest();
-		return redirectToReport(reportRequest);
+		if(SitePackageManager.currentSiteIsPackage3()) {
+			ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetVLBasedTreatmentFailureReportRequest();
+			return redirectToReport(reportRequest);
+		} else {
+			return "redirect:/index.htm";
+		}
 	}
 
 	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToCD4BasedTreatmentFailureReport", method = RequestMethod.GET)
 	public String reDirectToCD4BasedTreatmentFailureReport() {
-		ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetReportRequest(BaseSPHReportConfig.CD4BASEDTREATMENTFAILUREREPORT);
-		return redirectToReport(reportRequest);
+		if(SitePackageManager.currentSiteIsPackage3()) {
+			ReportRequest reportRequest = Context.getService(CDCReportsService.class).executeAndGetReportRequest(BaseSPHReportConfig.CD4BASEDTREATMENTFAILUREREPORT);
+			return redirectToReport(reportRequest);
+		} else {
+			return "redirect:/index.htm";
+		}
 	}
 	
 	@RequestMapping(value = "module/rwandasphstudyreports/reDirectToPatientsOnARTWithNoClinicalVisitsInLast4MonthsReport", method = RequestMethod.GET)
@@ -151,7 +165,7 @@ public class RwandaReportsForCDCManageController {
 			// TODO pass real encounter and probably attach to a visit,
 			// initially have created a quick data entry form attached to it
 			Encounter encounter = null;
-			Obs obs = Context.getService(CDCReportsService.class).saveQuickDataEntry(entry, patient, encounter);
+			Context.getService(CDCReportsService.class).saveQuickDataEntry(entry, patient, encounter);
 		}
 		initialiseQuickDataEntries(model);
 		request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Successfully saved quick data entry results");

@@ -492,5 +492,15 @@
 		<defaultValue>2681</defaultValue>
 		<description>ANTIRETROVIRAL DRUG ADHERENCE OBSERVATIONS concept id</description>
 	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.package2FosIDS</property>
+		<description>List of comma separated fos ids of sites categorised as package 2</description>
+		<defaultValue>30,195,196,289,290,448,256,594,58,259,260,592,72,263,150,452,230,193,381,455,218,91,278,413,441,279,304,66</defaultValue>
+	</globalProperty>
+	<globalProperty>
+		<property>rwandasphstudyreports.package3FosIDS</property>
+		<description>List of comma separated fos ids of sites categorised as package 3</description>
+		<defaultValue>195,289,448,594,58,592,263,150,230,218,413,441,279,304</defaultValue>
+	</globalProperty>
 </module>
 
