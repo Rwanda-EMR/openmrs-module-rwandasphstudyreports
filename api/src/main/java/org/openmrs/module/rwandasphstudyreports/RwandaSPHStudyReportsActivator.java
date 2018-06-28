@@ -17,7 +17,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.ModuleActivator;
-import org.openmrs.module.rwandasphstudyreports.reports.*;
+import org.openmrs.module.rwandasphstudyreports.reports.CD4BasedTreatmentFailureReport;
+import org.openmrs.module.rwandasphstudyreports.reports.HIVPositivePatientsDelayInLinkageToCareReport;
+import org.openmrs.module.rwandasphstudyreports.reports.OutStandingBaselineCD4Report;
+import org.openmrs.module.rwandasphstudyreports.reports.OutStandingBaselineVLReport;
+import org.openmrs.module.rwandasphstudyreports.reports.PatientsNotInitiatedOnART;
+import org.openmrs.module.rwandasphstudyreports.reports.PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport;
+import org.openmrs.module.rwandasphstudyreports.reports.PatientsWithNoVLAfter8Months;
+import org.openmrs.module.rwandasphstudyreports.reports.VLBasedTreatmentFailureReport;
 import org.openmrs.module.rwandasphstudyreports.sitepackages.SitePackageManager;
 
 /**
@@ -57,10 +64,6 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 		try {
 			if(!"true".equalsIgnoreCase(Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.DISABLE_REPORTS))) {
 				new HIVPositivePatientsDelayInLinkageToCareReport().setup();
-				
-				//TODO check with Michael what to do with these!
-				new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().setup();
-				new PatientsNotInitiatedOnART().setup();
 				
 				if(SitePackageManager.currentSiteIsPackage2()) {
 					new OutStandingBaselineVLReport().setup();

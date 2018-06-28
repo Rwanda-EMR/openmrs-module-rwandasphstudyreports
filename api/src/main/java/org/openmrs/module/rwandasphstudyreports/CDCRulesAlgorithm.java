@@ -54,14 +54,6 @@ public class CDCRulesAlgorithm {
 				if (cd4Obs.isEmpty() && Context.getService(CDCReportsService.class).checkIfPatientIsHIVPositiveOrMissingResult(patient)) {
 					alerts.add(Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.orderBaselineCD4"));
 				}
-			}
-			
-			if(SitePackageManager.currentSiteIsPackage3()) {
-				if (Context.getService(CDCReportsService.class).cd4BasedTreatmentFailure(patient)) {
-					alerts.add(Context.getMessageSourceService()
-							.getMessage("rwandasphstudyreports.alerts.cd4BasedTreatmentFailure"));
-				}
-				
 				if (!vLObs.isEmpty()) {
 					Date vLDate = vLObs.get(0).getObsDatetime();
 					Calendar vLCalendar = Calendar.getInstance(Context.getLocale());
@@ -77,10 +69,18 @@ public class CDCRulesAlgorithm {
 									Context.getMessageSourceService().getMessage("rwandasphstudyreports.alerts.orderRepeatVL"));
 						}
 					}
-					if (Context.getService(CDCReportsService.class).vlBasedTreatmentFailure(patient)) {
-						alerts.add(Context.getMessageSourceService()
-								.getMessage("rwandasphstudyreports.alerts.vlBasedTreatmentFailure"));
-					}
+				}
+			}
+			
+			if(SitePackageManager.currentSiteIsPackage3()) {
+				if (Context.getService(CDCReportsService.class).cd4BasedTreatmentFailure(patient)) {
+					alerts.add(Context.getMessageSourceService()
+							.getMessage("rwandasphstudyreports.alerts.cd4BasedTreatmentFailure"));
+				}
+				
+				if (Context.getService(CDCReportsService.class).vlBasedTreatmentFailure(patient)) {
+					alerts.add(Context.getMessageSourceService()
+							.getMessage("rwandasphstudyreports.alerts.vlBasedTreatmentFailure"));
 				}
 			}
 		}

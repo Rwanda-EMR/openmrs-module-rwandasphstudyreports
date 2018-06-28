@@ -7,15 +7,15 @@ import org.openmrs.Location;
 import org.openmrs.api.context.Context;
 
 /**
- * The SPH study categorised sites into packages, package one including all
- * their upgraded 56 sites, package 2 and 3 are managed by a global property
- *
+ * The SPH study categorised sites into packages, package 1 including all
+ * their upgraded 56 sites, package 2 and 3 are managed by resspective global properties below
  */
 public class SitePackageManager {
 	public static String GP_PACKAGE_2_SITES_FOSIDS = "rwandasphstudyreports.package2FosIDS";
 	public static String GP_PACKAGE_3_SITES_FOSIDS = "rwandasphstudyreports.package3FosIDS";
 	public static String GP_CURRENT_LOCATION = "mohtracportal.defaultLocationId";
-
+	public static String GP_CURRENT_FOSID_FROM_SMT = "systemmonitor.SITEID";
+	
 	private static String getDefaultFOSID() {
 		String defaultLocationId = Context.getAdministrationService().getGlobalProperty(GP_CURRENT_LOCATION);
 		if (StringUtils.isNotBlank(defaultLocationId)) {
@@ -24,7 +24,7 @@ public class SitePackageManager {
 				return extractFosIdFromString(defaultLocation.getDescription());
 			}
 		}
-		return null;
+		return Context.getAdministrationService().getGlobalProperty(GP_CURRENT_FOSID_FROM_SMT);
 	}
 
 	/**
@@ -35,7 +35,7 @@ public class SitePackageManager {
 		if (StringUtils.isNotBlank(locationFosDescription) && locationFosDescription.contains("FOSAID: ") && locationFosDescription.contains(" TYPE: ")) {
 			return locationFosDescription.split("FOSAID: ")[1].split(" ")[0];
 		}
-		return null;
+		return Context.getAdministrationService().getGlobalProperty(GP_CURRENT_FOSID_FROM_SMT);
 	}
 	
 	public static boolean currentSiteIsPackage2() {

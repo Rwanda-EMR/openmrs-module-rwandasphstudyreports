@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.openmrs.module.rwandasphstudyreports.sitepackages.SitePackageManager;
+
 public class CDCAlert {
 
 	private String name;
@@ -45,12 +47,11 @@ public class CDCAlert {
 
 	public enum CDCAlerts {
 		orderBaselineCD4("rwandasphstudyreports.alerts.orderBaselineCD4", "Order Baseline CD4"),
-		orderRepeatVL("rwandasphstudyreports.alerts.orderRepeatVL", "Order Annual Viral Load"),
 		orderBaselineVL("rwandasphstudyreports.alerts.orderBaselineVL", "Order Baseline Viral Load"),
+		orderRepeatVL("rwandasphstudyreports.alerts.orderRepeatVL", "Order Annual Viral Load"),
 		cd4BasedTreatmentFailure("rwandasphstudyreports.alerts.cd4BasedTreatmentFailure", "CD4 Based Treatment Failure"),
-		vlBasedTreatmentFailure("rwandasphstudyreports.alerts.vlBasedTreatmentFailure", "Viral Load Based Treatment Failure"),
-		patientsWithNoVLAfter8Months("rwandasphstudyreports.alerts.patientsWithNoVLAfter8Months", "No Viral Load After 8months from Enrollment");
-
+		vlBasedTreatmentFailure("rwandasphstudyreports.alerts.vlBasedTreatmentFailure", "Viral Load Based Treatment Failure");
+		
 		private String localeCode;
 
 		private String displayName;
@@ -69,11 +70,20 @@ public class CDCAlert {
 		}
 	}
 
+	@SuppressWarnings("static-access")
 	public static List<CDCAlert> getAllCDCAlerts() {
 		List<CDCAlert> reps = new ArrayList<CDCAlert>();
 
 		for (CDCAlerts r : new ArrayList<CDCAlerts>(EnumSet.allOf(CDCAlerts.class))) {
-			reps.add(new CDCAlert(r));
+			if (SitePackageManager.currentSiteIsPackage2()
+					&& (r.equals(r.orderBaselineCD4) || r.equals(r.orderBaselineVL)
+							|| r.equals(r.orderRepeatVL))) {
+				reps.add(new CDCAlert(r));
+			}
+			if (SitePackageManager.currentSiteIsPackage3()
+					&& (r.equals(r.cd4BasedTreatmentFailure) || r.equals(r.vlBasedTreatmentFailure))) {
+				reps.add(new CDCAlert(r));
+			}
 		}
 
 		return reps;
