@@ -63,6 +63,17 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 		log.info("Rwanda Reports For CDC Module started");
 		try {
 			if(!"true".equalsIgnoreCase(Context.getAdministrationService().getGlobalProperty(GlobalPropertyConstants.DISABLE_REPORTS))) {
+				// delete all Rwanda forms
+				new HIVPositivePatientsDelayInLinkageToCareReport().delete();
+				new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().delete();
+				new PatientsNotInitiatedOnART().delete();
+				new PatientsWithNoVLAfter8Months().delete();
+				new OutStandingBaselineVLReport().delete();
+				new OutStandingBaselineCD4Report().delete();
+				new VLBasedTreatmentFailureReport().delete();
+				new CD4BasedTreatmentFailureReport().delete();
+				
+				//create reports basing on configurations
 				new HIVPositivePatientsDelayInLinkageToCareReport().setup();
 				
 				if(SitePackageManager.currentSiteIsPackage2()) {
@@ -85,10 +96,6 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 	 */
 	public void willStop() {
 		log.info("Stopping Rwanda Reports For CDC Module");
-		// delete all Rwanda forms
-		new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().delete();
-		new PatientsNotInitiatedOnART().delete();
-		new PatientsWithNoVLAfter8Months().delete();
 	}
 
 	/**

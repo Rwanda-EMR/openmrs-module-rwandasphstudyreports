@@ -10,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
@@ -50,8 +49,6 @@ public class OutStandingBaselineCD4Report implements SetupReport {
 
 	@Override
 	public void setup() throws Exception {
-		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATE_REPORTS_ON_ACTIVATION)))
-			delete();
 		setupProperties();
 	
 		ReportDefinition rd = createReportDefinition();

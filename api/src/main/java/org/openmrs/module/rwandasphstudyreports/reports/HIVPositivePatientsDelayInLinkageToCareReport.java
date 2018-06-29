@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.openmrs.Concept;
 import org.openmrs.Program;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
 import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
@@ -40,8 +39,6 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 
 	@Override
 	public void setup() throws Exception {
-		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATE_REPORTS_ON_ACTIVATION)))
-			delete();
 		setupProperties();
 
 		ReportDefinition rd = createReportDefinition();
