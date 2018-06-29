@@ -66,11 +66,11 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 				new HIVPositivePatientsDelayInLinkageToCareReport().setup();
 				
 				if(SitePackageManager.currentSiteIsPackage2()) {
-					new OutStandingBaselineVLReport().setup();
 					new OutStandingBaselineCD4Report().setup();
+					new OutStandingBaselineVLReport().setup();
 				}
 				
-				if(SitePackageManager.currentSiteIsPackage2()) {
+				if(SitePackageManager.currentSiteIsPackage3()) {
 					new VLBasedTreatmentFailureReport().setup();
 					new CD4BasedTreatmentFailureReport().setup();
 				}
@@ -85,16 +85,10 @@ public class RwandaSPHStudyReportsActivator implements ModuleActivator {
 	 */
 	public void willStop() {
 		log.info("Stopping Rwanda Reports For CDC Module");
-		
 		// delete all Rwanda forms
-		new HIVPositivePatientsDelayInLinkageToCareReport().delete();
 		new PatientsOnARTWithNoClinicalVisitsInLast4MonthsReport().delete();
 		new PatientsNotInitiatedOnART().delete();
 		new PatientsWithNoVLAfter8Months().delete();
-		new OutStandingBaselineVLReport().delete();
-		new OutStandingBaselineCD4Report().delete();
-		new VLBasedTreatmentFailureReport().delete();
-		new CD4BasedTreatmentFailureReport().delete();
 	}
 
 	/**

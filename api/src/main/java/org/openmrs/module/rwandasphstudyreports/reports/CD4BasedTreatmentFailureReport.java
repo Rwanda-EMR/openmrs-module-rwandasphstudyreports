@@ -41,17 +41,9 @@ public class CD4BasedTreatmentFailureReport implements SetupReport {
 
 	private Concept viralLoad;
 
-	private EncounterType adultFollowUpEncounterType;
-
-	private Concept hivStatus;
-
 	private Concept telephone;
 
 	private Concept telephone2;
-
-	private Concept reasonForExitingCare;
-
-	private Concept transferOut;
 
 	@Override
 	public void setup() throws Exception {
@@ -181,11 +173,7 @@ public class CD4BasedTreatmentFailureReport implements SetupReport {
 		encounterTypes = gp.getEncounterTypeList(GlobalPropertyConstants.ADULT_ENCOUNTER_TYPE_IDS);
 		cd4Count = gp.getConcept(GlobalPropertyConstants.CD4_COUNT_CONCEPTID);
 		viralLoad = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);
-		adultFollowUpEncounterType = gp.getEncounterType(GlobalPropertyConstants.ADULT_FOLLOWUP_ENCOUNTER_TYPEID);
-		hivStatus = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
 		telephone = gp.getConcept(GlobalPropertiesManagement.TELEPHONE_NUMBER_CONCEPT);
 		telephone2 = gp.getConcept(GlobalPropertiesManagement.SECONDARY_TELEPHONE_NUMBER_CONCEPT);
-		reasonForExitingCare = gp.getConcept(GlobalPropertiesManagement.REASON_FOR_EXITING_CARE);
-		transferOut = gp.getConcept(GlobalPropertiesManagement.TRASNFERED_OUT);
 	}
 }

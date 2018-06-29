@@ -36,21 +36,11 @@ public class OutStandingBaselineVLReport implements SetupReport {
 
 	private List<EncounterType> encounterTypes;
 
-	private Concept cd4Count;
-
 	private Concept viralLoad;
-
-	private EncounterType adultFollowUpEncounterType;
-
-	private Concept hivStatus;
 
 	private Concept telephone;
 
 	private Concept telephone2;
-
-	private Concept reasonForExitingCare;
-
-	private Concept transferOut;
 
 	BaseSPHReportConfig config = new BaseSPHReportConfig();
 
@@ -58,7 +48,6 @@ public class OutStandingBaselineVLReport implements SetupReport {
 	public void setup() throws Exception {
 		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATE_REPORTS_ON_ACTIVATION)))
 			delete();
-		setupProperties();
 		setupProperties();
 
 		ReportDefinition rd = createReportDefinition();
@@ -172,13 +161,8 @@ public class OutStandingBaselineVLReport implements SetupReport {
 		hivProgram = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 		scheduledVisit = gp.getConcept(GlobalPropertyConstants.RETURN_VISIT_CONCEPTID);
 		encounterTypes = gp.getEncounterTypeList(GlobalPropertyConstants.ADULT_ENCOUNTER_TYPE_IDS);
-		cd4Count = gp.getConcept(GlobalPropertyConstants.CD4_COUNT_CONCEPTID);
 		viralLoad = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);
-		adultFollowUpEncounterType = gp.getEncounterType(GlobalPropertyConstants.ADULT_FOLLOWUP_ENCOUNTER_TYPEID);
-		hivStatus = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
 		telephone = gp.getConcept(GlobalPropertiesManagement.TELEPHONE_NUMBER_CONCEPT);
 		telephone2 = gp.getConcept(GlobalPropertiesManagement.SECONDARY_TELEPHONE_NUMBER_CONCEPT);
-		reasonForExitingCare = gp.getConcept(GlobalPropertiesManagement.REASON_FOR_EXITING_CARE);
-		transferOut = gp.getConcept(GlobalPropertiesManagement.TRASNFERED_OUT);
 	}
 }

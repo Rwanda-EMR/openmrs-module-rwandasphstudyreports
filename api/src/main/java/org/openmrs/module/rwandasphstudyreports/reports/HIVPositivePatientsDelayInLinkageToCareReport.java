@@ -1,16 +1,11 @@
 package org.openmrs.module.rwandasphstudyreports.reports;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.openmrs.Concept;
-import org.openmrs.EncounterType;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.reporting.cohort.definition.CodedObsCohortDefinition;
-import org.openmrs.module.reporting.cohort.definition.InverseCohortDefinition;
-import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.common.SortCriteria;
 import org.openmrs.module.reporting.common.SortCriteria.SortDirection;
 import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
@@ -32,14 +27,6 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 
 	private Concept scheduledVisit;
 
-	private List<EncounterType> encounterTypes;
-
-	private Concept cd4Count;
-
-	private Concept viralLoad;
-
-	private EncounterType adultFollowUpEncounterType;
-
 	private Concept hivStatus;
 
 	private Concept telephone;
@@ -55,7 +42,6 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 	public void setup() throws Exception {
 		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATE_REPORTS_ON_ACTIVATION)))
 			delete();
-		setupProperties();
 		setupProperties();
 
 		ReportDefinition rd = createReportDefinition();
@@ -144,10 +130,6 @@ public class HIVPositivePatientsDelayInLinkageToCareReport implements SetupRepor
 	private void setupProperties() {
 		hivProgram = gp.getProgram(GlobalPropertiesManagement.ADULT_HIV_PROGRAM);
 		scheduledVisit = gp.getConcept(GlobalPropertyConstants.RETURN_VISIT_CONCEPTID);
-		encounterTypes = gp.getEncounterTypeList(GlobalPropertyConstants.ADULT_ENCOUNTER_TYPE_IDS);
-		cd4Count = gp.getConcept(GlobalPropertyConstants.CD4_COUNT_CONCEPTID);
-		viralLoad = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);
-		adultFollowUpEncounterType = gp.getEncounterType(GlobalPropertyConstants.ADULT_FOLLOWUP_ENCOUNTER_TYPEID);
 		hivStatus = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
 		telephone = gp.getConcept(GlobalPropertiesManagement.TELEPHONE_NUMBER_CONCEPT);
 		telephone2 = gp.getConcept(GlobalPropertiesManagement.SECONDARY_TELEPHONE_NUMBER_CONCEPT);

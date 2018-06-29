@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Program;
@@ -28,8 +30,10 @@ import org.openmrs.module.rwandasphstudyreports.Helper;
 import org.openmrs.module.rwandasphstudyreports.RowPerPatientColumns;
 
 public class OutStandingBaselineCD4Report implements SetupReport {
+	protected Log log = LogFactory.getLog(getClass());
+	
 	GlobalPropertiesManagement gp = new GlobalPropertiesManagement();
-
+	
 	private Program hivProgram;
 
 	private Concept scheduledVisit;
@@ -38,37 +42,25 @@ public class OutStandingBaselineCD4Report implements SetupReport {
 
 	private Concept cd4Count;
 
-	private Concept viralLoad;
-
-	private EncounterType adultFollowUpEncounterType;
-
-	private Concept hivStatus;
-
 	private Concept telephone;
 
 	private Concept telephone2;
-
-	private Concept reasonForExitingCare;
-
-	private Concept transferOut;
 
 	BaseSPHReportConfig config = new BaseSPHReportConfig();
 
 	@Override
 	public void setup() throws Exception {
-		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATE_REPORTS_ON_ACTIVATION))) {
+		if("true".equals(Context.getAdministrationService().getGlobalProperty(BaseSPHReportConfig.RECREATE_REPORTS_ON_ACTIVATION)))
 			delete();
-			setupProperties();
-			setupProperties();
+		setupProperties();
 	
-			ReportDefinition rd = createReportDefinition();
-			config.setupReport(rd, "OutStandingBaselineCD4", "OutStandingBaselineCD4.xls");
-		}
+		ReportDefinition rd = createReportDefinition();
+		config.setupReport(rd, "OutStandingBaselineCD4", "OutStandingBaselineCD4.xls");
 	}
 
 	@Override
 	public void delete() {
-		config.deleteReportDefinition("OutStandingBaselineVL");
+		config.deleteReportDefinition("OutStandingBaselineCD4");
 	}
 
 	private ReportDefinition createReportDefinition() {
@@ -168,12 +160,7 @@ public class OutStandingBaselineCD4Report implements SetupReport {
 		scheduledVisit = gp.getConcept(GlobalPropertyConstants.RETURN_VISIT_CONCEPTID);
 		encounterTypes = gp.getEncounterTypeList(GlobalPropertyConstants.ADULT_ENCOUNTER_TYPE_IDS);
 		cd4Count = gp.getConcept(GlobalPropertyConstants.CD4_COUNT_CONCEPTID);
-		viralLoad = gp.getConcept(GlobalPropertyConstants.VIRAL_LOAD_CONCEPTID);
-		adultFollowUpEncounterType = gp.getEncounterType(GlobalPropertyConstants.ADULT_FOLLOWUP_ENCOUNTER_TYPEID);
-		hivStatus = gp.getConcept(GlobalPropertyConstants.HIV_STATUS_CONCEPTID);
 		telephone = gp.getConcept(GlobalPropertiesManagement.TELEPHONE_NUMBER_CONCEPT);
 		telephone2 = gp.getConcept(GlobalPropertiesManagement.SECONDARY_TELEPHONE_NUMBER_CONCEPT);
-		reasonForExitingCare = gp.getConcept(GlobalPropertiesManagement.REASON_FOR_EXITING_CARE);
-		transferOut = gp.getConcept(GlobalPropertiesManagement.TRASNFERED_OUT);
 	}
 }
